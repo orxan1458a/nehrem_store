@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(ng version)",
+      "Bash(ng new nehrem-frontend --routing=true --style=scss --standalone=true --skip-git=true --no-interactive)",
+      "Bash(npm install @angular/material @angular/cdk)",
+      "Bash(ng build --configuration=development)",
+      "Bash(npm install @angular/animations --legacy-peer-deps)"
+    ]
+  }
+}

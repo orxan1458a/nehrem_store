@@ -1,0 +1,80 @@
+<div class="admin-page">
+  <div class="admin-page__head">
+    <h1>Categories</h1>
+    <button class="btn-add" (click)="openCreate()">+ Add Category</button>
+  </div>
+
+  <nav class="admin-nav">
+    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Products</a>
+    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Categories</a>
+    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Orders</a>
+  </nav>
+
+  <!-- Modal -->
+  @if (showForm()) {
+    <div class="modal-overlay" (click)="showForm.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__head">
+          <h2>{{ editingId() ? 'Edit Category' : 'New Category' }}</h2>
+          <button class="modal__close" (click)="showForm.set(false)">✕</button>
+        </div>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="cat-form">
+          <div class="form-group">
+            <label>Name *</label>
+            <input formControlName="name" type="text" placeholder="e.g. Kitchen"
+                   [class.error]="hasError('name')">
+            @if (hasError('name', 'required')) { <span class="err">Name is required</span> }
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea formControlName="description" rows="3"
+                      placeholder="Optional description…"></textarea>
+          </div>
+          @if (error()) { <div class="alert-error">{{ error() }}</div> }
+          <div class="modal__actions">
+            <button type="button" class="btn-cancel" (click)="showForm.set(false)">Cancel</button>
+            <button type="submit" class="btn-save" [disabled]="submitting()">
+              {{ submitting() ? 'Saving…' : (editingId() ? 'Update' : 'Create') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="admin-loading"><div class="spinner"></div></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cat of categories(); track cat.id) {
+            <tr>
+              <td>{{ cat.id }}</td>
+              <td><strong>{{ cat.name }}</strong></td>
+              <td>{{ cat.description ?? '—' }}</td>
+              <td>{{ cat.createdAt | date:'mediumDate' }}</td>
+              <td class="actions">
+                <button class="btn-edit"   (click)="openEdit(cat)">✏️</button>
+                <button class="btn-delete" (click)="delete(cat.id)">🗑️</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (categories().length === 0) {
+        <p class="empty-row">No categories yet.</p>
+      }
+    </div>
+  }
+</div>

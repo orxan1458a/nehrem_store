@@ -1,0 +1,125 @@
+.card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s, box-shadow .2s;
+
+  &:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+  &.out-of-stock { opacity: .65; }
+
+  &__image-wrap {
+    position: relative;
+    aspect-ratio: 1;
+    background: #f8f8f8;
+    overflow: hidden;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    color: #ccc;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #e63946;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+
+    &--oos {
+      background: #6c757d;
+      left: auto;
+      right: 8px;
+    }
+  }
+
+  &__body {
+    padding: .9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: .3rem;
+  }
+
+  &__category {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #2d6a4f;
+  }
+
+  &__name {
+    font-size: .95rem;
+    font-weight: 600;
+    color: #222;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  &__desc {
+    font-size: .8rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: .5rem;
+    gap: .5rem;
+  }
+
+  &__price {
+    display: flex;
+    flex-direction: column;
+
+    &--current {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #2d6a4f;
+    }
+    &--old {
+      font-size: .75rem;
+      color: #999;
+      text-decoration: line-through;
+    }
+  }
+}
+
+.btn-cart {
+  background: #2d6a4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: .45rem .8rem;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .2s;
+
+  &:hover:not(:disabled) { background: #1b4332; }
+  &:disabled { background: #aaa; cursor: not-allowed; }
+}

@@ -1,0 +1,78 @@
+<div class="shop">
+  <!-- Hero -->
+  <section class="shop__hero">
+    <h1>🏠 Household Products</h1>
+    <p>Discover quality products for every room</p>
+  </section>
+
+  <!-- Filters -->
+  <div class="shop__filters">
+    <div class="filters__search">
+      <input type="text" placeholder="Search products…"
+             [ngModel]="searchQuery()"
+             (ngModelChange)="onSearch($event)"
+             class="search-input" />
+    </div>
+
+    <div class="filters__categories">
+      <button class="cat-btn" [class.active]="selectedCategoryId() === undefined"
+              (click)="selectCategory()">All</button>
+      @for (cat of categories(); track cat.id) {
+        <button class="cat-btn" [class.active]="selectedCategoryId() === cat.id"
+                (click)="selectCategory(cat.id)">{{ cat.name }}</button>
+      }
+    </div>
+  </div>
+
+  <!-- Results info -->
+  @if (productPage(); as page) {
+    <p class="shop__count">
+      {{ page.totalElements }} product{{ page.totalElements !== 1 ? 's' : '' }} found
+    </p>
+  }
+
+  <!-- Grid -->
+  @if (loading()) {
+    <div class="shop__loading">
+      <div class="spinner"></div>
+    </div>
+  } @else if ((productPage()?.content?.length ?? 0) === 0) {
+    <div class="shop__empty">
+      <p>🔍 No products found. Try a different search or category.</p>
+    </div>
+  } @else {
+    <div class="shop__grid">
+      @for (product of productPage()!.content; track product.id) {
+        <app-product-card [product]="product" (addToCart)="addToCart($event)">
+        </app-product-card>
+      }
+    </div>
+  }
+
+  <!-- Pagination -->
+  @if ((productPage()?.totalPages ?? 0) > 1) {
+    <nav class="pagination">
+      <button class="page-btn" [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)">‹</button>
+      @for (p of pages; track p) {
+        <button class="page-btn" [class.active]="p === currentPage()"
+                (click)="goToPage(p)">{{ p + 1 }}</button>
+      }
+      <button class="page-btn" [disabled]="currentPage() === (productPage()?.totalPages ?? 1) - 1"
+              (click)="goToPage(currentPage() + 1)">›</button>
+    </nav>
+  }
+
+  <!-- Cart FAB -->
+  @if (cartSvc.count() > 0) {
+    <button class="fab-cart" (click)="goToCart()">
+      🛒 <span class="fab-cart__count">{{ cartSvc.count() }}</span>
+      <span class="fab-cart__total">{{ cartSvc.subtotal() | number:'1.2-2' }} ₼</span>
+    </button>
+  }
+</div>
+
+<!-- Toast -->
+@if (toastMsg()) {
+  <div class="toast">{{ toastMsg() }}</div>
+}

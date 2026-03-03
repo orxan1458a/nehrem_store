@@ -1,0 +1,106 @@
+<div class="admin-page">
+  <div class="admin-page__head">
+    <h1>Orders</h1>
+  </div>
+
+  <nav class="admin-nav">
+    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Products</a>
+    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Categories</a>
+    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Orders</a>
+  </nav>
+
+  @if (loading()) {
+    <div class="admin-loading"><div class="spinner"></div></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Method</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.id) {
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.firstName }} {{ order.lastName }}</td>
+              <td>{{ order.phone }}</td>
+              <td>
+                <span class="method-badge" [class.delivery]="order.deliveryMethod === 'DELIVERY'">
+                  {{ order.deliveryMethod === 'DELIVERY' ? '🚚 Delivery' : '🏪 Pickup' }}
+                </span>
+              </td>
+              <td><strong>{{ order.totalAmount | number:'1.2-2' }} ₼</strong></td>
+              <td>
+                <span class="status-badge" [class]="'status-' + order.status.toLowerCase()">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td>{{ order.createdAt | date:'short' }}</td>
+              <td>
+                <button class="btn-edit" (click)="toggleExpand(order.id)">
+                  {{ expanded() === order.id ? '▲' : '▼' }}
+                </button>
+              </td>
+            </tr>
+
+            @if (expanded() === order.id) {
+              <tr class="order-detail-row">
+                <td colspan="8">
+                  <div class="order-detail">
+                    @if (order.address) {
+                      <p><strong>Address:</strong> {{ order.address }}</p>
+                    }
+                    @if (order.notes) {
+                      <p><strong>Notes:</strong> {{ order.notes }}</p>
+                    }
+                    <table class="items-table">
+                      <thead>
+                        <tr>
+                          <th>Product</th>
+                          <th>Qty</th>
+                          <th>Unit Price</th>
+                          <th>Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of order.items; track item.productId) {
+                          <tr>
+                            <td>{{ item.productName }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unitPrice | number:'1.2-2' }} ₼</td>
+                            <td>{{ item.subtotal | number:'1.2-2' }} ₼</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+
+      @if (orders().length === 0) {
+        <p class="empty-row">No orders yet.</p>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pagination">
+        @for (p of pages; track p) {
+          <button class="page-btn" [class.active]="p === currentPage()"
+                  (click)="goToPage(p)">{{ p + 1 }}</button>
+        }
+      </nav>
+    }
+  }
+</div>

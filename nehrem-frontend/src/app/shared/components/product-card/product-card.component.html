@@ -1,0 +1,41 @@
+<article class="card" [class.out-of-stock]="isOutOfStock">
+  <div class="card__image-wrap">
+    @if (product.imageUrl) {
+      <img [src]="'http://localhost:8080' + product.imageUrl"
+           [alt]="product.name" class="card__image" loading="lazy">
+    } @else {
+      <div class="card__image-placeholder">🛒</div>
+    }
+    @if (hasDiscount) {
+      <span class="card__badge">-{{ discountPercent }}%</span>
+    }
+    @if (isOutOfStock) {
+      <span class="card__badge card__badge--oos">Out of Stock</span>
+    }
+  </div>
+
+  <div class="card__body">
+    @if (product.categoryName) {
+      <span class="card__category">{{ product.categoryName }}</span>
+    }
+    <h3 class="card__name">{{ product.name }}</h3>
+    @if (product.description) {
+      <p class="card__desc">{{ product.description | slice:0:80 }}{{ product.description!.length > 80 ? '…' : '' }}</p>
+    }
+
+    <div class="card__footer">
+      <div class="card__price">
+        <span class="card__price--current">{{ effectivePrice | number:'1.2-2' }} ₼</span>
+        @if (hasDiscount) {
+          <span class="card__price--old">{{ product.price | number:'1.2-2' }} ₼</span>
+        }
+      </div>
+      <button class="btn-cart"
+              [disabled]="isOutOfStock"
+              (click)="onAddToCart()"
+              aria-label="Add to cart">
+        🛒 Add
+      </button>
+    </div>
+  </div>
+</article>

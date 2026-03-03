@@ -1,0 +1,34 @@
+<header class="header">
+  <div class="header__inner">
+    <!-- Logo -->
+    <a routerLink="/shop" class="header__logo" (click)="closeMenu()">
+      <span class="logo-icon">🏠</span>
+      <span class="logo-text">Nehrem</span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <nav class="header__nav" [class.open]="menuOpen()">
+      <a routerLink="/shop" routerLinkActive="active" (click)="closeMenu()">Shop</a>
+      <a routerLink="/cart" routerLinkActive="active" (click)="closeMenu()">
+        Cart
+        @if (cart.count() > 0) {
+          <span class="badge">{{ cart.count() }}</span>
+        }
+      </a>
+      <a routerLink="/admin" routerLinkActive="active" (click)="closeMenu()">Admin</a>
+    </nav>
+
+    <!-- Cart Icon (mobile) -->
+    <a routerLink="/cart" class="header__cart-btn">
+      🛒
+      @if (cart.count() > 0) {
+        <span class="badge">{{ cart.count() }}</span>
+      }
+    </a>
+
+    <!-- Hamburger -->
+    <button class="header__burger" (click)="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>

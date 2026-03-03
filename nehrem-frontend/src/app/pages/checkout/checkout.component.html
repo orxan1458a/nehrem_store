@@ -1,0 +1,133 @@
+<div class="checkout">
+  <h1 class="checkout__title">Checkout</h1>
+
+  @if (cart.items().length === 0) {
+    <div class="checkout__empty">
+      <p>Your cart is empty. Please add products before checking out.</p>
+    </div>
+  } @else {
+    <div class="checkout__layout">
+
+      <!-- Left: Form -->
+      <form [formGroup]="form" class="checkout__form" (ngSubmit)="onConfirmOrder()">
+
+        <!-- Delivery Method Toggle -->
+        <section class="form-section">
+          <h2>Delivery Method</h2>
+          <div class="method-toggle">
+            <button type="button" class="method-btn"
+                    [class.active]="isDelivery"
+                    (click)="setMethod('DELIVERY')">
+              🚚 Delivery
+            </button>
+            <button type="button" class="method-btn"
+                    [class.active]="!isDelivery"
+                    (click)="setMethod('PICKUP')">
+              🏪 Store Pickup
+            </button>
+          </div>
+        </section>
+
+        <!-- Customer Info -->
+        <section class="form-section">
+          <h2>Customer Information</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name *</label>
+              <input formControlName="firstName" type="text" placeholder="John"
+                     [class.error]="hasError('firstName')">
+              @if (hasError('firstName', 'required')) {
+                <span class="err-msg">First name is required</span>
+              }
+            </div>
+            <div class="form-group">
+              <label>Last Name *</label>
+              <input formControlName="lastName" type="text" placeholder="Doe"
+                     [class.error]="hasError('lastName')">
+              @if (hasError('lastName', 'required')) {
+                <span class="err-msg">Last name is required</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input formControlName="phone" type="tel" placeholder="+994 50 000 00 00"
+                   [class.error]="hasError('phone')">
+            @if (hasError('phone', 'required')) {
+              <span class="err-msg">Phone number is required</span>
+            }
+            @if (hasError('phone', 'pattern')) {
+              <span class="err-msg">Enter a valid phone number</span>
+            }
+          </div>
+
+          @if (isDelivery) {
+            <div class="form-group">
+              <label>Delivery Address *</label>
+              <textarea formControlName="address" rows="3"
+                        placeholder="Street, building, apartment…"
+                        [class.error]="hasError('address')"></textarea>
+              @if (hasError('address', 'required')) {
+                <span class="err-msg">Delivery address is required</span>
+              }
+            </div>
+          }
+
+          <div class="form-group">
+            <label>Notes (optional)</label>
+            <textarea formControlName="notes" rows="2"
+                      placeholder="Any special instructions…"></textarea>
+          </div>
+        </section>
+
+        @if (error()) {
+          <div class="alert-error">{{ error() }}</div>
+        }
+
+        <button type="submit" class="btn-confirm"
+                [disabled]="submitting()">
+          @if (submitting()) {
+            Placing Order…
+          } @else {
+            ✅ Confirm Order via WhatsApp
+          }
+        </button>
+      </form>
+
+      <!-- Right: Order Summary -->
+      <aside class="checkout__summary">
+        <h2>Order Summary</h2>
+
+        <div class="summary-items">
+          @for (item of cart.items(); track item.product.id) {
+            <div class="summary-item">
+              <span class="summary-item__name">
+                {{ item.product.name }}
+                <em>× {{ item.quantity }}</em>
+              </span>
+              <span class="summary-item__price">
+                {{ ((item.product.discountPrice ?? item.product.price) * item.quantity) | number:'1.2-2' }} ₼
+              </span>
+            </div>
+          }
+        </div>
+
+        <hr>
+        <div class="summary-total">
+          <strong>Total</strong>
+          <strong>{{ cart.subtotal() | number:'1.2-2' }} ₼</strong>
+        </div>
+
+        <div class="summary-method">
+          @if (isDelivery) {
+            <p>🚚 <strong>Delivery</strong> — we'll contact you to confirm.</p>
+          } @else {
+            <p>🏪 <strong>Store Pickup</strong> — visit us at your convenience.</p>
+          }
+        </div>
+      </aside>
+    </div>
+  }
+</div>
