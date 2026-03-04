@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../../core/models/product.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { WishlistService } from '../../../core/services/wishlist.service';
 
 @Component({
   selector: 'app-product-card',
@@ -16,7 +17,16 @@ export class ProductCardComponent {
   @Output() cardClick  = new EventEmitter<Product>();
   @Output() editClick  = new EventEmitter<Product>();
 
-  auth = inject(AuthService);
+  auth         = inject(AuthService);
+  wishlistSvc  = inject(WishlistService);
+
+  get isWishlisted(): boolean {
+    return this.wishlistSvc.isWishlisted(this.product.id);
+  }
+
+  onHeartClick(): void {
+    this.wishlistSvc.toggle(this.product);
+  }
 
   get effectivePrice(): number {
     return this.product.discountPrice ?? this.product.price;

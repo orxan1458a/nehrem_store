@@ -1,12 +1,12 @@
 <div class="admin-page">
   <div class="admin-page__head">
-    <h1>Orders</h1>
+    <h1>Sifarişlər</h1>
   </div>
 
   <nav class="admin-nav">
-    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Products</a>
-    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Categories</a>
-    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Orders</a>
+    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Məhsullar</a>
+    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Kateqoriyalar</a>
+    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Sifarişlər</a>
   </nav>
 
   @if (loading()) {
@@ -17,13 +17,13 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Method</th>
-            <th>Total</th>
+            <th>Müştəri</th>
+            <th>Telefon</th>
+            <th>Üsul</th>
+            <th>Cəmi</th>
             <th>Status</th>
-            <th>Date</th>
-            <th>Details</th>
+            <th>Tarix</th>
+            <th>Ətraflı</th>
           </tr>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@
               <td>{{ order.phone }}</td>
               <td>
                 <span class="method-badge" [class.delivery]="order.deliveryMethod === 'DELIVERY'">
-                  {{ order.deliveryMethod === 'DELIVERY' ? '🚚 Delivery' : '🏪 Pickup' }}
+                  {{ order.deliveryMethod === 'DELIVERY' ? '🚚 Çatdırılma' : '🏪 Götürmə' }}
                 </span>
               </td>
               <td><strong>{{ order.totalAmount | number:'1.2-2' }} ₼</strong></td>
@@ -56,18 +56,18 @@
                 <td colspan="8">
                   <div class="order-detail">
                     @if (order.address) {
-                      <p><strong>Address:</strong> {{ order.address }}</p>
+                      <p><strong>Ünvan:</strong> {{ order.address }}</p>
                     }
                     @if (order.notes) {
-                      <p><strong>Notes:</strong> {{ order.notes }}</p>
+                      <p><strong>Qeydlər:</strong> {{ order.notes }}</p>
                     }
                     <table class="items-table">
                       <thead>
                         <tr>
-                          <th>Product</th>
-                          <th>Qty</th>
-                          <th>Unit Price</th>
-                          <th>Subtotal</th>
+                          <th>Məhsul</th>
+                          <th>Miqdar</th>
+                          <th>Vahid qiymət</th>
+                          <th>Aralıq cəm</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -90,7 +90,7 @@
       </table>
 
       @if (orders().length === 0) {
-        <p class="empty-row">No orders yet.</p>
+        <p class="empty-row">Hələ sifariş yoxdur.</p>
       }
     </div>
 

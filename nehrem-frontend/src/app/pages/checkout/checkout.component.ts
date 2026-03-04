@@ -53,7 +53,7 @@ export class CheckoutComponent {
 
   onConfirmOrder(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    if (this.cart.items().length === 0) { this.error.set('Your cart is empty.'); return; }
+    if (this.cart.items().length === 0) { this.error.set('Səbətiniz boşdur.'); return; }
 
     this.submitting.set(true);
     this.error.set('');
@@ -91,7 +91,7 @@ export class CheckoutComponent {
         this.router.navigate(['/shop']);
       },
       error: err => {
-        this.error.set(err?.error?.message ?? 'Failed to place order. Please try again.');
+        this.error.set(err?.error?.message ?? 'Sifariş göndərilmədi. Yenidən cəhd edin.');
         this.submitting.set(false);
       }
     });

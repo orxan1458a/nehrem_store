@@ -1,13 +1,13 @@
 <div class="admin-page">
   <div class="admin-page__head">
-    <h1>Categories</h1>
-    <button class="btn-add" (click)="openCreate()">+ Add Category</button>
+    <h1>Kateqoriyalar</h1>
+    <button class="btn-add" (click)="openCreate()">+ Kateqoriya əlavə et</button>
   </div>
 
   <nav class="admin-nav">
-    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Products</a>
-    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Categories</a>
-    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Orders</a>
+    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Məhsullar</a>
+    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Kateqoriyalar</a>
+    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Sifarişlər</a>
   </nav>
 
   <!-- Modal -->
@@ -15,26 +15,26 @@
     <div class="modal-overlay" (click)="showForm.set(false)">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal__head">
-          <h2>{{ editingId() ? 'Edit Category' : 'New Category' }}</h2>
+          <h2>{{ editingId() ? 'Kateqoriyanı redaktə et' : 'Yeni kateqoriya' }}</h2>
           <button class="modal__close" (click)="showForm.set(false)">✕</button>
         </div>
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="cat-form">
           <div class="form-group">
-            <label>Name *</label>
-            <input formControlName="name" type="text" placeholder="e.g. Kitchen"
+            <label>Ad *</label>
+            <input formControlName="name" type="text" placeholder="məs. Elektronika"
                    [class.error]="hasError('name')">
-            @if (hasError('name', 'required')) { <span class="err">Name is required</span> }
+            @if (hasError('name', 'required')) { <span class="err">Ad tələb olunur</span> }
           </div>
           <div class="form-group">
-            <label>Description</label>
+            <label>Təsvir</label>
             <textarea formControlName="description" rows="3"
-                      placeholder="Optional description…"></textarea>
+                      placeholder="İsteğe bağlı təsvir…"></textarea>
           </div>
           @if (error()) { <div class="alert-error">{{ error() }}</div> }
           <div class="modal__actions">
-            <button type="button" class="btn-cancel" (click)="showForm.set(false)">Cancel</button>
+            <button type="button" class="btn-cancel" (click)="showForm.set(false)">Ləğv et</button>
             <button type="submit" class="btn-save" [disabled]="submitting()">
-              {{ submitting() ? 'Saving…' : (editingId() ? 'Update' : 'Create') }}
+              {{ submitting() ? 'Saxlanılır…' : (editingId() ? 'Yenilə' : 'Yarat') }}
             </button>
           </div>
         </form>
@@ -51,10 +51,10 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Created</th>
-            <th>Actions</th>
+            <th>Ad</th>
+            <th>Təsvir</th>
+            <th>Yaradılıb</th>
+            <th>Əməliyyatlar</th>
           </tr>
         </thead>
         <tbody>
@@ -73,7 +73,7 @@
         </tbody>
       </table>
       @if (categories().length === 0) {
-        <p class="empty-row">No categories yet.</p>
+        <p class="empty-row">Hələ kateqoriya yoxdur.</p>
       }
     </div>
   }

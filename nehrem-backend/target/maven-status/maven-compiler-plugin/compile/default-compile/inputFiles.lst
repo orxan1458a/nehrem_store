@@ -1,32 +1,32 @@
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\config\CorsConfig.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\config\WebConfig.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\CategoryController.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\OrderController.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\ProductController.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\ReviewController.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\dto\ApiResponse.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\dto\CategoryDTO.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\dto\OrderDTO.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\dto\ProductDTO.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\dto\ReviewDTO.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\Category.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\Order.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\OrderItem.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\Product.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\Review.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\exception\BusinessException.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\exception\GlobalExceptionHandler.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\exception\ResourceNotFoundException.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\NehremApplication.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\CategoryRepository.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\OrderRepository.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\ProductRepository.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\ReviewRepository.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\CategoryService.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\CategoryServiceImpl.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\OrderServiceImpl.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\ProductServiceImpl.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\ReviewServiceImpl.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\OrderService.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\ProductService.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\ReviewService.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\config\CorsConfig.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\config\WebConfig.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\CategoryController.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\OrderController.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\ProductController.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\ReviewController.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\ApiResponse.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\CategoryDTO.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\OrderDTO.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\ProductDTO.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\ReviewDTO.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\Category.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\Order.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\OrderItem.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\Product.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\Review.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\exception\BusinessException.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\exception\GlobalExceptionHandler.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\exception\ResourceNotFoundException.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\NehremApplication.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\CategoryRepository.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\OrderRepository.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\ProductRepository.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\ReviewRepository.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\CategoryService.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\CategoryServiceImpl.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\OrderServiceImpl.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\ProductServiceImpl.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\ReviewServiceImpl.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\OrderService.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\ProductService.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\ReviewService.java

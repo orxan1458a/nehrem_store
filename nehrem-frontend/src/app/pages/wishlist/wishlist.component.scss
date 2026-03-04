@@ -1,0 +1,108 @@
+.wishlist {
+  padding: 1.25rem 1rem 6rem;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+
+    svg {
+      width: 22px;
+      height: 22px;
+      color: #e63946;
+      stroke: #e63946;
+    }
+  }
+
+  &__count {
+    font-size: .85rem;
+    color: #888;
+    font-weight: 500;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: .85rem;
+
+    @media (min-width: 480px) {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    text-align: center;
+    gap: 1rem;
+
+    p {
+      font-size: 1rem;
+      color: #888;
+      margin: 0;
+    }
+  }
+
+  &__empty-icon {
+    svg {
+      width: 72px;
+      height: 72px;
+    }
+  }
+
+  &__shop-btn {
+    display: inline-block;
+    background: #00BFA5;
+    color: #fff;
+    padding: .65rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: .9rem;
+    text-decoration: none;
+    transition: background .2s;
+
+    &:hover { background: #00897B; }
+  }
+}
+
+.toast {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  padding: .65rem 1.25rem;
+  border-radius: 20px;
+  font-size: .88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1000;
+  animation: fadeIn .2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

@@ -1,10 +1,10 @@
 <div class="cart-page">
-  <h1 class="cart-page__title">🛒 Your Cart</h1>
+  <h1 class="cart-page__title">🛒 Səbətim</h1>
 
   @if (cart.items().length === 0) {
     <div class="cart-page__empty">
-      <p>Your cart is empty.</p>
-      <a routerLink="/shop" class="btn-primary">Browse Products</a>
+      <p>Səbətiniz boşdur.</p>
+      <a routerLink="/shop" class="btn-primary">Məhsullara bax</a>
     </div>
   } @else {
     <div class="cart-page__layout">
@@ -46,25 +46,25 @@
 
             <button class="cart-item__remove"
                     (click)="cart.removeItem(item.product.id)"
-                    aria-label="Remove">✕</button>
+                    aria-label="Sil">✕</button>
           </div>
         }
       </div>
 
       <!-- Summary -->
       <aside class="cart-page__summary">
-        <h2>Order Summary</h2>
+        <h2>Sifariş xülasəsi</h2>
         <div class="summary-row">
-          <span>Items ({{ cart.count() }})</span>
+          <span>Məhsullar ({{ cart.count() }})</span>
           <span>{{ cart.subtotal() | number:'1.2-2' }} ₼</span>
         </div>
         <hr>
         <div class="summary-row summary-row--total">
-          <strong>Total</strong>
+          <strong>Cəmi</strong>
           <strong>{{ cart.subtotal() | number:'1.2-2' }} ₼</strong>
         </div>
-        <a routerLink="/checkout" class="btn-primary btn-checkout">Proceed to Checkout</a>
-        <a routerLink="/shop" class="btn-secondary">Continue Shopping</a>
+        <a routerLink="/checkout" class="btn-primary btn-checkout">Sifarişi tamamla</a>
+        <a routerLink="/shop" class="btn-secondary">Alışverişə davam et</a>
       </aside>
     </div>
   }

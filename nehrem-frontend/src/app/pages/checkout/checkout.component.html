@@ -1,9 +1,9 @@
 <div class="checkout">
-  <h1 class="checkout__title">Checkout</h1>
+  <h1 class="checkout__title">Sifarişin təsdiqi</h1>
 
   @if (cart.items().length === 0) {
     <div class="checkout__empty">
-      <p>Your cart is empty. Please add products before checking out.</p>
+      <p>Səbətiniz boşdur. Sifarişi tamamlamadan əvvəl məhsul əlavə edin.</p>
     </div>
   } @else {
     <div class="checkout__layout">
@@ -13,72 +13,72 @@
 
         <!-- Delivery Method Toggle -->
         <section class="form-section">
-          <h2>Delivery Method</h2>
+          <h2>Çatdırılma üsulu</h2>
           <div class="method-toggle">
             <button type="button" class="method-btn"
                     [class.active]="isDelivery"
                     (click)="setMethod('DELIVERY')">
-              🚚 Delivery
+              🚚 Çatdırılma
             </button>
             <button type="button" class="method-btn"
                     [class.active]="!isDelivery"
                     (click)="setMethod('PICKUP')">
-              🏪 Store Pickup
+              🏪 Mağazadan götürmə
             </button>
           </div>
         </section>
 
         <!-- Customer Info -->
         <section class="form-section">
-          <h2>Customer Information</h2>
+          <h2>Müştəri məlumatları</h2>
 
           <div class="form-row">
             <div class="form-group">
-              <label>First Name *</label>
-              <input formControlName="firstName" type="text" placeholder="John"
+              <label>Ad *</label>
+              <input formControlName="firstName" type="text" placeholder="Məsələn: Əli"
                      [class.error]="hasError('firstName')">
               @if (hasError('firstName', 'required')) {
-                <span class="err-msg">First name is required</span>
+                <span class="err-msg">Ad tələb olunur</span>
               }
             </div>
             <div class="form-group">
-              <label>Last Name *</label>
-              <input formControlName="lastName" type="text" placeholder="Doe"
+              <label>Soyad *</label>
+              <input formControlName="lastName" type="text" placeholder="Məsələn: Həsənov"
                      [class.error]="hasError('lastName')">
               @if (hasError('lastName', 'required')) {
-                <span class="err-msg">Last name is required</span>
+                <span class="err-msg">Soyad tələb olunur</span>
               }
             </div>
           </div>
 
           <div class="form-group">
-            <label>Phone Number *</label>
+            <label>Telefon nömrəsi *</label>
             <input formControlName="phone" type="tel" placeholder="+994 50 000 00 00"
                    [class.error]="hasError('phone')">
             @if (hasError('phone', 'required')) {
-              <span class="err-msg">Phone number is required</span>
+              <span class="err-msg">Telefon nömrəsi tələb olunur</span>
             }
             @if (hasError('phone', 'pattern')) {
-              <span class="err-msg">Enter a valid phone number</span>
+              <span class="err-msg">Düzgün telefon nömrəsi daxil edin</span>
             }
           </div>
 
           @if (isDelivery) {
             <div class="form-group">
-              <label>Delivery Address *</label>
+              <label>Çatdırılma ünvanı *</label>
               <textarea formControlName="address" rows="3"
-                        placeholder="Street, building, apartment…"
+                        placeholder="Küçə, bina, mənzil nömrəsi…"
                         [class.error]="hasError('address')"></textarea>
               @if (hasError('address', 'required')) {
-                <span class="err-msg">Delivery address is required</span>
+                <span class="err-msg">Çatdırılma ünvanı tələb olunur</span>
               }
             </div>
           }
 
           <div class="form-group">
-            <label>Notes (optional)</label>
+            <label>Qeydlər (isteğe bağlı)</label>
             <textarea formControlName="notes" rows="2"
-                      placeholder="Any special instructions…"></textarea>
+                      placeholder="Xüsusi təlimatlar…"></textarea>
           </div>
         </section>
 
@@ -89,16 +89,16 @@
         <button type="submit" class="btn-confirm"
                 [disabled]="submitting()">
           @if (submitting()) {
-            Placing Order…
+            Sifariş göndərilir…
           } @else {
-            ✅ Confirm Order via WhatsApp
+            ✅ WhatsApp vasitəsilə sifarişi təsdiqlə
           }
         </button>
       </form>
 
       <!-- Right: Order Summary -->
       <aside class="checkout__summary">
-        <h2>Order Summary</h2>
+        <h2>Sifariş xülasəsi</h2>
 
         <div class="summary-items">
           @for (item of cart.items(); track item.product.id) {
@@ -116,15 +116,15 @@
 
         <hr>
         <div class="summary-total">
-          <strong>Total</strong>
+          <strong>Cəmi</strong>
           <strong>{{ cart.subtotal() | number:'1.2-2' }} ₼</strong>
         </div>
 
         <div class="summary-method">
           @if (isDelivery) {
-            <p>🚚 <strong>Delivery</strong> — we'll contact you to confirm.</p>
+            <p>🚚 <strong>Çatdırılma</strong> — tezliklə sizinlə əlaqə saxlayacağıq.</p>
           } @else {
-            <p>🏪 <strong>Store Pickup</strong> — visit us at your convenience.</p>
+            <p>🏪 <strong>Mağazadan götürmə</strong> — rahat vaxtınızda bizə gəlin.</p>
           }
         </div>
       </aside>
