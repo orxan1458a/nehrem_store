@@ -58,6 +58,11 @@ export class ProductService {
       .pipe(map(() => void 0));
   }
 
+  incrementView(id: number): Observable<void> {
+    return this.http.post<ApiResponse<void>>(`${this.base}/${id}/view`, {})
+      .pipe(map(() => void 0));
+  }
+
   private buildForm(req: ProductRequest, image?: File): FormData {
     const form = new FormData();
     form.append('product', new Blob([JSON.stringify(req)], { type: 'application/json' }));

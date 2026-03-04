@@ -1,35 +1,87 @@
 <div class="shop">
-  <!-- Hero -->
-  <section class="shop__hero">
-    <h1>🏠 Household Products</h1>
-    <p>Discover quality products for every room</p>
-  </section>
 
-  <!-- Filters -->
-  <div class="shop__filters">
-    <div class="filters__search">
-      <input type="text" placeholder="Search products…"
+  <!-- Search -->
+  <div class="shop__search">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" placeholder="Təmizlik vasitələri, sabunlar, salfet axtar"
              [ngModel]="searchQuery()"
              (ngModelChange)="onSearch($event)"
              class="search-input" />
     </div>
-
-    <div class="filters__categories">
-      <button class="cat-btn" [class.active]="selectedCategoryId() === undefined"
-              (click)="selectCategory()">All</button>
-      @for (cat of categories(); track cat.id) {
-        <button class="cat-btn" [class.active]="selectedCategoryId() === cat.id"
-                (click)="selectCategory(cat.id)">{{ cat.name }}</button>
-      }
-    </div>
   </div>
 
-  <!-- Results info -->
-  @if (productPage(); as page) {
-    <p class="shop__count">
-      {{ page.totalElements }} product{{ page.totalElements !== 1 ? 's' : '' }} found
-    </p>
-  }
+  <!-- Category pills -->
+  <div class="shop__categories">
+    <button class="cat-pill" [class.active]="selectedCategoryId() === undefined"
+            (click)="selectCategory()">
+      Bütün məhsullar
+    </button>
+    @for (cat of categories(); track cat.id) {
+      <button class="cat-pill" [class.active]="selectedCategoryId() === cat.id"
+              (click)="selectCategory(cat.id)">
+        <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          @switch (getCategoryIcon(cat.name)) {
+            @case ('kitchen') {
+              <path d="M17 8h1a4 4 0 0 1 0 8h-1"/>
+              <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/>
+            }
+            @case ('cleaning') {
+              <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+            }
+            @case ('bathroom') {
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            }
+            @case ('living') {
+              <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
+              <polyline points="17 2 12 7 7 2"/>
+            }
+            @case ('bedroom') {
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            }
+            @case ('storage') {
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+              <line x1="12" y1="22.08" x2="12" y2="12"/>
+            }
+            @case ('garden') {
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            }
+            @case ('baby') {
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+            }
+            @case ('soap') {
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            }
+            @case ('tissue') {
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            }
+            @default {
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+              <line x1="7" y1="7" x2="7.01" y2="7"/>
+            }
+          }
+        </svg>
+        {{ cat.name }}
+      </button>
+    }
+  </div>
+
+  <!-- Section header -->
+  <div class="shop__section-header">
+    <h2 class="shop__section-title">Sizin üçün tövsiyə edilir</h2>
+    <button class="see-all" (click)="selectCategory()">Hamısına bax</button>
+  </div>
 
   <!-- Grid -->
   @if (loading()) {
@@ -38,12 +90,16 @@
     </div>
   } @else if ((productPage()?.content?.length ?? 0) === 0) {
     <div class="shop__empty">
-      <p>🔍 No products found. Try a different search or category.</p>
+      <p>Məhsul tapılmadı. Fərqli axtarış və ya kateqoriya cəhd edin.</p>
     </div>
   } @else {
     <div class="shop__grid">
       @for (product of productPage()!.content; track product.id) {
-        <app-product-card [product]="product" (addToCart)="addToCart($event)">
+        <app-product-card
+          [product]="product"
+          (addToCart)="addToCart($event)"
+          (cardClick)="openDetail($event)"
+          (editClick)="goToEdit($event)">
         </app-product-card>
       }
     </div>
@@ -63,16 +119,123 @@
     </nav>
   }
 
-  <!-- Cart FAB -->
-  @if (cartSvc.count() > 0) {
-    <button class="fab-cart" (click)="goToCart()">
-      🛒 <span class="fab-cart__count">{{ cartSvc.count() }}</span>
-      <span class="fab-cart__total">{{ cartSvc.subtotal() | number:'1.2-2' }} ₼</span>
-    </button>
-  }
+  <!-- Promo Banner -->
+  <div class="promo-banner">
+    <div class="promo-banner__content">
+      <p class="promo-banner__label">MƏHDUDİYYƏTLİ TƏKLİF</p>
+      <h3 class="promo-banner__title">50$-dan yuxarı sifarişlərə<br>pulsuz çatdırılma!</h3>
+      <button class="promo-banner__btn" (click)="goToCart()">İndi əldə et</button>
+    </div>
+    <div class="promo-banner__illustration">
+      <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="25" width="55" height="25" rx="4" fill="rgba(0,150,130,0.3)" stroke="rgba(0,150,130,0.5)" stroke-width="1.5"/>
+        <rect x="5" y="25" width="30" height="25" rx="4" fill="rgba(0,150,130,0.2)"/>
+        <circle cx="18" cy="52" r="5" fill="rgba(0,150,130,0.5)" stroke="rgba(0,150,130,0.7)" stroke-width="1.5"/>
+        <circle cx="48" cy="52" r="5" fill="rgba(0,150,130,0.5)" stroke="rgba(0,150,130,0.7)" stroke-width="1.5"/>
+        <path d="M60 30 L75 30 L75 45 L60 45" stroke="rgba(0,150,130,0.5)" stroke-width="1.5" fill="none"/>
+        <circle cx="67" cy="52" r="5" fill="rgba(0,150,130,0.5)" stroke="rgba(0,150,130,0.7)" stroke-width="1.5"/>
+      </svg>
+    </div>
+  </div>
+
 </div>
 
 <!-- Toast -->
 @if (toastMsg()) {
   <div class="toast">{{ toastMsg() }}</div>
+}
+
+<!-- Product Detail Bottom Sheet -->
+@if (selectedProduct(); as p) {
+  <div class="sheet-backdrop" (click)="closeDetail()"></div>
+  <div class="sheet">
+    <div class="sheet__drag-handle"></div>
+
+    <!-- Close -->
+    <button class="sheet__close" (click)="closeDetail()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- Image -->
+    <div class="sheet__image-wrap">
+      @if (p.imageUrl) {
+        <img [src]="'http://localhost:8080' + p.imageUrl" [alt]="p.name" class="sheet__image">
+      } @else {
+        <div class="sheet__image-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" width="64" height="64">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </div>
+      }
+      @if (p.discountPrice && p.discountPrice < p.price) {
+        <span class="sheet__sale-badge">ENDİRİM</span>
+      }
+    </div>
+
+    <div class="sheet__body">
+      <!-- Category + name -->
+      @if (p.categoryName) {
+        <span class="sheet__category">{{ p.categoryName }}</span>
+      }
+      <h2 class="sheet__name">{{ p.name }}</h2>
+
+      <!-- Price row -->
+      <div class="sheet__price-row">
+        <span class="sheet__price-current">
+          {{ (p.discountPrice ?? p.price) | number:'1.2-2' }} ₼
+        </span>
+        @if (p.discountPrice && p.discountPrice < p.price) {
+          <span class="sheet__price-old">{{ p.price | number:'1.2-2' }} ₼</span>
+          <span class="sheet__discount-badge">
+            -{{ (((p.price - p.discountPrice) / p.price) * 100) | number:'1.0-0' }}%
+          </span>
+        }
+      </div>
+
+      <!-- Description -->
+      @if (p.description) {
+        <p class="sheet__desc">{{ p.description }}</p>
+      }
+
+      <!-- Stock -->
+      <div class="sheet__stock" [class.sheet__stock--low]="p.stockQuantity > 0 && p.stockQuantity <= 5"
+                                [class.sheet__stock--out]="p.stockQuantity <= 0">
+        @if (p.stockQuantity <= 0) {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          Stokda yoxdur
+        } @else if (p.stockQuantity <= 5) {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Yalnız {{ p.stockQuantity }} ədəd qaldı
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+          Stokda var ({{ p.stockQuantity }} ədəd)
+        }
+      </div>
+
+      <!-- Add to cart -->
+      <button class="sheet__add-btn"
+              [disabled]="p.stockQuantity <= 0"
+              (click)="addToCartFromDetail(p)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        {{ p.stockQuantity <= 0 ? 'Stokda yoxdur' : 'Səbətə əlavə et' }}
+      </button>
+
+      @if (auth.isAdmin()) {
+        <button class="sheet__edit-btn" (click)="goToEdit(p)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Məhsulu redaktə et
+        </button>
+      }
+    </div>
+  </div>
 }

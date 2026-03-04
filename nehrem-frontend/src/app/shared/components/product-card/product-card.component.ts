@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../../core/models/product.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-product-card',
@@ -11,7 +12,11 @@ import { Product } from '../../../core/models/product.model';
 })
 export class ProductCardComponent {
   @Input({ required: true }) product!: Product;
-  @Output() addToCart = new EventEmitter<Product>();
+  @Output() addToCart  = new EventEmitter<Product>();
+  @Output() cardClick  = new EventEmitter<Product>();
+  @Output() editClick  = new EventEmitter<Product>();
+
+  auth = inject(AuthService);
 
   get effectivePrice(): number {
     return this.product.discountPrice ?? this.product.price;
@@ -32,5 +37,9 @@ export class ProductCardComponent {
 
   onAddToCart(): void {
     if (!this.isOutOfStock) this.addToCart.emit(this.product);
+  }
+
+  onCardClick(): void {
+    this.cardClick.emit(this.product);
   }
 }

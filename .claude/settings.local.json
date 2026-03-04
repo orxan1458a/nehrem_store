@@ -7,7 +7,9 @@
       "Bash(ng new nehrem-frontend --routing=true --style=scss --standalone=true --skip-git=true --no-interactive)",
       "Bash(npm install @angular/material @angular/cdk)",
       "Bash(ng build --configuration=development)",
-      "Bash(npm install @angular/animations --legacy-peer-deps)"
+      "Bash(npm install @angular/animations --legacy-peer-deps)",
+      "Bash(curl -s \"http://localhost:8080/api/products?size=20&sortBy=categoryName&sortDir=asc\")",
+      "Bash(python3 -c \":*)"
     ]
   }
 }

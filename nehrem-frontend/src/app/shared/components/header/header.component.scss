@@ -1,18 +1,18 @@
 .header {
   background: #fff;
-  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  box-shadow: 0 1px 0 rgba(0,0,0,.08);
   position: sticky;
   top: 0;
   z-index: 1000;
 
   &__inner {
-    max-width: 1200px;
+    max-width: 480px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 1.25rem;
     height: 64px;
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    justify-content: space-between;
   }
 
   &__logo {
@@ -20,42 +20,59 @@
     align-items: center;
     gap: .4rem;
     text-decoration: none;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #2d6a4f;
 
-    .logo-icon { font-size: 1.6rem; }
-  }
+    .logo-icon { width: 32px; height: 32px; }
 
-  &__nav {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-left: auto;
-
-    a {
-      text-decoration: none;
-      color: #444;
-      font-weight: 500;
-      padding: .3rem .1rem;
-      border-bottom: 2px solid transparent;
-      transition: color .2s, border-color .2s;
-      position: relative;
-
-      &.active, &:hover { color: #2d6a4f; border-color: #2d6a4f; }
+    .logo-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a1a;
     }
   }
 
-  &__cart-btn {
-    display: none;
-    font-size: 1.5rem;
-    text-decoration: none;
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  &__cart {
     position: relative;
-    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #1a1a1a;
+
+    svg { width: 22px; height: 22px; }
+  }
+
+  &__login-btn {
+    padding: .35rem .9rem;
+    background: #00BFA5;
+    color: #fff !important;
+    border-radius: 20px;
+    font-size: .8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .2s;
+
+    &:hover { background: #00897B; }
+  }
+
+  &__role-badge {
+    background: #e6faf7;
+    color: #00897B;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: .25rem .65rem;
+    border-radius: 20px;
+    letter-spacing: .03em;
   }
 
   &__burger {
-    display: none;
+    display: flex;
     flex-direction: column;
     gap: 5px;
     background: none;
@@ -65,43 +82,70 @@
 
     span {
       display: block;
-      width: 24px;
+      width: 22px;
       height: 2px;
       background: #333;
       border-radius: 2px;
     }
   }
+
+  &__nav {
+    display: none;
+    position: fixed;
+    inset: 64px 0 0;
+    background: #fff;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 1.2rem;
+    z-index: 999;
+
+    &.open { display: flex; }
+
+    a {
+      color: #444;
+      font-weight: 500;
+      padding: .5rem 1rem;
+      border-radius: 8px;
+      transition: background .15s, color .15s;
+
+      &.active, &:hover { color: #00BFA5; background: #e6faf7; }
+    }
+  }
 }
 
-.badge {
-  background: #e63946;
+.cart-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #00BFA5;
   color: #fff;
   border-radius: 999px;
-  font-size: .65rem;
+  font-size: .6rem;
   font-weight: 700;
-  padding: 1px 5px;
-  position: absolute;
-  top: -6px;
-  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
 }
 
-@media (max-width: 640px) {
-  .header {
-    &__nav {
-      display: none;
-      position: fixed;
-      inset: 64px 0 0;
-      background: #fff;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      margin-left: 0;
-      font-size: 1.2rem;
+.nav-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: #ffeaea;
+  color: #e63946;
+  border: none;
+  border-radius: 8px;
+  padding: .5rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
 
-      &.open { display: flex; }
-    }
-    &__cart-btn { display: block; }
-    &__burger    { display: flex; }
-  }
+  &:hover { background: #ffd6d6; }
 }

@@ -12,4 +12,5 @@ public interface ProductService {
     ProductDTO.Response update(Long id, ProductDTO.Request request, MultipartFile image);
     void delete(Long id);
     void toggleActive(Long id);
+    void incrementView(Long id);
 }

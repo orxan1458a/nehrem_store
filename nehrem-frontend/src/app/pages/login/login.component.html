@@ -1,0 +1,61 @@
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-card__logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 8C8 10 5.9 16.17 3.82 19.29C3.35 19.97 3.7 21 4.5 21C6.5 21 10.5 20 12 17C14 14 14.5 11.5 17 8Z" fill="#00BFA5"/>
+        <path d="M17 8C15 10 13 12.5 12 17C14.5 17 16.5 15 17 13C17.5 11 17.5 9.5 17 8Z" fill="#00897B"/>
+      </svg>
+      <span>EvTrend</span>
+    </div>
+
+    <h1 class="login-card__title">Admin Girişi</h1>
+    <p class="login-card__sub">Mağazanı idarə etmək üçün daxil olun</p>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="login-card__error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ error() }}
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="login-card__form">
+      <div class="field">
+        <label class="field__label">İstifadəçi adı</label>
+        <input class="field__input"
+               type="text"
+               placeholder="İstifadəçi adını daxil edin"
+               [ngModel]="username()"
+               (ngModelChange)="username.set($event)"
+               name="username"
+               autocomplete="username" />
+      </div>
+
+      <div class="field">
+        <label class="field__label">Şifrə</label>
+        <input class="field__input"
+               type="password"
+               placeholder="Şifrəni daxil edin"
+               [ngModel]="password()"
+               (ngModelChange)="password.set($event)"
+               name="password"
+               autocomplete="current-password" />
+      </div>
+
+      <button class="login-card__btn" type="submit" [disabled]="loading()">
+        @if (loading()) {
+          <span class="btn-spinner"></span>
+        } @else {
+          Daxil ol
+        }
+      </button>
+    </form>
+
+  </div>
+</div>

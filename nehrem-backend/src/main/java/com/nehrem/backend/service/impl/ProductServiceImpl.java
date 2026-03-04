@@ -7,6 +7,7 @@ import com.nehrem.backend.exception.BusinessException;
 import com.nehrem.backend.exception.ResourceNotFoundException;
 import com.nehrem.backend.repository.CategoryRepository;
 import com.nehrem.backend.repository.ProductRepository;
+import com.nehrem.backend.repository.ReviewRepository;
 import com.nehrem.backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ReviewRepository reviewRepository;
 
     @Value("${app.upload.dir:./uploads}")
     private String uploadDir;
@@ -104,6 +106,13 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
+    @Override
+    public void incrementView(Long id) {
+        Product product = findById(id);
+        product.setViewCount(product.getViewCount() + 1);
+        productRepository.save(product);
+    }
+
     // ── Helpers ──────────────────────────────────────────────
 
     private Product findById(Long id) {
@@ -161,6 +170,9 @@ public class ProductServiceImpl implements ProductService {
                 .categoryName(p.getCategory() != null ? p.getCategory().getName() : null)
                 .active(p.getActive())
                 .createdAt(p.getCreatedAt())
+                .reviewCount(reviewRepository.countByProductId(p.getId()))
+                .averageRating(reviewRepository.averageRatingByProductId(p.getId()))
+                .viewCount(p.getViewCount())
                 .build();
     }
 }

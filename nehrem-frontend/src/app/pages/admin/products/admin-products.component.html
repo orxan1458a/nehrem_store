@@ -1,15 +1,15 @@
 <div class="admin-page">
   <!-- Header -->
   <div class="admin-page__head">
-    <h1>Products</h1>
-    <button class="btn-add" (click)="openCreate()">+ Add Product</button>
+    <h1>Məhsullar</h1>
+    <button class="btn-add" (click)="openCreate()">+ Məhsul əlavə et</button>
   </div>
 
   <!-- Admin Nav -->
   <nav class="admin-nav">
-    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Products</a>
-    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Categories</a>
-    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Orders</a>
+    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Məhsullar</a>
+    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Kateqoriyalar</a>
+    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Sifarişlər</a>
   </nav>
 
   <!-- Modal Form -->
@@ -17,22 +17,22 @@
     <div class="modal-overlay" (click)="showForm.set(false)">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal__head">
-          <h2>{{ editingId() ? 'Edit Product' : 'New Product' }}</h2>
+          <h2>{{ editingId() ? 'Məhsulu redaktə et' : 'Yeni məhsul' }}</h2>
           <button class="modal__close" (click)="showForm.set(false)">✕</button>
         </div>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="product-form">
           <div class="form-row">
             <div class="form-group">
-              <label>Name *</label>
-              <input formControlName="name" type="text" placeholder="Product name"
+              <label>Ad *</label>
+              <input formControlName="name" type="text" placeholder="Məhsul adı"
                      [class.error]="hasError('name')">
-              @if (hasError('name', 'required')) { <span class="err">Name is required</span> }
+              @if (hasError('name', 'required')) { <span class="err">Ad tələb olunur</span> }
             </div>
             <div class="form-group">
-              <label>Category</label>
+              <label>Kateqoriya</label>
               <select formControlName="categoryId">
-                <option [ngValue]="null">— None —</option>
+                <option [ngValue]="null">— Yoxdur —</option>
                 @for (cat of categories(); track cat.id) {
                   <option [ngValue]="cat.id">{{ cat.name }}</option>
                 }
@@ -41,34 +41,34 @@
           </div>
 
           <div class="form-group">
-            <label>Description</label>
-            <textarea formControlName="description" rows="3" placeholder="Describe the product…"></textarea>
+            <label>Təsvir</label>
+            <textarea formControlName="description" rows="3" placeholder="Məhsulu təsvir edin…"></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Price (₼) *</label>
+              <label>Qiymət (₼) *</label>
               <input formControlName="price" type="number" step="0.01" min="0.01"
                      [class.error]="hasError('price')">
-              @if (hasError('price', 'required')) { <span class="err">Price is required</span> }
-              @if (hasError('price', 'min'))      { <span class="err">Must be > 0</span> }
+              @if (hasError('price', 'required')) { <span class="err">Qiymət tələb olunur</span> }
+              @if (hasError('price', 'min'))      { <span class="err">0-dan böyük olmalıdır</span> }
             </div>
             <div class="form-group">
-              <label>Discount Price (₼)</label>
+              <label>Endirimli qiymət (₼)</label>
               <input formControlName="discountPrice" type="number" step="0.01" min="0.01"
-                     placeholder="Leave blank if no discount">
+                     placeholder="Endirim yoxdursa boş buraxın">
             </div>
             <div class="form-group">
-              <label>Stock Qty *</label>
+              <label>Stok miqdarı *</label>
               <input formControlName="stockQuantity" type="number" min="0"
                      [class.error]="hasError('stockQuantity')">
-              @if (hasError('stockQuantity', 'required')) { <span class="err">Required</span> }
+              @if (hasError('stockQuantity', 'required')) { <span class="err">Tələb olunur</span> }
             </div>
           </div>
 
           <!-- Image -->
           <div class="form-group">
-            <label>Product Image</label>
+            <label>Məhsul şəkli</label>
             <input type="file" accept="image/*" (change)="onImageSelect($event)">
             @if (previewUrl()) {
               <img [src]="previewUrl()!" class="img-preview" alt="Preview">
@@ -78,9 +78,9 @@
           @if (error()) { <div class="alert-error">{{ error() }}</div> }
 
           <div class="modal__actions">
-            <button type="button" class="btn-cancel" (click)="showForm.set(false)">Cancel</button>
+            <button type="button" class="btn-cancel" (click)="showForm.set(false)">Ləğv et</button>
             <button type="submit" class="btn-save" [disabled]="submitting()">
-              {{ submitting() ? 'Saving…' : (editingId() ? 'Update' : 'Create') }}
+              {{ submitting() ? 'Saxlanılır…' : (editingId() ? 'Yenilə' : 'Yarat') }}
             </button>
           </div>
         </form>
@@ -96,14 +96,17 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Discount</th>
-            <th>Stock</th>
-            <th>Active</th>
-            <th>Actions</th>
+            <th>Şəkil</th>
+            <th>Ad</th>
+            <th>Kateqoriya</th>
+            <th>Qiymət</th>
+            <th>Endirim</th>
+            <th>Stok</th>
+            <th>Baxışlar</th>
+            <th>Rəylər</th>
+            <th>Reytinq</th>
+            <th>Aktiv</th>
+            <th>Əməliyyatlar</th>
           </tr>
         </thead>
         <tbody>
@@ -123,14 +126,38 @@
               <td>{{ p.discountPrice ? (p.discountPrice | number:'1.2-2') + ' ₼' : '—' }}</td>
               <td [class.low-stock]="p.stockQuantity <= 5">{{ p.stockQuantity }}</td>
               <td>
+                <span class="view-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  {{ p.viewCount ?? 0 }}
+                </span>
+              </td>
+              <td class="review-count">
+                <span class="review-badge">{{ p.reviewCount ?? 0 }}</span>
+              </td>
+              <td class="rating-cell">
+                @if (p.averageRating) {
+                  <span class="stars">
+                    @for (s of [1,2,3,4,5]; track s) {
+                      <span [class.filled]="s <= p.averageRating!">★</span>
+                    }
+                  </span>
+                  <span class="rating-num">{{ p.averageRating | number:'1.1-1' }}</span>
+                } @else {
+                  <span class="no-rating">—</span>
+                }
+              </td>
+              <td>
                 <span class="status-badge" [class.active]="p.active">
-                  {{ p.active ? 'Active' : 'Hidden' }}
+                  {{ p.active ? 'Aktiv' : 'Gizli' }}
                 </span>
               </td>
               <td class="actions">
                 <button class="btn-edit"   (click)="openEdit(p)">✏️</button>
                 <button class="btn-toggle" (click)="toggleActive(p.id)"
-                        [title]="p.active ? 'Hide' : 'Show'">
+                        [title]="p.active ? 'Gizlət' : 'Göstər'">
                   {{ p.active ? '🙈' : '👁️' }}
                 </button>
                 <button class="btn-delete" (click)="delete(p.id)">🗑️</button>
@@ -140,7 +167,7 @@
         </tbody>
       </table>
       @if (products().length === 0) {
-        <p class="empty-row">No products yet. Click "Add Product" to get started.</p>
+        <p class="empty-row">Hələ məhsul yoxdur. Başlamaq üçün "Məhsul əlavə et" düyməsinə basın.</p>
       }
     </div>
   }

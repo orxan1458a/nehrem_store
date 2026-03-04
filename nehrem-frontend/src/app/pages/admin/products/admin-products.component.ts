@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
@@ -18,6 +18,7 @@ export class AdminProductsComponent implements OnInit {
   private productSvc  = inject(ProductService);
   private categorySvc = inject(CategoryService);
   private fb          = inject(FormBuilder);
+  private route       = inject(ActivatedRoute);
 
   products   = signal<Product[]>([]);
   categories = signal<Category[]>([]);
@@ -40,8 +41,13 @@ export class AdminProductsComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadProducts();
     this.categorySvc.getAll().subscribe(c => this.categories.set(c));
+    this.loadProducts();
+
+    const editId = this.route.snapshot.queryParamMap.get('editId');
+    if (editId) {
+      this.productSvc.getById(+editId).subscribe(p => this.openEdit(p));
+    }
   }
 
   loadProducts(): void {
@@ -110,12 +116,12 @@ export class AdminProductsComponent implements OnInit {
 
     obs.subscribe({
       next: () => { this.showForm.set(false); this.loadProducts(); this.submitting.set(false); },
-      error: err => { this.error.set(err?.error?.message ?? 'Error saving product'); this.submitting.set(false); }
+      error: err => { this.error.set(err?.error?.message ?? 'Məhsul saxlanılarkən xəta baş verdi'); this.submitting.set(false); }
     });
   }
 
   delete(id: number): void {
-    if (!confirm('Delete this product?')) return;
+    if (!confirm('Bu məhsulu silmək istəyirsiniz?')) return;
     this.productSvc.delete(id).subscribe(() => this.loadProducts());
   }
 

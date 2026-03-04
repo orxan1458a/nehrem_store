@@ -75,4 +75,10 @@ public class ProductController {
         productService.toggleActive(id);
         return ResponseEntity.ok(ApiResponse.ok("Product status toggled", null));
     }
+
+    @PostMapping("/{id}/view")
+    public ResponseEntity<ApiResponse<Void>> incrementView(@PathVariable Long id) {
+        productService.incrementView(id);
+        return ResponseEntity.ok(ApiResponse.ok("View counted", null));
+    }
 }

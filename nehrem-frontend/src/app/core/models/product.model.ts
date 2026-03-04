@@ -10,6 +10,9 @@ export interface Product {
   categoryName?: string;
   active: boolean;
   createdAt?: string;
+  reviewCount?: number;
+  averageRating?: number;
+  viewCount?: number;
 }
 
 export interface ProductRequest {
