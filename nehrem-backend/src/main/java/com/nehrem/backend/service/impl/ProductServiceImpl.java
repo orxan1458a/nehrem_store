@@ -3,10 +3,12 @@ package com.nehrem.backend.service.impl;
 import com.nehrem.backend.dto.ProductDTO;
 import com.nehrem.backend.entity.Category;
 import com.nehrem.backend.entity.Product;
+import com.nehrem.backend.entity.ProductView;
 import com.nehrem.backend.exception.BusinessException;
 import com.nehrem.backend.exception.ResourceNotFoundException;
 import com.nehrem.backend.repository.CategoryRepository;
 import com.nehrem.backend.repository.ProductRepository;
+import com.nehrem.backend.repository.ProductViewRepository;
 import com.nehrem.backend.repository.ReviewRepository;
 import com.nehrem.backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ReviewRepository reviewRepository;
+    private final ProductViewRepository productViewRepository;
 
     @Value("${app.upload.dir:./uploads}")
     private String uploadDir;
@@ -42,6 +45,13 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDTO.Response> getAll(Long categoryId, String search, Pageable pageable) {
         return productRepository.findByFilters(categoryId, search, pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO.Response> getAllAdmin(String search, Pageable pageable) {
+        return productRepository.findAllByFiltersAdmin(search, pageable)
                 .map(this::toResponse);
     }
 
@@ -107,10 +117,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void incrementView(Long id) {
+    public void incrementView(Long id, String deviceId) {
+        if (deviceId == null || deviceId.isBlank()) return;
+        if (productViewRepository.existsByProductIdAndDeviceId(id, deviceId)) return;
+
         Product product = findById(id);
         product.setViewCount(product.getViewCount() + 1);
         productRepository.save(product);
+
+        productViewRepository.save(ProductView.builder()
+                .productId(id)
+                .deviceId(deviceId)
+                .build());
     }
 
     // ── Helpers ──────────────────────────────────────────────

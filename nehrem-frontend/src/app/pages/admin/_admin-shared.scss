@@ -79,17 +79,29 @@
     justify-content: space-between;
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
 
     h2 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #1b4332; }
   }
 
   &__close {
-    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #f5f5f5;
     border: none;
-    font-size: 1.2rem;
+    border-radius: 50%;
+    font-size: 1rem;
     cursor: pointer;
-    color: #888;
-    &:hover { color: #333; }
+    color: #666;
+    flex-shrink: 0;
+    transition: background .15s;
+    &:hover { background: #e0e0e0; color: #333; }
   }
 
   &__actions {
@@ -97,6 +109,41 @@
     justify-content: flex-end;
     gap: .75rem;
     padding-top: .5rem;
+  }
+}
+
+// ── Mobile Modal (bottom sheet) ────────────────────────────────────────────
+@media (max-width: 520px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-width: 100%;
+    max-height: 95dvh;
+    max-height: 95vh; // fallback
+
+    &__head {
+      padding: 1rem 1.25rem;
+      h2 { font-size: 1rem; }
+    }
+
+    &__actions {
+      flex-direction: column-reverse;
+      gap: .6rem;
+      padding-top: .75rem;
+    }
+  }
+
+  .btn-save,
+  .btn-cancel {
+    width: 100%;
+    padding: .85rem 1.4rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    text-align: center;
   }
 }
 
@@ -118,10 +165,13 @@
   display: flex;
   flex-direction: column;
   gap: .3rem;
+  min-width: 0; // prevent grid blowout
 
   label { font-size: .83rem; font-weight: 600; color: #444; }
 
   input, textarea, select {
+    width: 100%;
+    box-sizing: border-box;
     padding: .6rem .9rem;
     border: 1.5px solid #ddd;
     border-radius: 8px;
@@ -133,6 +183,33 @@
 
     &:focus { border-color: #2d6a4f; }
     &.error { border-color: #e63946; }
+  }
+
+  input[type="file"] {
+    padding: .4rem .6rem;
+    font-size: .85rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .product-form, .cat-form {
+    padding: 1.25rem;
+    gap: .85rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: .85rem;
+  }
+
+  .form-group {
+    label { font-size: .88rem; }
+
+    input, textarea, select {
+      padding: .75rem 1rem;
+      font-size: 16px; // prevents iOS auto-zoom
+      border-radius: 10px;
+    }
   }
 }
 
@@ -288,6 +365,107 @@
 .rating-cell { white-space: nowrap; }
 
 .empty-row { text-align: center; padding: 2rem; color: #888; font-size: .95rem; }
+
+// ── Admin Search ───────────────────────────────────────────────────────────
+.admin-search {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+
+  &__wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  &__icon {
+    position: absolute;
+    left: .75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    stroke: #999;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: .6rem 2.2rem .6rem 2.2rem;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: .9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+    &:focus { border-color: #2d6a4f; }
+  }
+
+  &__clear {
+    position: absolute;
+    right: .6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    font-size: .85rem;
+    line-height: 1;
+    padding: 2px 4px;
+    &:hover { color: #555; }
+  }
+
+  &__count {
+    font-size: .82rem;
+    color: #888;
+    white-space: nowrap;
+  }
+}
+
+// ── Admin Pagination ───────────────────────────────────────────────────────
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: 1.25rem 0 .5rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 .5rem;
+  border: 1.5px solid #ddd;
+  border-radius: 7px;
+  background: #fff;
+  color: #444;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+
+  &:hover:not(:disabled) { background: #f0faf5; border-color: #2d6a4f; color: #2d6a4f; }
+  &.active { background: #2d6a4f; border-color: #2d6a4f; color: #fff; }
+  &:disabled { opacity: .4; cursor: not-allowed; }
+}
+
+.page-ellipsis {
+  color: #aaa;
+  font-size: .85rem;
+  padding: 0 .2rem;
+  user-select: none;
+}
+
+.page-info {
+  font-size: .8rem;
+  color: #888;
+  margin-left: .5rem;
+}
 
 .admin-loading { display: flex; justify-content: center; padding: 3rem; }
 

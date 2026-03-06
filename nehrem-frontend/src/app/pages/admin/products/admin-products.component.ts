@@ -1,32 +1,44 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
-import { Product, ProductRequest } from '../../../core/models/product.model';
+import { Product, ProductPage, ProductRequest } from '../../../core/models/product.model';
 import { Category } from '../../../core/models/category.model';
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ReactiveFormsModule],
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss'
 })
-export class AdminProductsComponent implements OnInit {
+export class AdminProductsComponent implements OnInit, OnDestroy {
   private productSvc  = inject(ProductService);
   private categorySvc = inject(CategoryService);
   private fb          = inject(FormBuilder);
   private route       = inject(ActivatedRoute);
+  private destroy$    = new Subject<void>();
 
-  products   = signal<Product[]>([]);
-  categories = signal<Category[]>([]);
-  loading    = signal(false);
-  showForm   = signal(false);
-  editingId  = signal<number | null>(null);
-  submitting = signal(false);
-  error      = signal('');
+  products     = signal<Product[]>([]);
+  categories   = signal<Category[]>([]);
+  loading      = signal(false);
+  showForm     = signal(false);
+  editingId    = signal<number | null>(null);
+  submitting   = signal(false);
+  error        = signal('');
+
+  // Pagination + search
+  searchQuery  = signal('');
+  currentPage  = signal(0);
+  totalPages   = signal(0);
+  totalElements = signal(0);
+  readonly pageSize = 10;
+
+  private search$ = new Subject<string>();
 
   selectedImage = signal<File | null>(null);
   previewUrl    = signal<string | null>(null);
@@ -44,16 +56,54 @@ export class AdminProductsComponent implements OnInit {
     this.categorySvc.getAll().subscribe(c => this.categories.set(c));
     this.loadProducts();
 
+    this.search$.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.currentPage.set(0);
+      this.loadProducts();
+    });
+
     const editId = this.route.snapshot.queryParamMap.get('editId');
     if (editId) {
       this.productSvc.getById(+editId).subscribe(p => this.openEdit(p));
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onSearch(value: string): void {
+    this.searchQuery.set(value);
+    this.search$.next(value);
+  }
+
+  goToPage(p: number): void {
+    if (p < 0 || p >= this.totalPages()) return;
+    this.currentPage.set(p);
+    this.loadProducts();
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages() }, (_, i) => i);
+  }
+
   loadProducts(): void {
     this.loading.set(true);
-    this.productSvc.getAll({ size: 100 }).subscribe({
-      next: p => { this.products.set(p.content); this.loading.set(false); },
+    this.productSvc.getAdminAll({
+      search: this.searchQuery() || undefined,
+      page:   this.currentPage(),
+      size:   this.pageSize
+    }).subscribe({
+      next: (page: ProductPage) => {
+        this.products.set(page.content);
+        this.totalPages.set(page.totalPages);
+        this.totalElements.set(page.totalElements);
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false)
     });
   }

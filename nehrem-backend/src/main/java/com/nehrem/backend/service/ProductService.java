@@ -7,10 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductService {
     Page<ProductDTO.Response> getAll(Long categoryId, String search, Pageable pageable);
+    Page<ProductDTO.Response> getAllAdmin(String search, Pageable pageable);
     ProductDTO.Response getById(Long id);
     ProductDTO.Response create(ProductDTO.Request request, MultipartFile image);
     ProductDTO.Response update(Long id, ProductDTO.Request request, MultipartFile image);
     void delete(Long id);
     void toggleActive(Long id);
-    void incrementView(Long id);
+    void incrementView(Long id, String deviceId);
 }

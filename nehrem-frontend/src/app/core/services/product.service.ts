@@ -31,6 +31,15 @@ export class ProductService {
       .pipe(map(r => r.data));
   }
 
+  getAdminAll(params: { search?: string; page?: number; size?: number } = {}): Observable<ProductPage> {
+    let httpParams = new HttpParams()
+      .set('page', params.page ?? 0)
+      .set('size', params.size ?? 10);
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    return this.http.get<ApiResponse<ProductPage>>(`${this.base}/admin-list`, { params: httpParams })
+      .pipe(map(r => r.data));
+  }
+
   getById(id: number): Observable<Product> {
     return this.http.get<ApiResponse<Product>>(`${this.base}/${id}`)
       .pipe(map(r => r.data));
@@ -59,8 +68,20 @@ export class ProductService {
   }
 
   incrementView(id: number): Observable<void> {
-    return this.http.post<ApiResponse<void>>(`${this.base}/${id}/view`, {})
-      .pipe(map(() => void 0));
+    const deviceId = this.getDeviceId();
+    return this.http.post<ApiResponse<void>>(`${this.base}/${id}/view`, {}, {
+      headers: { 'X-Device-Id': deviceId }
+    }).pipe(map(() => void 0));
+  }
+
+  private getDeviceId(): string {
+    const key = 'nehrem_device_id';
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(key, id);
+    }
+    return id;
   }
 
   private buildForm(req: ProductRequest, image?: File): FormData {

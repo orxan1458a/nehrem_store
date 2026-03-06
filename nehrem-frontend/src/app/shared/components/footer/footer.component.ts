@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-footer',
@@ -23,14 +24,15 @@ import { AuthService } from '../../../core/services/auth.service';
         <span>Seçilmişlər</span>
       </a>
 
-      <a routerLink="/cart" routerLinkActive="active" class="bottom-nav__item">
+      <a routerLink="/cart" routerLinkActive="active" class="bottom-nav__item cart-nav">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
         </svg>
-        <span>Sifarişlər</span>
+        @if (cart.count() > 0) {
+          <span class="cart-badge">{{ cart.count() }}</span>
+        }
+        <span>Səbət</span>
       </a>
 
       @if (auth.isAdmin()) {
@@ -93,9 +95,33 @@ import { AuthService } from '../../../core/services/auth.service';
       &.active { color: #00BFA5; }
 
       &--admin.active { color: #00897B; }
+
+    }
+
+    .cart-nav {
+      position: relative;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #00BFA5;
+      color: #fff;
+      border-radius: 999px;
+      font-size: .6rem;
+      font-weight: 700;
+      min-width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+      line-height: 1;
     }
   `]
 })
 export class FooterComponent {
   auth = inject(AuthService);
+  cart = inject(CartService);
 }

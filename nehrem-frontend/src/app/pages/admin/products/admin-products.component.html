@@ -88,6 +88,23 @@
     </div>
   }
 
+  <!-- Search bar -->
+  <div class="admin-search">
+    <div class="admin-search__wrap">
+      <svg class="admin-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="admin-search__input"
+             placeholder="Ad, kateqoriya və ya ID ilə axtar…"
+             [ngModel]="searchQuery()"
+             (ngModelChange)="onSearch($event)">
+      @if (searchQuery()) {
+        <button class="admin-search__clear" (click)="onSearch('')">✕</button>
+      }
+    </div>
+    <span class="admin-search__count">{{ totalElements() }} məhsul</span>
+  </div>
+
   <!-- Table -->
   @if (loading()) {
     <div class="admin-loading"><div class="spinner"></div></div>
@@ -103,8 +120,6 @@
             <th>Endirim</th>
             <th>Stok</th>
             <th>Baxışlar</th>
-            <th>Rəylər</th>
-            <th>Reytinq</th>
             <th>Aktiv</th>
             <th>Əməliyyatlar</th>
           </tr>
@@ -134,21 +149,6 @@
                   {{ p.viewCount ?? 0 }}
                 </span>
               </td>
-              <td class="review-count">
-                <span class="review-badge">{{ p.reviewCount ?? 0 }}</span>
-              </td>
-              <td class="rating-cell">
-                @if (p.averageRating) {
-                  <span class="stars">
-                    @for (s of [1,2,3,4,5]; track s) {
-                      <span [class.filled]="s <= p.averageRating!">★</span>
-                    }
-                  </span>
-                  <span class="rating-num">{{ p.averageRating | number:'1.1-1' }}</span>
-                } @else {
-                  <span class="no-rating">—</span>
-                }
-              </td>
               <td>
                 <span class="status-badge" [class.active]="p.active">
                   {{ p.active ? 'Aktiv' : 'Gizli' }}
@@ -167,8 +167,33 @@
         </tbody>
       </table>
       @if (products().length === 0) {
-        <p class="empty-row">Hələ məhsul yoxdur. Başlamaq üçün "Məhsul əlavə et" düyməsinə basın.</p>
+        <p class="empty-row">
+          @if (searchQuery()) { "{{ searchQuery() }}" üçün nəticə tapılmadı. }
+          @else { Hələ məhsul yoxdur. Başlamaq üçün "Məhsul əlavə et" düyməsinə basın. }
+        </p>
       }
     </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="admin-pagination">
+        <button class="page-btn" [disabled]="currentPage() === 0"
+                (click)="goToPage(currentPage() - 1)">‹</button>
+
+        @for (p of pages; track p) {
+          @if (p === 0 || p === totalPages() - 1 || (p >= currentPage() - 1 && p <= currentPage() + 1)) {
+            <button class="page-btn" [class.active]="p === currentPage()"
+                    (click)="goToPage(p)">{{ p + 1 }}</button>
+          } @else if (p === currentPage() - 2 || p === currentPage() + 2) {
+            <span class="page-ellipsis">…</span>
+          }
+        }
+
+        <button class="page-btn" [disabled]="currentPage() === totalPages() - 1"
+                (click)="goToPage(currentPage() + 1)">›</button>
+
+        <span class="page-info">{{ currentPage() + 1 }} / {{ totalPages() }}</span>
+      </div>
+    }
   }
 </div>

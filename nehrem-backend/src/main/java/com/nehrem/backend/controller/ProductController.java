@@ -41,6 +41,23 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.ok(products));
     }
 
+    @GetMapping("/admin-list")
+    public ResponseEntity<ApiResponse<Page<ProductDTO.Response>>> getAllAdmin(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Page<ProductDTO.Response> products = productService.getAllAdmin(
+                search, PageRequest.of(page, size, sort));
+        return ResponseEntity.ok(ApiResponse.ok(products));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDTO.Response>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(productService.getById(id)));
@@ -77,8 +94,10 @@ public class ProductController {
     }
 
     @PostMapping("/{id}/view")
-    public ResponseEntity<ApiResponse<Void>> incrementView(@PathVariable Long id) {
-        productService.incrementView(id);
+    public ResponseEntity<ApiResponse<Void>> incrementView(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Device-Id", required = false) String deviceId) {
+        productService.incrementView(id, deviceId);
         return ResponseEntity.ok(ApiResponse.ok("View counted", null));
     }
 }

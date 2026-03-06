@@ -201,6 +201,17 @@
         <p class="sheet__desc">{{ p.description }}</p>
       }
 
+      <!-- View count (admin only) -->
+      @if (auth.isAdmin() && p.viewCount !== undefined) {
+        <div class="sheet__views">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          {{ p.viewCount }} unikal baxış
+        </div>
+      }
+
       <!-- Stock -->
       <div class="sheet__stock" [class.sheet__stock--low]="p.stockQuantity > 0 && p.stockQuantity <= 5"
                                 [class.sheet__stock--out]="p.stockQuantity <= 0">

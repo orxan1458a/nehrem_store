@@ -32,4 +32,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     List<Product> findByCategoryId(Long categoryId);
+
+    @Query("""
+        SELECT p FROM Product p LEFT JOIN p.category c
+        WHERE (:search IS NULL OR :search = ''
+               OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))
+               OR LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%'))
+               OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))
+               OR str(p.id) = :search)
+    """)
+    Page<Product> findAllByFiltersAdmin(
+            @Param("search") String search,
+            Pageable pageable
+    );
 }

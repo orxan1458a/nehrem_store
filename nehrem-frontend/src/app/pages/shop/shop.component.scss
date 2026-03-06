@@ -393,6 +393,19 @@
     margin: 0;
   }
 
+  &__views {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .78rem;
+    font-weight: 600;
+    color: #7c3aed;
+    background: #f3e8ff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    align-self: flex-start;
+  }
+
   &__stock {
     display: flex;
     align-items: center;
