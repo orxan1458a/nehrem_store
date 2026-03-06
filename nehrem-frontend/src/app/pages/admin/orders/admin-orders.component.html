@@ -24,6 +24,7 @@
             <th>Status</th>
             <th>Tarix</th>
             <th>Ətraflı</th>
+            <th>Çap</th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +49,9 @@
                 <button class="btn-edit" (click)="toggleExpand(order.id)">
                   {{ expanded() === order.id ? '▲' : '▼' }}
                 </button>
+              </td>
+              <td>
+                <button class="btn-print" (click)="printOrder(order.id)" title="Çap et">🖨️</button>
               </td>
             </tr>
 

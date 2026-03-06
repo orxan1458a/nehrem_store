@@ -73,6 +73,24 @@
     letter-spacing: .03em;
   }
 
+  &__logout-btn {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    background: #ffeaea;
+    color: #e63946;
+    border: none;
+    border-radius: 8px;
+    padding: .4rem .85rem;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s;
+
+    &:hover { background: #ffd6d6; }
+  }
+
   &__burger {
     display: flex;
     flex-direction: column;

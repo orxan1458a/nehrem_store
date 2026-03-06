@@ -3,12 +3,12 @@ package com.nehrem.backend.controller;
 import com.nehrem.backend.dto.ApiResponse;
 import com.nehrem.backend.dto.CategoryDTO;
 import com.nehrem.backend.service.CategoryService;
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/categories")
 public class CategoryController {
     @Autowired
-    private  CategoryService categoryService;
+    private CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryDTO.Response>>> getAll() {
@@ -28,18 +28,29 @@ public class CategoryController {
         return ResponseEntity.ok(ApiResponse.ok(categoryService.getById(id)));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<CategoryDTO.Response>> create(
-            @Valid @RequestBody CategoryDTO.Request request) {
+            @RequestParam String name,
+            @RequestParam(required = false) String description,
+            @RequestPart(value = "icon", required = false) MultipartFile icon) {
+        CategoryDTO.Request request = CategoryDTO.Request.builder()
+                .name(name).description(description).build();
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("Category created successfully", categoryService.create(request)));
+                .body(ApiResponse.ok("Category created successfully",
+                        categoryService.create(request, icon)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<CategoryDTO.Response>> update(
             @PathVariable Long id,
-            @Valid @RequestBody CategoryDTO.Request request) {
-        return ResponseEntity.ok(ApiResponse.ok("Category updated successfully", categoryService.update(id, request)));
+            @RequestParam String name,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) Boolean removeIcon,
+            @RequestPart(value = "icon", required = false) MultipartFile icon) {
+        CategoryDTO.Request request = CategoryDTO.Request.builder()
+                .name(name).description(description).build();
+        return ResponseEntity.ok(ApiResponse.ok("Category updated successfully",
+                categoryService.update(id, request, icon, Boolean.TRUE.equals(removeIcon))));
     }
 
     @DeleteMapping("/{id}")

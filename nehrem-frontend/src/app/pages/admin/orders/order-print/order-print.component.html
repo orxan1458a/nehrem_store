@@ -1,0 +1,81 @@
+@if (loading) {
+  <div class="print-loading">Yüklənir…</div>
+} @else if (error) {
+  <div class="print-loading">{{ error }}</div>
+} @else if (order) {
+  <div class="label">
+
+    <!-- Header -->
+    <div class="label__header">
+      <div class="label__brand">EvTrend</div>
+      <div class="label__order-id">#{{ order.id }}</div>
+    </div>
+
+    <div class="label__divider"></div>
+
+    <!-- Delivery method -->
+    <div class="label__method" [class.pickup]="order.deliveryMethod === 'PICKUP'">
+      {{ order.deliveryMethod === 'DELIVERY' ? 'ÇATDIRILMA' : 'MAĞAZADAN GÖTÜRMƏ' }}
+    </div>
+
+    <div class="label__divider"></div>
+
+    <!-- Customer -->
+    <section class="label__section">
+      <div class="label__section-title">MÜŞTƏRİ</div>
+      <div class="label__customer-name">{{ order.firstName }} {{ order.lastName }}</div>
+      <div class="label__field">
+        <span class="label__field-icon">📞</span>
+        <span>{{ order.phone }}</span>
+      </div>
+      @if (order.deliveryMethod === 'DELIVERY' && order.address) {
+        <div class="label__field">
+          <span class="label__field-icon">📍</span>
+          <span>{{ order.address }}</span>
+        </div>
+      }
+    </section>
+
+    <div class="label__divider"></div>
+
+    <!-- Items -->
+    <section class="label__section">
+      <div class="label__section-title">MƏHSULLAR</div>
+      <table class="label__items">
+        <thead>
+          <tr>
+            <th class="label__item-name">Məhsul</th>
+            <th class="label__item-qty">Miq.</th>
+            <th class="label__item-price">Vahid</th>
+            <th class="label__item-price">Cəm</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of order.items; track item.productId) {
+            <tr>
+              <td class="label__item-name">{{ item.productName }}</td>
+              <td class="label__item-qty">{{ item.quantity }}</td>
+              <td class="label__item-price">{{ item.unitPrice | number:'1.2-2' }} ₼</td>
+              <td class="label__item-price">{{ item.subtotal | number:'1.2-2' }} ₼</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <div class="label__divider"></div>
+
+    <!-- Footer -->
+    <div class="label__footer">
+      <div class="label__total">CƏMİ: {{ order.totalAmount | number:'1.2-2' }} ₼</div>
+      <div class="label__date">{{ order.createdAt | date:'dd.MM.yyyy HH:mm' }}</div>
+    </div>
+
+    @if (order.notes) {
+      <div class="label__notes">
+        <strong>Qeyd:</strong> {{ order.notes }}
+      </div>
+    }
+
+  </div>
+}

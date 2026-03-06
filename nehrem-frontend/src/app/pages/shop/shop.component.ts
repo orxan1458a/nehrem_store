@@ -113,19 +113,4 @@ export class ShopComponent implements OnInit {
     const total = this.productPage()?.totalPages ?? 0;
     return Array.from({ length: total }, (_, i) => i);
   }
-
-  getCategoryIcon(name: string): string {
-    const n = name.toLowerCase();
-    if (n.includes('kitchen'))                          return 'kitchen';
-    if (n.includes('clean'))                            return 'cleaning';
-    if (n.includes('bathroom') || n.includes('bath'))   return 'bathroom';
-    if (n.includes('living'))                           return 'living';
-    if (n.includes('bedroom') || n.includes('bed'))     return 'bedroom';
-    if (n.includes('storage'))                          return 'storage';
-    if (n.includes('garden'))                           return 'garden';
-    if (n.includes('baby') || n.includes('kid'))        return 'baby';
-    if (n.includes('soap'))                             return 'soap';
-    if (n.includes('tissue') || n.includes('paper'))    return 'tissue';
-    return 'default';
-  }
 }

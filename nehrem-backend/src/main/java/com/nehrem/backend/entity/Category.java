@@ -29,6 +29,9 @@ public class Category {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "icon_url")
+    private String iconUrl;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

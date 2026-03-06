@@ -26,6 +26,17 @@
   &.status-cancelled  { background: #fee2e2; color: #991b1b; }
 }
 
+.btn-print {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background .15s;
+  &:hover { background: #f0f0f0; }
+}
+
 .order-detail-row td { background: #f9fdf9; padding: 1rem 1.5rem; }
 
 .order-detail {

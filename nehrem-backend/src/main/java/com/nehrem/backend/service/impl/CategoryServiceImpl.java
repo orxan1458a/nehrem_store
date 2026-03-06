@@ -7,10 +7,20 @@ import com.nehrem.backend.exception.ResourceNotFoundException;
 import com.nehrem.backend.repository.CategoryRepository;
 import com.nehrem.backend.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,6 +29,9 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+
+    @Value("${app.upload.dir:./uploads}")
+    private String uploadDir;
 
     @Override
     @Transactional(readOnly = true)
@@ -35,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDTO.Response create(CategoryDTO.Request request) {
+    public CategoryDTO.Response create(CategoryDTO.Request request, MultipartFile icon) {
         if (categoryRepository.existsByNameIgnoreCase(request.getName())) {
             throw new BusinessException("Category with name '" + request.getName() + "' already exists");
         }
@@ -43,11 +56,16 @@ public class CategoryServiceImpl implements CategoryService {
                 .name(request.getName().trim())
                 .description(request.getDescription())
                 .build();
+
+        if (icon != null && !icon.isEmpty()) {
+            category.setIconUrl(saveFile(icon));
+        }
+
         return toResponse(categoryRepository.save(category));
     }
 
     @Override
-    public CategoryDTO.Response update(Long id, CategoryDTO.Request request) {
+    public CategoryDTO.Response update(Long id, CategoryDTO.Request request, MultipartFile icon, boolean removeIcon) {
         Category category = findById(id);
         categoryRepository.findByNameIgnoreCase(request.getName())
                 .filter(c -> !c.getId().equals(id))
@@ -55,6 +73,15 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setName(request.getName().trim());
         category.setDescription(request.getDescription());
+
+        if (icon != null && !icon.isEmpty()) {
+            deleteFile(category.getIconUrl());
+            category.setIconUrl(saveFile(icon));
+        } else if (removeIcon) {
+            deleteFile(category.getIconUrl());
+            category.setIconUrl(null);
+        }
+
         return toResponse(categoryRepository.save(category));
     }
 
@@ -64,6 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (category.getProducts() != null && !category.getProducts().isEmpty()) {
             throw new BusinessException("Cannot delete category that has products assigned");
         }
+        deleteFile(category.getIconUrl());
         categoryRepository.delete(category);
     }
 
@@ -72,11 +100,43 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", id));
     }
 
+    private String saveFile(MultipartFile file) {
+        try {
+            Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Files.createDirectories(uploadPath);
+
+            String originalFilename = StringUtils.cleanPath(
+                    Objects.requireNonNull(file.getOriginalFilename()));
+            String extension = originalFilename.contains(".")
+                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                    : "";
+            String fileName = UUID.randomUUID() + extension;
+
+            Files.copy(file.getInputStream(),
+                    uploadPath.resolve(fileName),
+                    StandardCopyOption.REPLACE_EXISTING);
+
+            return "/uploads/" + fileName;
+        } catch (IOException ex) {
+            throw new BusinessException("Could not save icon: " + ex.getMessage());
+        }
+    }
+
+    private void deleteFile(String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank()) return;
+        try {
+            String filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+            Path filePath = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(filename);
+            Files.deleteIfExists(filePath);
+        } catch (IOException ignored) {}
+    }
+
     private CategoryDTO.Response toResponse(Category c) {
         return CategoryDTO.Response.builder()
                 .id(c.getId())
                 .name(c.getName())
                 .description(c.getDescription())
+                .iconUrl(c.getIconUrl())
                 .createdAt(c.getCreatedAt())
                 .build();
     }

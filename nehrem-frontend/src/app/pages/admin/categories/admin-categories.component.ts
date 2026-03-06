@@ -16,12 +16,15 @@ export class AdminCategoriesComponent implements OnInit {
   private categorySvc = inject(CategoryService);
   private fb          = inject(FormBuilder);
 
-  categories = signal<Category[]>([]);
-  loading    = signal(false);
-  showForm   = signal(false);
-  editingId  = signal<number | null>(null);
-  submitting = signal(false);
-  error      = signal('');
+  categories    = signal<Category[]>([]);
+  loading       = signal(false);
+  showForm      = signal(false);
+  editingId     = signal<number | null>(null);
+  submitting    = signal(false);
+  error         = signal('');
+  selectedIcon  = signal<File | null>(null);
+  previewUrl    = signal<string | null>(null);
+  removeIcon    = signal(false);
 
   form = this.fb.group({
     name:        ['', [Validators.required, Validators.maxLength(100)]],
@@ -41,6 +44,9 @@ export class AdminCategoriesComponent implements OnInit {
   openCreate(): void {
     this.editingId.set(null);
     this.form.reset();
+    this.selectedIcon.set(null);
+    this.previewUrl.set(null);
+    this.removeIcon.set(false);
     this.error.set('');
     this.showForm.set(true);
   }
@@ -48,8 +54,27 @@ export class AdminCategoriesComponent implements OnInit {
   openEdit(cat: Category): void {
     this.editingId.set(cat.id);
     this.form.patchValue({ name: cat.name, description: cat.description ?? '' });
+    this.selectedIcon.set(null);
+    this.previewUrl.set(cat.iconUrl ? `http://localhost:8080${cat.iconUrl}` : null);
+    this.removeIcon.set(false);
     this.error.set('');
     this.showForm.set(true);
+  }
+
+  onIconSelect(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.selectedIcon.set(file);
+    this.removeIcon.set(false);
+    const reader = new FileReader();
+    reader.onload = () => this.previewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  clearIcon(): void {
+    this.selectedIcon.set(null);
+    this.previewUrl.set(null);
+    this.removeIcon.set(true);
   }
 
   onSubmit(): void {
@@ -57,25 +82,26 @@ export class AdminCategoriesComponent implements OnInit {
     this.submitting.set(true);
     this.error.set('');
 
-    const val = this.form.getRawValue();
-    const req = { name: val.name!, description: val.description || undefined };
-    const id  = this.editingId();
+    const val  = this.form.getRawValue();
+    const req  = { name: val.name!, description: val.description || undefined };
+    const icon = this.selectedIcon() ?? undefined;
+    const id   = this.editingId();
 
     const obs = id
-      ? this.categorySvc.update(id, req)
-      : this.categorySvc.create(req);
+      ? this.categorySvc.update(id, req, icon, this.removeIcon())
+      : this.categorySvc.create(req, icon);
 
     obs.subscribe({
       next: () => { this.showForm.set(false); this.loadCategories(); this.submitting.set(false); },
-      error: err => { this.error.set(err?.error?.message ?? 'Error saving category'); this.submitting.set(false); }
+      error: err => { this.error.set(err?.error?.message ?? 'Kateqoriya saxlanılarkən xəta baş verdi'); this.submitting.set(false); }
     });
   }
 
   delete(id: number): void {
-    if (!confirm('Delete this category?')) return;
+    if (!confirm('Bu kateqoriyanı silmək istəyirsiniz?')) return;
     this.categorySvc.delete(id).subscribe({
       next: () => this.loadCategories(),
-      error: err => alert(err?.error?.message ?? 'Cannot delete category')
+      error: err => alert(err?.error?.message ?? 'Kateqoriya silinə bilmədi')
     });
   }
 

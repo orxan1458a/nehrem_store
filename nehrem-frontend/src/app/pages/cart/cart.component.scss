@@ -3,7 +3,7 @@
   margin: 0 auto;
   padding: 2rem 1rem;
 
-  &__title { font-size: 1.8rem; font-weight: 700; color: #1b4332; margin: 0 0 1.5rem; }
+  &__title { font-size: 1.8rem; font-weight: 700; color: #00897B; margin: 0 0 1.5rem; }
 
   &__empty {
     text-align: center;
@@ -29,7 +29,7 @@
     position: sticky;
     top: 80px;
 
-    h2 { font-size: 1.1rem; font-weight: 700; color: #1b4332; margin: 0 0 1rem; }
+    h2 { font-size: 1.1rem; font-weight: 700; color: #00897B; margin: 0 0 1rem; }
     hr  { border: none; border-top: 1px solid #eee; margin: .75rem 0; }
   }
 }
@@ -67,7 +67,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  &__cat   { font-size: .75rem; color: #2d6a4f; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__cat   { font-size: .75rem; color: #00BFA5; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   &__price { font-size: .9rem; color: #555; margin: .2rem 0 0; }
 
   &__qty {
@@ -78,7 +78,7 @@
     span { min-width: 20px; text-align: center; font-weight: 600; }
   }
 
-  &__subtotal { font-weight: 700; color: #2d6a4f; min-width: 80px; text-align: right; }
+  &__subtotal { font-weight: 700; color: #00BFA5; min-width: 80px; text-align: right; }
 
   &__remove {
     background: none;
@@ -102,7 +102,7 @@
   line-height: 1;
   transition: border-color .15s;
 
-  &:hover:not(:disabled) { border-color: #2d6a4f; }
+  &:hover:not(:disabled) { border-color: #00BFA5; }
   &:disabled { opacity: .4; cursor: not-allowed; }
 }
 
@@ -127,11 +127,11 @@
 }
 
 .btn-primary {
-  background: #2d6a4f;
+  background: #00BFA5;
   color: #fff;
   border: none;
   cursor: pointer;
-  &:hover { background: #1b4332; }
+  &:hover { background: #00897B; }
 }
 
 .btn-secondary {

@@ -20,13 +20,22 @@ export class CategoryService {
       .pipe(map(r => r.data));
   }
 
-  create(req: CategoryRequest): Observable<Category> {
-    return this.http.post<ApiResponse<Category>>(this.base, req)
+  create(req: CategoryRequest, icon?: File): Observable<Category> {
+    const fd = new FormData();
+    fd.append('name', req.name);
+    if (req.description) fd.append('description', req.description);
+    if (icon) fd.append('icon', icon);
+    return this.http.post<ApiResponse<Category>>(this.base, fd)
       .pipe(map(r => r.data));
   }
 
-  update(id: number, req: CategoryRequest): Observable<Category> {
-    return this.http.put<ApiResponse<Category>>(`${this.base}/${id}`, req)
+  update(id: number, req: CategoryRequest, icon?: File, removeIcon = false): Observable<Category> {
+    const fd = new FormData();
+    fd.append('name', req.name);
+    if (req.description) fd.append('description', req.description);
+    if (icon) fd.append('icon', icon);
+    if (removeIcon) fd.append('removeIcon', 'true');
+    return this.http.put<ApiResponse<Category>>(`${this.base}/${id}`, fd)
       .pipe(map(r => r.data));
   }
 

@@ -30,6 +30,19 @@
             <textarea formControlName="description" rows="3"
                       placeholder="İsteğe bağlı təsvir…"></textarea>
           </div>
+
+          <!-- Icon upload -->
+          <div class="form-group">
+            <label>İkon (PNG, SVG, JPG — isteğe bağlı)</label>
+            <input type="file" accept="image/*,.svg" (change)="onIconSelect($event)">
+            @if (previewUrl()) {
+              <div class="icon-preview">
+                <img [src]="previewUrl()!" alt="İkon önizlə" class="icon-preview__img">
+                <button type="button" class="btn-remove-icon" (click)="clearIcon()">✕ İkonu sil</button>
+              </div>
+            }
+          </div>
+
           @if (error()) { <div class="alert-error">{{ error() }}</div> }
           <div class="modal__actions">
             <button type="button" class="btn-cancel" (click)="showForm.set(false)">Ləğv et</button>
@@ -50,7 +63,7 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>#</th>
+            <th>İkon</th>
             <th>Ad</th>
             <th>Təsvir</th>
             <th>Yaradılıb</th>
@@ -60,7 +73,14 @@
         <tbody>
           @for (cat of categories(); track cat.id) {
             <tr>
-              <td>{{ cat.id }}</td>
+              <td>
+                @if (cat.iconUrl) {
+                  <img [src]="'http://localhost:8080' + cat.iconUrl"
+                       [alt]="cat.name" class="cat-icon-thumb">
+                } @else {
+                  <span class="no-icon">—</span>
+                }
+              </td>
               <td><strong>{{ cat.name }}</strong></td>
               <td>{{ cat.description ?? '—' }}</td>
               <td>{{ cat.createdAt | date:'mediumDate' }}</td>

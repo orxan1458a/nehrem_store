@@ -43,6 +43,10 @@ export class AdminOrdersComponent implements OnInit {
     this.expanded.update(v => v === id ? null : id);
   }
 
+  printOrder(id: number): void {
+    window.open(`/admin/orders/${id}/print`, '_blank');
+  }
+
   get pages(): number[] {
     return Array.from({ length: this.totalPages() }, (_, i) => i);
   }
