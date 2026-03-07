@@ -1,11 +1,13 @@
 package com.nehrem.backend.service.impl;
 
 import com.nehrem.backend.dto.OrderDTO;
+import com.nehrem.backend.entity.Courier;
 import com.nehrem.backend.entity.Order;
 import com.nehrem.backend.entity.OrderItem;
 import com.nehrem.backend.entity.Product;
 import com.nehrem.backend.exception.BusinessException;
 import com.nehrem.backend.exception.ResourceNotFoundException;
+import com.nehrem.backend.repository.CourierRepository;
 import com.nehrem.backend.repository.OrderRepository;
 import com.nehrem.backend.repository.ProductRepository;
 import com.nehrem.backend.service.OrderService;
@@ -25,18 +27,17 @@ import java.util.stream.Collectors;
 @Transactional
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository orderRepository;
+    private final OrderRepository   orderRepository;
     private final ProductRepository productRepository;
+    private final CourierRepository courierRepository;
 
     @Override
     public OrderDTO.Response create(OrderDTO.Request request) {
-        // Validate delivery address
         if (request.getDeliveryMethod() == Order.DeliveryMethod.DELIVERY
                 && (request.getAddress() == null || request.getAddress().isBlank())) {
             throw new BusinessException("Delivery address is required for delivery orders");
         }
 
-        // Build order items and calculate total
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
 
@@ -65,7 +66,6 @@ public class OrderServiceImpl implements OrderService {
                     .subtotal(subtotal)
                     .build());
 
-            // Update stock
             product.setStockQuantity(product.getStockQuantity() - itemReq.getQuantity());
             productRepository.save(product);
         }
@@ -95,9 +95,59 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<OrderDTO.Response> getAllByStatus(Order.OrderStatus status, Pageable pageable) {
+        return orderRepository.findByStatusOrderByCreatedAtDesc(status, pageable).map(this::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public OrderDTO.Response getById(Long id) {
         return toResponse(orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", id)));
+    }
+
+    @Override
+    public OrderDTO.Response updateStatus(Long id, Order.OrderStatus status) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
+        order.setStatus(status);
+        return toResponse(orderRepository.save(order));
+    }
+
+    @Override
+    public OrderDTO.Response assignCourier(Long id, Long courierId) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
+        if (courierId == null) {
+            order.setCourier(null);
+        } else {
+            Courier courier = courierRepository.findById(courierId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Courier", courierId));
+            order.setCourier(courier);
+        }
+        return toResponse(orderRepository.save(order));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderDTO.Response> getCourierOrders(Long courierId, Pageable pageable) {
+        return orderRepository
+                .findByCourierIdAndStatusOrderByCreatedAtDesc(courierId, Order.OrderStatus.ACCEPTED, pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    public OrderDTO.Response markDelivered(Long orderId, Long courierId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
+        if (order.getCourier() == null || !order.getCourier().getId().equals(courierId)) {
+            throw new BusinessException("This order is not assigned to you");
+        }
+        if (order.getStatus() != Order.OrderStatus.ACCEPTED) {
+            throw new BusinessException("Only ACCEPTED orders can be marked as delivered");
+        }
+        order.setStatus(Order.OrderStatus.DELIVERED);
+        return toResponse(orderRepository.save(order));
     }
 
     // ── Mapper ───────────────────────────────────────────────
@@ -113,6 +163,15 @@ public class OrderServiceImpl implements OrderService {
                         .build())
                 .collect(Collectors.toList());
 
+        OrderDTO.CourierInfo courierInfo = null;
+        if (o.getCourier() != null) {
+            courierInfo = OrderDTO.CourierInfo.builder()
+                    .id(o.getCourier().getId())
+                    .name(o.getCourier().getName())
+                    .phone(o.getCourier().getPhone())
+                    .build();
+        }
+
         return OrderDTO.Response.builder()
                 .id(o.getId())
                 .firstName(o.getFirstName())
@@ -123,8 +182,10 @@ public class OrderServiceImpl implements OrderService {
                 .totalAmount(o.getTotalAmount())
                 .status(o.getStatus())
                 .notes(o.getNotes())
+                .courier(courierInfo)
                 .items(items)
                 .createdAt(o.getCreatedAt())
+                .updatedAt(o.getUpdatedAt())
                 .build();
     }
 }

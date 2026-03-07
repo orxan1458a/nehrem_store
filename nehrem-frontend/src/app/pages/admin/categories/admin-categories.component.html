@@ -5,97 +5,98 @@
   </div>
 
   <nav class="admin-nav">
-    <a [routerLink]="['/admin/dashboard']"  routerLinkActive="active">İdarə Paneli</a>
-    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Məhsullar</a>
+    <a [routerLink]="['/admin/dashboard']" routerLinkActive="active">İdarə Paneli</a>
+    <a [routerLink]="['/admin/products']" routerLinkActive="active">Məhsullar</a>
     <a [routerLink]="['/admin/categories']" routerLinkActive="active">Kateqoriyalar</a>
-    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Sifarişlər</a>
+    <a [routerLink]="['/admin/orders']" routerLinkActive="active">Sifarişlər</a>
+    <a [routerLink]="['/admin/couriers']" routerLinkActive="active">Kuryerlər</a>
+
   </nav>
 
   <!-- Modal -->
   @if (showForm()) {
-    <div class="modal-overlay" (click)="showForm.set(false)">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal__head">
-          <h2>{{ editingId() ? 'Kateqoriyanı redaktə et' : 'Yeni kateqoriya' }}</h2>
-          <button class="modal__close" (click)="showForm.set(false)">✕</button>
-        </div>
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="cat-form">
-          <div class="form-group">
-            <label>Ad *</label>
-            <input formControlName="name" type="text" placeholder="məs. Elektronika"
-                   [class.error]="hasError('name')">
-            @if (hasError('name', 'required')) { <span class="err">Ad tələb olunur</span> }
-          </div>
-          <div class="form-group">
-            <label>Təsvir</label>
-            <textarea formControlName="description" rows="3"
-                      placeholder="İsteğe bağlı təsvir…"></textarea>
-          </div>
-
-          <!-- Icon upload -->
-          <div class="form-group">
-            <label>İkon (PNG, SVG, JPG — isteğe bağlı)</label>
-            <input type="file" accept="image/*,.svg" (change)="onIconSelect($event)">
-            @if (previewUrl()) {
-              <div class="icon-preview">
-                <img [src]="previewUrl()!" alt="İkon önizlə" class="icon-preview__img">
-                <button type="button" class="btn-remove-icon" (click)="clearIcon()">✕ İkonu sil</button>
-              </div>
-            }
-          </div>
-
-          @if (error()) { <div class="alert-error">{{ error() }}</div> }
-          <div class="modal__actions">
-            <button type="button" class="btn-cancel" (click)="showForm.set(false)">Ləğv et</button>
-            <button type="submit" class="btn-save" [disabled]="submitting()">
-              {{ submitting() ? 'Saxlanılır…' : (editingId() ? 'Yenilə' : 'Yarat') }}
-            </button>
-          </div>
-        </form>
+  <div class="modal-overlay" (click)="showForm.set(false)">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__head">
+        <h2>{{ editingId() ? 'Kateqoriyanı redaktə et' : 'Yeni kateqoriya' }}</h2>
+        <button class="modal__close" (click)="showForm.set(false)">✕</button>
       </div>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="cat-form">
+        <div class="form-group">
+          <label>Ad *</label>
+          <input formControlName="name" type="text" placeholder="məs. Elektronika" [class.error]="hasError('name')">
+          @if (hasError('name', 'required')) { <span class="err">Ad tələb olunur</span> }
+        </div>
+        <div class="form-group">
+          <label>Təsvir</label>
+          <textarea formControlName="description" rows="3" placeholder="İsteğe bağlı təsvir…"></textarea>
+        </div>
+
+        <!-- Icon upload -->
+        <div class="form-group">
+          <label>İkon (PNG, SVG, JPG — isteğe bağlı)</label>
+          <input type="file" accept="image/*,.svg" (change)="onIconSelect($event)">
+          @if (previewUrl()) {
+          <div class="icon-preview">
+            <img [src]="previewUrl()!" alt="İkon önizlə" class="icon-preview__img">
+            <button type="button" class="btn-remove-icon" (click)="clearIcon()">✕ İkonu sil</button>
+          </div>
+          }
+        </div>
+
+        @if (error()) { <div class="alert-error">{{ error() }}</div> }
+        <div class="modal__actions">
+          <button type="button" class="btn-cancel" (click)="showForm.set(false)">Ləğv et</button>
+          <button type="submit" class="btn-save" [disabled]="submitting()">
+            {{ submitting() ? 'Saxlanılır…' : (editingId() ? 'Yenilə' : 'Yarat') }}
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
   }
 
   <!-- Table -->
   @if (loading()) {
-    <div class="admin-loading"><div class="spinner"></div></div>
+  <div class="admin-loading">
+    <div class="spinner"></div>
+  </div>
   } @else {
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>İkon</th>
-            <th>Ad</th>
-            <th>Təsvir</th>
-            <th>Yaradılıb</th>
-            <th>Əməliyyatlar</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (cat of categories(); track cat.id) {
-            <tr>
-              <td>
-                @if (cat.iconUrl) {
-                  <img [src]="'http://localhost:8080' + cat.iconUrl"
-                       [alt]="cat.name" class="cat-icon-thumb">
-                } @else {
-                  <span class="no-icon">—</span>
-                }
-              </td>
-              <td><strong>{{ cat.name }}</strong></td>
-              <td>{{ cat.description ?? '—' }}</td>
-              <td>{{ cat.createdAt | date:'mediumDate' }}</td>
-              <td class="actions">
-                <button class="btn-edit"   (click)="openEdit(cat)">✏️</button>
-                <button class="btn-delete" (click)="delete(cat.id)">🗑️</button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      @if (categories().length === 0) {
-        <p class="empty-row">Hələ kateqoriya yoxdur.</p>
-      }
-    </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>İkon</th>
+          <th>Ad</th>
+          <th>Təsvir</th>
+          <th>Yaradılıb</th>
+          <th>Əməliyyatlar</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cat of categories(); track cat.id) {
+        <tr>
+          <td>
+            @if (cat.iconUrl) {
+            <img [src]="'http://localhost:8080' + cat.iconUrl" [alt]="cat.name" class="cat-icon-thumb">
+            } @else {
+            <span class="no-icon">—</span>
+            }
+          </td>
+          <td><strong>{{ cat.name }}</strong></td>
+          <td>{{ cat.description ?? '—' }}</td>
+          <td>{{ cat.createdAt | date:'mediumDate' }}</td>
+          <td class="actions">
+            <button class="btn-edit" (click)="openEdit(cat)">✏️</button>
+            <button class="btn-delete" (click)="delete(cat.id)">🗑️</button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    @if (categories().length === 0) {
+    <p class="empty-row">Hələ kateqoriya yoxdur.</p>
+    }
+  </div>
   }
 </div>

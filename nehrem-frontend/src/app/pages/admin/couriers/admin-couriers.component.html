@@ -1,0 +1,112 @@
+<div class="admin-page">
+  <div class="admin-page__head">
+    <h1>Kuryerlər</h1>
+    <button class="btn-add" (click)="openCreate()">+ Kuryer əlavə et</button>
+  </div>
+
+  <nav class="admin-nav">
+    <a [routerLink]="['/admin/dashboard']"  routerLinkActive="active">İdarə Paneli</a>
+    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Məhsullar</a>
+    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Kateqoriyalar</a>
+    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Sifarişlər</a>
+    <a [routerLink]="['/admin/couriers']"   routerLinkActive="active">Kuryerlər</a>
+  </nav>
+
+  <!-- Modal -->
+  @if (showForm()) {
+    <div class="modal-overlay" (click)="closeForm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__head">
+          <h2>{{ editingId() ? 'Kuryeri redaktə et' : 'Yeni kuryer' }}</h2>
+          <button class="modal__close" (click)="closeForm()">✕</button>
+        </div>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="courier-form">
+
+          <div class="form-group">
+            <label>Ad Soyad *</label>
+            <input formControlName="name" type="text" placeholder="məs. Tural Əliyev"
+                   [class.error]="hasError('name')">
+            @if (hasError('name', 'required')) { <span class="err">Ad tələb olunur</span> }
+          </div>
+
+          <div class="form-group">
+            <label>Telefon</label>
+            <input formControlName="phone" type="tel" placeholder="+994 50 000 00 00">
+          </div>
+
+          <div class="form-group">
+            <label>İstifadəçi adı *</label>
+            <input formControlName="username" type="text" placeholder="məs. tural_99"
+                   [class.error]="hasError('username')">
+            @if (hasError('username', 'required'))  { <span class="err">İstifadəçi adı tələb olunur</span> }
+            @if (hasError('username', 'pattern'))   { <span class="err">Yalnız hərf, rəqəm, nöqtə, alt xətt</span> }
+          </div>
+
+          <div class="form-group">
+            <label>{{ editingId() ? 'Şifrə (dəyişdirmək üçün daxil edin)' : 'Şifrə *' }}</label>
+            <input formControlName="password" type="password" placeholder="Minimum 4 simvol"
+                   [class.error]="hasError('password')">
+            @if (hasError('password', 'required'))   { <span class="err">Şifrə tələb olunur</span> }
+            @if (hasError('password', 'minlength'))  { <span class="err">Minimum 4 simvol</span> }
+          </div>
+
+          @if (error()) { <div class="alert-error">{{ error() }}</div> }
+
+          <div class="modal__actions">
+            <button type="button" class="btn-cancel" (click)="closeForm()">Ləğv et</button>
+            <button type="submit" class="btn-save" [disabled]="submitting()">
+              {{ submitting() ? 'Saxlanılır…' : (editingId() ? 'Yenilə' : 'Yarat') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="admin-loading"><div class="spinner"></div></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ad Soyad</th>
+            <th>Telefon</th>
+            <th>İstifadəçi adı</th>
+            <th>Status</th>
+            <th>Əməliyyatlar</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of couriers(); track c.id) {
+            <tr [class.inactive-row]="!c.active">
+              <td>{{ c.id }}</td>
+              <td><strong>{{ c.name }}</strong></td>
+              <td>{{ c.phone || '—' }}</td>
+              <td><code class="username">{{ c.username }}</code></td>
+              <td>
+                <span class="status-pill" [class.active]="c.active">
+                  {{ c.active ? 'Aktiv' : 'Deaktiv' }}
+                </span>
+              </td>
+              <td class="actions">
+                <button class="btn-edit"   (click)="openEdit(c)" title="Redaktə et">✏️</button>
+                <button class="btn-toggle" (click)="toggleActive(c)"
+                        [title]="c.active ? 'Deaktiv et' : 'Aktiv et'">
+                  {{ c.active ? '🔒' : '🔓' }}
+                </button>
+                <button class="btn-delete" (click)="delete(c)" title="Sil">🗑️</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (couriers().length === 0) {
+        <p class="empty-row">Hələ kuryer yoxdur.</p>
+      }
+    </div>
+  }
+</div>

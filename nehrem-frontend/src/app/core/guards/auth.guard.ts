@@ -11,3 +11,13 @@ export const adminGuard: CanActivateFn = () => {
   router.navigate(['/login']);
   return false;
 };
+
+export const courierGuard: CanActivateFn = () => {
+  const auth   = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.isCourier()) return true;
+
+  router.navigate(['/login']);
+  return false;
+};

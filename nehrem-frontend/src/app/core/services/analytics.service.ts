@@ -7,9 +7,8 @@ import { environment } from '../../../environments/environment';
 export interface AnalyticsStats {
   totalOrders: number;
   pendingOrders: number;
-  confirmedOrders: number;
-  processingOrders: number;
-  completedOrders: number;
+  acceptedOrders: number;
+  deliveredOrders: number;
   cancelledOrders: number;
   totalRevenue: number;
   totalProducts: number;

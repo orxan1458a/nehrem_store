@@ -1,0 +1,76 @@
+<div class="courier-page">
+  <header class="courier-header">
+    <div class="courier-header__brand">
+      <span class="brand-icon">🚚</span>
+      <span class="brand-name">Kuryer Paneli</span>
+    </div>
+    <div class="courier-header__right">
+      @if (courierName()) {
+        <span class="courier-name">{{ courierName() }}</span>
+      }
+      <button class="btn-logout" (click)="logout()">Çıxış</button>
+    </div>
+  </header>
+
+  <main class="courier-main">
+    <h2 class="section-title">Mənim Sifarişlərim</h2>
+    <p class="section-sub">Aşağıdakılar sizə təyin edilmiş və çatdırılmağı gözləyən sifarişlərdir.</p>
+
+    @if (loading()) {
+      <div class="courier-loading"><div class="spinner"></div></div>
+    } @else if (orders().length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon">📦</span>
+        <p>Hazırda aktiv sifarişiniz yoxdur.</p>
+      </div>
+    } @else {
+      <div class="order-cards">
+        @for (order of orders(); track order.id) {
+          <div class="order-card">
+            <div class="order-card__head">
+              <span class="order-id">#{{ order.id }}</span>
+              <span class="order-date">{{ order.createdAt | date:'dd MMM, HH:mm' }}</span>
+            </div>
+
+            <div class="order-card__body">
+              <p class="customer-name">{{ order.firstName }} {{ order.lastName }}</p>
+              <p class="customer-phone">
+                <a [href]="'tel:' + order.phone">{{ order.phone }}</a>
+              </p>
+              @if (order.address) {
+                <p class="address">📍 {{ order.address }}</p>
+              }
+            </div>
+
+            <div class="order-card__items">
+              @for (item of order.items; track item.productId) {
+                <div class="item-row">
+                  <span class="item-name">{{ item.productName }}</span>
+                  <span class="item-qty">× {{ item.quantity }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="order-card__foot">
+              <span class="total">{{ order.totalAmount | number:'1.2-2' }} ₼</span>
+              <button class="btn-delivered"
+                      [disabled]="actionLoading() === order.id"
+                      (click)="markDelivered(order)">
+                {{ actionLoading() === order.id ? 'Göndərilir…' : 'Çatdırıldı ✓' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <nav class="pagination">
+          @for (p of pages; track p) {
+            <button class="page-btn" [class.active]="p === currentPage()"
+                    (click)="goToPage(p)">{{ p + 1 }}</button>
+          }
+        </nav>
+      }
+    }
+  </main>
+</div>

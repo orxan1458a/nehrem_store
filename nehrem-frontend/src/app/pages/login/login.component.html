@@ -10,8 +10,20 @@
       <span>EvTrend</span>
     </div>
 
-    <h1 class="login-card__title">Admin Girişi</h1>
-    <p class="login-card__sub">Mağazanı idarə etmək üçün daxil olun</p>
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <button type="button" class="mode-btn" [class.active]="mode() === 'admin'"
+              (click)="mode.set('admin')">Admin</button>
+      <button type="button" class="mode-btn" [class.active]="mode() === 'courier'"
+              (click)="mode.set('courier')">Kuryer</button>
+    </div>
+
+    <h1 class="login-card__title">
+      {{ mode() === 'admin' ? 'Admin Girişi' : 'Kuryer Girişi' }}
+    </h1>
+    <p class="login-card__sub">
+      {{ mode() === 'admin' ? 'Mağazanı idarə etmək üçün daxil olun' : 'Kuryer panelinə daxil olun' }}
+    </p>
 
     <!-- Error -->
     @if (error()) {

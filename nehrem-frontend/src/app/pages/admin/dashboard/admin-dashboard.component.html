@@ -18,6 +18,7 @@
     <a [routerLink]="['/admin/products']"   routerLinkActive="active">Məhsullar</a>
     <a [routerLink]="['/admin/categories']" routerLinkActive="active">Kateqoriyalar</a>
     <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Sifarişlər</a>
+    <a [routerLink]="['/admin/couriers']"   routerLinkActive="active">Kuryerlər</a>
   </nav>
 
   @if (loading()) {
@@ -64,7 +65,7 @@
         </div>
         <div class="stat-card__body">
           <span class="stat-card__label">Qəbul Edilmiş Sifarişlər</span>
-          <span class="stat-card__value">{{ (stats()?.confirmedOrders ?? 0) + (stats()?.processingOrders ?? 0) | number }}</span>
+          <span class="stat-card__value">{{ stats()?.acceptedOrders ?? 0 | number }}</span>
         </div>
       </div>
 
@@ -79,7 +80,7 @@
         </div>
         <div class="stat-card__body">
           <span class="stat-card__label">Çatdırılmış Sifarişlər</span>
-          <span class="stat-card__value">{{ stats()?.completedOrders ?? 0 | number }}</span>
+          <span class="stat-card__value">{{ stats()?.deliveredOrders ?? 0 | number }}</span>
         </div>
       </div>
 

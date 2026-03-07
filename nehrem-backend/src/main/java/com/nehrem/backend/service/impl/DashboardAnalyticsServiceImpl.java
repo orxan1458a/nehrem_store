@@ -27,9 +27,8 @@ public class DashboardAnalyticsServiceImpl implements DashboardAnalyticsService 
         return AnalyticsDTO.Stats.builder()
                 .totalOrders(orderRepository.count())
                 .pendingOrders(orderRepository.countByStatus(Order.OrderStatus.PENDING))
-                .confirmedOrders(orderRepository.countByStatus(Order.OrderStatus.CONFIRMED))
-                .processingOrders(orderRepository.countByStatus(Order.OrderStatus.PROCESSING))
-                .completedOrders(orderRepository.countByStatus(Order.OrderStatus.COMPLETED))
+                .acceptedOrders(orderRepository.countByStatus(Order.OrderStatus.ACCEPTED))
+                .deliveredOrders(orderRepository.countByStatus(Order.OrderStatus.DELIVERED))
                 .cancelledOrders(orderRepository.countByStatus(Order.OrderStatus.CANCELLED))
                 .totalRevenue(revenue != null ? revenue : BigDecimal.ZERO)
                 .totalProducts(productRepository.count())
@@ -65,7 +64,7 @@ public class DashboardAnalyticsServiceImpl implements DashboardAnalyticsService 
                         .build())
                 .toList();
 
-        List<AnalyticsDTO.ProductSale> topProducts = orderRepository.topProductsByQuantity(10)
+        List<AnalyticsDTO.ProductSale> topProducts = orderRepository.topProductsByQuantity()
                 .stream()
                 .map(row -> AnalyticsDTO.ProductSale.builder()
                         .name(row[0].toString())

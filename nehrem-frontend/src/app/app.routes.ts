@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard } from './core/guards/auth.guard';
+import { adminGuard, courierGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'shop', pathMatch: 'full' },
@@ -52,8 +52,19 @@ export const routes: Routes = [
         path: 'orders/:id/print',
         loadComponent: () => import('./pages/admin/orders/order-print/order-print.component')
           .then(m => m.OrderPrintComponent)
+      },
+      {
+        path: 'couriers',
+        loadComponent: () => import('./pages/admin/couriers/admin-couriers.component')
+          .then(m => m.AdminCouriersComponent)
       }
     ]
+  },
+  {
+    path: 'courier',
+    canActivate: [courierGuard],
+    loadComponent: () => import('./pages/courier/courier-orders.component')
+      .then(m => m.CourierOrdersComponent)
   },
   { path: '**', redirectTo: 'shop' }
 ];

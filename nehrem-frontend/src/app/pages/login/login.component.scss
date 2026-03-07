@@ -123,6 +123,34 @@
   }
 }
 
+.mode-toggle {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 1.25rem;
+  gap: 3px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: .45rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: .88rem;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  transition: all .2s;
+
+  &.active {
+    background: #fff;
+    color: #00897B;
+    box-shadow: 0 1px 4px rgba(0,0,0,.1);
+  }
+}
+
 .btn-spinner {
   width: 18px;
   height: 18px;

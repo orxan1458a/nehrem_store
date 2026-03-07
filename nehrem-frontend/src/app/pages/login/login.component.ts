@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -6,7 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -18,6 +19,7 @@ export class LoginComponent {
   password = signal('');
   error    = signal('');
   loading  = signal(false);
+  mode     = signal<'admin' | 'courier'>('admin');
 
   onSubmit(): void {
     if (!this.username() || !this.password()) {
@@ -27,14 +29,27 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set('');
 
-    setTimeout(() => {
-      const ok = this.auth.login(this.username(), this.password());
-      this.loading.set(false);
-      if (ok) {
-        this.router.navigate(['/admin']);
-      } else {
-        this.error.set('İstifadəçi adı və ya şifrə yanlışdır.');
-      }
-    }, 400);
+    if (this.mode() === 'admin') {
+      setTimeout(() => {
+        const ok = this.auth.login(this.username(), this.password());
+        this.loading.set(false);
+        if (ok) {
+          this.router.navigate(['/admin']);
+        } else {
+          this.error.set('İstifadəçi adı və ya şifrə yanlışdır.');
+        }
+      }, 400);
+    } else {
+      this.auth.courierLoginRequest(this.username(), this.password()).subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.router.navigate(['/courier']);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.error.set('İstifadəçi adı və ya şifrə yanlışdır.');
+        }
+      });
+    }
   }
 }

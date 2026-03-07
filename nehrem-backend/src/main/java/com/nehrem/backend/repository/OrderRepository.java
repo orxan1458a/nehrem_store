@@ -17,6 +17,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
+    Page<Order> findByStatusOrderByCreatedAtDesc(Order.OrderStatus status, Pageable pageable);
+
+    Page<Order> findByCourierIdAndStatusOrderByCreatedAtDesc(Long courierId, Order.OrderStatus status, Pageable pageable);
+
+    Page<Order> findByCourierIdOrderByCreatedAtDesc(Long courierId, Pageable pageable);
+
     // ── Analytics ────────────────────────────────────────────────────────────
 
     long countByStatus(Order.OrderStatus status);
@@ -27,39 +33,23 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT COUNT(DISTINCT o.phone) FROM Order o")
     long countDistinctCustomers();
 
-    /** Orders per day — returns [date_str, count] */
     @Query(value = """
         SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS d, COUNT(*) AS cnt
-        FROM orders
-        WHERE created_at >= :since
-        GROUP BY d
-        ORDER BY d
+        FROM orders WHERE created_at >= :since
+        GROUP BY d ORDER BY d
         """, nativeQuery = true)
     List<Object[]> countOrdersByDate(@Param("since") LocalDateTime since);
 
-    /** Revenue per day — returns [date_str, sum] */
     @Query(value = """
         SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS d, SUM(total_amount) AS rev
-        FROM orders
-        WHERE created_at >= :since AND status <> 'CANCELLED'
-        GROUP BY d
-        ORDER BY d
+        FROM orders WHERE created_at >= :since AND status <> 'CANCELLED'
+        GROUP BY d ORDER BY d
         """, nativeQuery = true)
     List<Object[]> revenueByDate(@Param("since") LocalDateTime since);
 
-    /** Count by status — returns [status_str, count] */
     @Query(value = "SELECT status, COUNT(*) FROM orders GROUP BY status", nativeQuery = true)
     List<Object[]> countByStatusNative();
 
-    /** Top N products by quantity sold — returns [product_name, total_qty] */
-    @Query(value = """
-        SELECT oi.product_name, SUM(oi.quantity) AS total
-        FROM order_items oi
-        JOIN orders o ON o.id = oi.order_id
-        WHERE o.status <> 'CANCELLED'
-        GROUP BY oi.product_name
-        ORDER BY total DESC
-        LIMIT :limit
-        """, nativeQuery = true)
-    List<Object[]> topProductsByQuantity(@Param("limit") int limit);
+    @Query(value = "SELECT oi.product_name, SUM(oi.quantity) AS total FROM order_items oi JOIN orders o ON o.id = oi.order_id WHERE o.status <> 'CANCELLED' GROUP BY oi.product_name ORDER BY total DESC LIMIT 10", nativeQuery = true)
+    List<Object[]> topProductsByQuantity();
 }

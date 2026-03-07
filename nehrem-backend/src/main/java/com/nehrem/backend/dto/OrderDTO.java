@@ -42,12 +42,24 @@ public class OrderDTO {
         private Order.DeliveryMethod deliveryMethod;
 
         private String address;
-
         private String notes;
 
         @NotEmpty(message = "Order must have at least one item")
         @Valid
         private List<ItemRequest> items;
+    }
+
+    /** PATCH /api/admin/orders/{id}/status */
+    @Data @NoArgsConstructor @AllArgsConstructor
+    public static class StatusUpdateRequest {
+        @NotNull
+        private Order.OrderStatus status;
+    }
+
+    /** PATCH /api/admin/orders/{id}/assign-courier */
+    @Data @NoArgsConstructor @AllArgsConstructor
+    public static class CourierAssignRequest {
+        private Long courierId; // null = unassign
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
@@ -57,6 +69,13 @@ public class OrderDTO {
         private Integer quantity;
         private BigDecimal unitPrice;
         private BigDecimal subtotal;
+    }
+
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class CourierInfo {
+        private Long id;
+        private String name;
+        private String phone;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
@@ -70,7 +89,9 @@ public class OrderDTO {
         private BigDecimal totalAmount;
         private Order.OrderStatus status;
         private String notes;
+        private CourierInfo courier;
         private List<ItemResponse> items;
         private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 }

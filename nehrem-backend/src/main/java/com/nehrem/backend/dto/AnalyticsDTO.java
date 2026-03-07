@@ -14,9 +14,8 @@ public class AnalyticsDTO {
     public static class Stats {
         private long totalOrders;
         private long pendingOrders;
-        private long confirmedOrders;
-        private long processingOrders;
-        private long completedOrders;
+        private long acceptedOrders;
+        private long deliveredOrders;
         private long cancelledOrders;
         private BigDecimal totalRevenue;
         private long totalProducts;

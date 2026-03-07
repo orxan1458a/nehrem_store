@@ -1,0 +1,192 @@
+:host { display: block; min-height: 100vh; background: #f5f5f5; }
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.courier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .9rem 1.25rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #00897B;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+}
+
+.brand-icon { font-size: 1.4rem; }
+
+.courier-name {
+  font-size: .9rem;
+  color: #555;
+}
+
+.btn-logout {
+  padding: .35rem .9rem;
+  border-radius: 8px;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #ef4444;
+  transition: background .15s;
+  &:hover { background: #fee2e2; border-color: #fca5a5; }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+.courier-main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 .25rem;
+}
+
+.section-sub {
+  font-size: .88rem;
+  color: #777;
+  margin: 0 0 1.25rem;
+}
+
+// ── Loading / Empty ───────────────────────────────────────────────────────────
+.courier-loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e5e5e5;
+  border-top-color: #00897B;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #888;
+
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: .75rem; }
+  p { font-size: 1rem; }
+}
+
+// ── Cards ─────────────────────────────────────────────────────────────────────
+.order-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .75rem 1rem;
+    background: #f0faf5;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  &__body {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+
+    p { margin: 0 0 .3rem; font-size: .9rem; }
+  }
+
+  &__items {
+    padding: .5rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  &__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .75rem 1rem;
+  }
+}
+
+.order-id { font-weight: 700; color: #00897B; font-size: .95rem; }
+.order-date { font-size: .8rem; color: #888; }
+
+.customer-name { font-weight: 700; font-size: 1rem; color: #1a1a1a; }
+.customer-phone a { color: #00897B; text-decoration: none; font-size: .9rem; }
+.address { color: #555; font-size: .88rem; }
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: .85rem;
+  padding: .2rem 0;
+  color: #444;
+}
+
+.item-qty { font-weight: 700; color: #1a1a1a; }
+
+.total { font-weight: 700; font-size: 1.05rem; color: #1a1a1a; }
+
+.btn-delivered {
+  padding: .45rem 1.1rem;
+  border-radius: 10px;
+  border: none;
+  background: #00897B;
+  color: #fff;
+  font-weight: 700;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: background .15s;
+  &:hover:not(:disabled) { background: #00695C; }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: .4rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 500;
+
+  &.active { background: #00897B; color: #fff; border-color: #00897B; }
+  &:hover:not(.active) { background: #f0f0f0; }
+}

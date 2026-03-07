@@ -52,6 +52,11 @@ public class Order {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    /** Courier assigned to deliver this order (nullable). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "courier_id")
+    private Courier courier;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
@@ -65,5 +70,12 @@ public class Order {
     private LocalDateTime updatedAt;
 
     public enum DeliveryMethod { DELIVERY, PICKUP }
-    public enum OrderStatus    { PENDING, CONFIRMED, PROCESSING, COMPLETED, CANCELLED }
+
+    /**
+     * PENDING   = Gözləyir
+     * ACCEPTED  = Qəbul edildi
+     * DELIVERED = Çatdırıldı
+     * CANCELLED = Ləğv edildi
+     */
+    public enum OrderStatus { PENDING, ACCEPTED, DELIVERED, CANCELLED }
 }
