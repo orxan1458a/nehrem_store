@@ -56,33 +56,42 @@
           <td><strong>{{ order.totalAmount | number:'1.2-2' }} ₼</strong></td>
           <td>
             <div class="status-cell">
-              <span class="status-badge" [class]="'status-' + order.status.toLowerCase()">
-                {{ statusLabel(order.status) }}
+              <span class="status-badge" [class]="'status-' + order.orderStatus.toLowerCase()">
+                {{ statusLabel(order.orderStatus) }}
               </span>
               <div class="status-actions">
-                @if (order.status === 'PENDING') {
+                @if (order.orderStatus === 'PENDING') {
                 <button class="btn-action btn-accept" [disabled]="actionLoading() === order.id"
-                  (click)="setStatus(order, 'ACCEPTED')">Qəbul et</button>
+                  (click)="accept(order)">Qəbul et</button>
                 <button class="btn-action btn-cancel" [disabled]="actionLoading() === order.id"
-                  (click)="setStatus(order, 'CANCELLED')">Ləğv et</button>
+                  (click)="cancel(order)">Ləğv et</button>
                 }
-                @if (order.status === 'ACCEPTED') {
+                @if (order.orderStatus === 'ACCEPTED') {
                 <button class="btn-action btn-deliver" [disabled]="actionLoading() === order.id"
                   (click)="setStatus(order, 'DELIVERED')">Çatdırıldı</button>
+                <button class="btn-action btn-cancel" [disabled]="actionLoading() === order.id"
+                  (click)="cancel(order)">Ləğv et</button>
                 }
               </div>
             </div>
           </td>
           <td>
+            @if (order.orderStatus === 'PENDING' || order.orderStatus === 'ACCEPTED') {
             <select class="courier-select" [disabled]="actionLoading() === order.id"
-              (change)="assignCourier(order, $event)">
+              [value]="getSelectedCourier(order)"
+              (change)="onCourierChange(order, $event)">
               <option value="">— Kuryer —</option>
               @for (c of couriers(); track c.id) {
-              <option [value]="c.id" [selected]="order.courier?.id === c.id">
-                {{ c.name }}
-              </option>
+              <option [value]="c.id">{{ c.name }}</option>
               }
             </select>
+            } @else {
+              @if (order.courier) {
+                <span class="courier-name-text">{{ order.courier.name }}</span>
+              } @else {
+                <span>—</span>
+              }
+            }
           </td>
           <td>{{ order.createdAt | date:'short' }}</td>
           <td>

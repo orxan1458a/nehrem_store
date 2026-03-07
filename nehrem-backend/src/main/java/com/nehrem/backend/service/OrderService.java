@@ -11,6 +11,8 @@ public interface OrderService {
     Page<OrderDTO.Response> getAllByStatus(Order.OrderStatus status, Pageable pageable);
     OrderDTO.Response getById(Long id);
     OrderDTO.Response updateStatus(Long id, Order.OrderStatus status);
+    OrderDTO.Response acceptOrder(Long id, Long courierId);
+    OrderDTO.Response cancelOrder(Long id);
     OrderDTO.Response assignCourier(Long id, Long courierId);
     Page<OrderDTO.Response> getCourierOrders(Long courierId, Pageable pageable);
     OrderDTO.Response markDelivered(Long orderId, Long courierId);

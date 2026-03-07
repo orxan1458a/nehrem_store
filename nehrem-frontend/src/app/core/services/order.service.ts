@@ -27,9 +27,22 @@ export class OrderService {
       .pipe(map(r => r.data));
   }
 
-  updateStatus(id: number, status: OrderStatus): Observable<OrderResponse> {
+  updateStatus(id: number, orderStatus: OrderStatus): Observable<OrderResponse> {
     return this.http.patch<ApiResponse<OrderResponse>>(
-      `${this.adminBase}/orders/${id}/status`, { status }
+      `${this.adminBase}/orders/${id}/status`, { orderStatus }
+    ).pipe(map(r => r.data));
+  }
+
+  acceptOrder(id: number, courierId: number | null): Observable<OrderResponse> {
+    const body = courierId != null ? { courierId } : {};
+    return this.http.put<ApiResponse<OrderResponse>>(
+      `${this.adminBase}/orders/${id}/accept`, body
+    ).pipe(map(r => r.data));
+  }
+
+  cancelOrder(id: number): Observable<OrderResponse> {
+    return this.http.put<ApiResponse<OrderResponse>>(
+      `${this.adminBase}/orders/${id}/cancel`, {}
     ).pipe(map(r => r.data));
   }
 

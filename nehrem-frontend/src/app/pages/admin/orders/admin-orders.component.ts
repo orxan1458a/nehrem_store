@@ -15,21 +15,24 @@ import { OrderResponse, OrderStatus, CourierInfo } from '../../../core/models/or
 export class AdminOrdersComponent implements OnInit {
   private orderSvc = inject(OrderService);
 
-  orders       = signal<OrderResponse[]>([]);
-  couriers     = signal<CourierInfo[]>([]);
-  loading      = signal(true);
-  totalPages   = signal(0);
-  currentPage  = signal(0);
-  expanded     = signal<number | null>(null);
-  activeFilter = signal<OrderStatus | 'ALL'>('ALL');
+  orders        = signal<OrderResponse[]>([]);
+  couriers      = signal<CourierInfo[]>([]);
+  loading       = signal(true);
+  totalPages    = signal(0);
+  currentPage   = signal(0);
+  expanded      = signal<number | null>(null);
+  activeFilter  = signal<OrderStatus | 'ALL'>('ALL');
   actionLoading = signal<number | null>(null);
 
+  /** Tracks per-row courier selection for PENDING orders (not yet sent to API). */
+  private courierSelections = new Map<number, number | null>();
+
   readonly filters: Array<{ label: string; value: OrderStatus | 'ALL' }> = [
-    { label: 'Hamısı',     value: 'ALL' },
-    { label: 'Gözləyir',   value: 'PENDING' },
+    { label: 'Hamısı',       value: 'ALL' },
+    { label: 'Gözləyir',     value: 'PENDING' },
     { label: 'Qəbul edildi', value: 'ACCEPTED' },
-    { label: 'Çatdırıldı', value: 'DELIVERED' },
-    { label: 'Ləğv edildi', value: 'CANCELLED' },
+    { label: 'Çatdırıldı',  value: 'DELIVERED' },
+    { label: 'Ləğv edildi',  value: 'CANCELLED' },
   ];
 
   ngOnInit(): void {
@@ -69,6 +72,39 @@ export class AdminOrdersComponent implements OnInit {
     window.open(`/admin/orders/${id}/print`, '_blank');
   }
 
+  /**
+   * Accept a PENDING order, optionally assigning the courier selected in the row dropdown.
+   */
+  accept(order: OrderResponse): void {
+    const courierId = this.courierSelections.get(order.id) ?? null;
+    this.actionLoading.set(order.id);
+    this.orderSvc.acceptOrder(order.id, courierId).subscribe({
+      next: updated => {
+        this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
+        this.courierSelections.delete(order.id);
+        this.actionLoading.set(null);
+      },
+      error: () => this.actionLoading.set(null)
+    });
+  }
+
+  /**
+   * Cancel an order (any status).
+   */
+  cancel(order: OrderResponse): void {
+    this.actionLoading.set(order.id);
+    this.orderSvc.cancelOrder(order.id).subscribe({
+      next: updated => {
+        this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
+        this.actionLoading.set(null);
+      },
+      error: () => this.actionLoading.set(null)
+    });
+  }
+
+  /**
+   * Mark an ACCEPTED order as DELIVERED (admin shortcut).
+   */
   setStatus(order: OrderResponse, status: OrderStatus): void {
     this.actionLoading.set(order.id);
     this.orderSvc.updateStatus(order.id, status).subscribe({
@@ -80,16 +116,33 @@ export class AdminOrdersComponent implements OnInit {
     });
   }
 
-  assignCourier(order: OrderResponse, event: Event): void {
+  /**
+   * Courier dropdown change handler.
+   * - PENDING orders: store selection locally (applied when Accept is clicked).
+   * - Other orders: assign courier immediately via API.
+   */
+  onCourierChange(order: OrderResponse, event: Event): void {
     const courierId = Number((event.target as HTMLSelectElement).value) || null;
-    this.actionLoading.set(order.id);
-    this.orderSvc.assignCourier(order.id, courierId).subscribe({
-      next: updated => {
-        this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
-        this.actionLoading.set(null);
-      },
-      error: () => this.actionLoading.set(null)
-    });
+    this.courierSelections.set(order.id, courierId);
+
+    if (order.orderStatus !== 'PENDING') {
+      this.actionLoading.set(order.id);
+      this.orderSvc.assignCourier(order.id, courierId).subscribe({
+        next: updated => {
+          this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
+          this.actionLoading.set(null);
+        },
+        error: () => this.actionLoading.set(null)
+      });
+    }
+  }
+
+  /** Returns the locally selected courierId for a given order row, or the already-assigned one. */
+  getSelectedCourier(order: OrderResponse): number | string {
+    if (this.courierSelections.has(order.id)) {
+      return this.courierSelections.get(order.id) ?? '';
+    }
+    return order.courier?.id ?? '';
   }
 
   statusLabel(status: OrderStatus): string {

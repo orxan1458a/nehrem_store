@@ -38,7 +38,7 @@ export interface OrderResponse {
   deliveryMethod: DeliveryMethod;
   address?: string;
   totalAmount: number;
-  status: OrderStatus;
+  orderStatus: OrderStatus;
   notes?: string;
   courier?: CourierInfo;
   items: OrderItemResponse[];

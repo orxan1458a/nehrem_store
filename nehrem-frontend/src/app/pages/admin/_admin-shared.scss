@@ -24,6 +24,10 @@
   margin-bottom: 1.5rem;
   border-bottom: 2px solid #e0e0e0;
   padding-bottom: .5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 
   a {
     text-decoration: none;
@@ -34,6 +38,8 @@
     border-bottom: 2px solid transparent;
     transition: color .2s, border-color .2s;
     margin-bottom: -2px;
+    white-space: nowrap;
+    flex-shrink: 0;
 
     &.active, &:hover { color: #2d6a4f; border-color: #2d6a4f; }
   }
@@ -49,6 +55,7 @@
   font-weight: 600;
   cursor: pointer;
   font-size: .9rem;
+  white-space: nowrap;
   &:hover { background: #1b4332; }
 }
 
@@ -62,6 +69,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overflow-y: auto;
 }
 
 .modal {
@@ -93,6 +101,7 @@
     justify-content: center;
     width: 36px;
     height: 36px;
+    min-width: 36px;
     background: #f5f5f5;
     border: none;
     border-radius: 50%;
@@ -113,7 +122,7 @@
 }
 
 // ── Mobile Modal (bottom sheet) ────────────────────────────────────────────
-@media (max-width: 520px) {
+@media (max-width: 600px) {
   .modal-overlay {
     padding: 0;
     align-items: flex-end;
@@ -191,7 +200,7 @@
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 600px) {
   .product-form, .cat-form {
     padding: 1.25rem;
     gap: .85rem;
@@ -222,6 +231,7 @@
   object-fit: cover;
   border-radius: 8px;
   border: 2px solid #e8e8e8;
+  max-width: 100%;
 }
 
 // Icon preview (category icon upload)
@@ -235,6 +245,7 @@
   border-radius: 8px;
   border: 1.5px solid #e8e8e8;
   width: fit-content;
+  max-width: 100%;
 
   &__img {
     width: 40px;
@@ -310,10 +321,17 @@
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────
-.table-wrap { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  max-width: 100%;
+}
 
 .data-table {
   width: 100%;
+  min-width: 560px; // forces horizontal scroll instead of crushing columns
   border-collapse: collapse;
   background: #fff;
   font-size: .88rem;
@@ -341,6 +359,7 @@
   width: 48px; height: 48px;
   border-radius: 6px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .no-img { font-size: 1.6rem; }
@@ -368,6 +387,8 @@
     font-size: 1rem;
     padding: 4px;
     border-radius: 4px;
+    min-width: 32px;
+    min-height: 32px;
     transition: background .15s;
     &:hover { background: #f0f0f0; }
   }
@@ -480,6 +501,16 @@
   }
 }
 
+@media (max-width: 600px) {
+  .admin-search {
+    flex-direction: column;
+    align-items: stretch;
+
+    &__wrap { min-width: 0; }
+    &__input { font-size: 16px; } // prevent iOS zoom
+  }
+}
+
 // ── Admin Pagination ───────────────────────────────────────────────────────
 .admin-pagination {
   display: flex;
@@ -532,3 +563,18 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Global admin mobile tweaks ─────────────────────────────────────────────
+@media (max-width: 480px) {
+  .admin-page {
+    padding: 1rem .75rem;
+    &__head h1 { font-size: 1.3rem; }
+  }
+
+  .btn-add { font-size: .82rem; padding: .5rem .9rem; }
+
+  .data-table {
+    font-size: .8rem;
+    th, td { padding: .6rem .75rem; }
+  }
+}

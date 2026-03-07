@@ -168,3 +168,29 @@
   .checkout__summary { position: static; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 600px) {
+  .checkout {
+    padding: 1.25rem .75rem;
+    &__title { font-size: 1.4rem; margin-bottom: 1rem; }
+  }
+
+  .form-section { padding: 1.1rem; }
+
+  .form-group {
+    input, textarea {
+      font-size: 16px; // prevent iOS auto-zoom
+      padding: .75rem .9rem;
+      border-radius: 10px;
+    }
+  }
+
+  .method-btn { font-size: .88rem; padding: .7rem .75rem; }
+
+  .checkout__summary { padding: 1.1rem; }
+}
+
+@media (max-width: 400px) {
+  .method-toggle { gap: .5rem; }
+  .method-btn { font-size: .8rem; padding: .6rem .5rem; }
+}

@@ -6,7 +6,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
+import { InventoryService } from '../../../core/services/inventory.service';
 import { Product, ProductPage, ProductRequest } from '../../../core/models/product.model';
+import { InventoryBatch } from '../../../core/models/inventory.model';
 import { Category } from '../../../core/models/category.model';
 
 @Component({
@@ -17,24 +19,25 @@ import { Category } from '../../../core/models/category.model';
   styleUrl: './admin-products.component.scss'
 })
 export class AdminProductsComponent implements OnInit, OnDestroy {
-  private productSvc  = inject(ProductService);
-  private categorySvc = inject(CategoryService);
-  private fb          = inject(FormBuilder);
-  private route       = inject(ActivatedRoute);
-  private destroy$    = new Subject<void>();
+  private productSvc   = inject(ProductService);
+  private categorySvc  = inject(CategoryService);
+  private inventorySvc = inject(InventoryService);
+  private fb           = inject(FormBuilder);
+  private route        = inject(ActivatedRoute);
+  private destroy$     = new Subject<void>();
 
-  products     = signal<Product[]>([]);
-  categories   = signal<Category[]>([]);
-  loading      = signal(false);
-  showForm     = signal(false);
-  editingId    = signal<number | null>(null);
-  submitting   = signal(false);
-  error        = signal('');
+  products      = signal<Product[]>([]);
+  categories    = signal<Category[]>([]);
+  loading       = signal(false);
+  showForm      = signal(false);
+  editingId     = signal<number | null>(null);
+  submitting    = signal(false);
+  error         = signal('');
 
   // Pagination + search
-  searchQuery  = signal('');
-  currentPage  = signal(0);
-  totalPages   = signal(0);
+  searchQuery   = signal('');
+  currentPage   = signal(0);
+  totalPages    = signal(0);
   totalElements = signal(0);
   readonly pageSize = 10;
 
@@ -43,13 +46,28 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
   selectedImage = signal<File | null>(null);
   previewUrl    = signal<string | null>(null);
 
+  // ── Add Stock modal ──────────────────────────────────────────────────────
+  showStockModal     = signal(false);
+  stockingProduct    = signal<Product | null>(null);
+  stockBatches       = signal<InventoryBatch[]>([]);
+  stockLoading       = signal(false);
+  stockSubmitting    = signal(false);
+  stockError         = signal('');
+
+  batchForm = this.fb.group({
+    purchasePrice: [null as number | null, [Validators.required, Validators.min(0.01)]],
+    quantity:      [null as number | null, [Validators.required, Validators.min(1)]]
+  });
+
+  // ── Product form ─────────────────────────────────────────────────────────
   form = this.fb.group({
     name:          ['', [Validators.required, Validators.maxLength(255)]],
     description:   [''],
     price:         [null as number | null, [Validators.required, Validators.min(0.01)]],
     discountPrice: [null as number | null],
     stockQuantity: [null as number | null, [Validators.required, Validators.min(0)]],
-    categoryId:    [null as number | null]
+    categoryId:    [null as number | null],
+    purchasePrice: [null as number | null, [Validators.min(0.01)]]
   });
 
   ngOnInit(): void {
@@ -125,7 +143,8 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
       price:         product.price,
       discountPrice: product.discountPrice ?? null,
       stockQuantity: product.stockQuantity,
-      categoryId:    product.categoryId ?? null
+      categoryId:    product.categoryId ?? null,
+      purchasePrice: null   // don't pre-fill; edit doesn't create a new batch
     });
     this.selectedImage.set(null);
     this.previewUrl.set(product.imageUrl ? `http://localhost:8080${product.imageUrl}` : null);
@@ -154,7 +173,8 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
       price:         val.price!,
       discountPrice: val.discountPrice || undefined,
       stockQuantity: val.stockQuantity!,
-      categoryId:    val.categoryId || undefined
+      categoryId:    val.categoryId || undefined,
+      purchasePrice: val.purchasePrice || undefined
     };
 
     const image = this.selectedImage() ?? undefined;
@@ -183,5 +203,57 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     const ctrl = this.form.get(field);
     if (!ctrl?.touched) return false;
     return error ? ctrl.hasError(error) : ctrl.invalid;
+  }
+
+  hasBatchError(field: string, error = ''): boolean {
+    const ctrl = this.batchForm.get(field);
+    if (!ctrl?.touched) return false;
+    return error ? ctrl.hasError(error) : ctrl.invalid;
+  }
+
+  // ── Add Stock modal ──────────────────────────────────────────────────────
+
+  openAddStock(product: Product): void {
+    this.stockingProduct.set(product);
+    this.stockBatches.set([]);
+    this.batchForm.reset();
+    this.stockError.set('');
+    this.showStockModal.set(true);
+    this.stockLoading.set(true);
+    this.inventorySvc.getBatches(product.id).subscribe({
+      next: batches => { this.stockBatches.set(batches); this.stockLoading.set(false); },
+      error: ()      => this.stockLoading.set(false)
+    });
+  }
+
+  closeStockModal(): void {
+    this.showStockModal.set(false);
+    this.stockingProduct.set(null);
+  }
+
+  submitBatch(): void {
+    if (this.batchForm.invalid) { this.batchForm.markAllAsTouched(); return; }
+    const product = this.stockingProduct();
+    if (!product) return;
+
+    this.stockSubmitting.set(true);
+    this.stockError.set('');
+    const val = this.batchForm.getRawValue();
+
+    this.inventorySvc.addBatch(product.id, {
+      purchasePrice: val.purchasePrice!,
+      quantity:      val.quantity!
+    }).subscribe({
+      next: batch => {
+        this.stockBatches.update(list => [...list, batch]);
+        this.batchForm.reset();
+        this.stockSubmitting.set(false);
+        this.loadProducts();  // refresh stock counts in table
+      },
+      error: err => {
+        this.stockError.set(err?.error?.message ?? 'Xəta baş verdi');
+        this.stockSubmitting.set(false);
+      }
+    });
   }
 }

@@ -11,15 +11,17 @@
 
     <!-- Actions -->
     <div class="header__actions">
-      <a routerLink="/cart" class="header__cart" (click)="closeMenu()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-        </svg>
-        @if (cart.count() > 0) {
-          <span class="cart-badge">{{ cart.count() }}</span>
-        }
-      </a>
+      @if (!auth.isAdmin() && !auth.isCourier()) {
+        <a routerLink="/cart" class="header__cart" (click)="closeMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          @if (cart.count() > 0) {
+            <span class="cart-badge">{{ cart.count() }}</span>
+          }
+        </a>
+      }
 
       @if (auth.isAdmin()) {
         <span class="header__role-badge">Admin</span>
@@ -31,7 +33,7 @@
           </svg>
           Çıxış
         </button>
-      } @else {
+      } @else if (!auth.isCourier()) {
         <button class="header__burger" (click)="toggleMenu()" aria-label="Menyu">
           <span></span><span></span><span></span>
         </button>
@@ -39,12 +41,12 @@
     </div>
   </div>
 
-  <!-- Nav Drawer (non-admin only) -->
-  @if (!auth.isAdmin()) {
+  <!-- Nav Drawer (regular users only) -->
+  @if (!auth.isAdmin() && !auth.isCourier()) {
     <nav class="header__nav" [class.open]="menuOpen()">
       <a routerLink="/shop" routerLinkActive="active" (click)="closeMenu()">Mağaza</a>
       <a routerLink="/cart" routerLinkActive="active" (click)="closeMenu()">Səbət</a>
-      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Daxil ol</a>
+      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Kuryer</a>
     </nav>
   }
 </header>

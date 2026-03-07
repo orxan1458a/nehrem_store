@@ -39,4 +39,8 @@ public class OrderItem {
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
+
+    /** Total purchase cost (COGS) for this item, calculated via FIFO at order time. Nullable for backward compat. */
+    @Column(name = "purchase_cost", precision = 12, scale = 2)
+    private BigDecimal purchaseCost;
 }

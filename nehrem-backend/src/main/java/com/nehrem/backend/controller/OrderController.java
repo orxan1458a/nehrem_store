@@ -53,13 +53,40 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderDTO.Response>> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody OrderDTO.StatusUpdateRequest body) {
-        return ResponseEntity.ok(ApiResponse.ok(orderService.updateStatus(id, body.getStatus())));
+        return ResponseEntity.ok(ApiResponse.ok(orderService.updateStatus(id, body.getOrderStatus())));
+    }
+
+    // ── Admin: accept (optionally with courier) ─────────────────────────────
+
+    @PutMapping("/api/admin/orders/{id}/accept")
+    public ResponseEntity<ApiResponse<OrderDTO.Response>> acceptOrder(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, Object> body) {
+        Long courierId = null;
+        if (body != null && body.get("courierId") instanceof Number n) {
+            courierId = n.longValue();
+        }
+        return ResponseEntity.ok(ApiResponse.ok(orderService.acceptOrder(id, courierId)));
+    }
+
+    // ── Admin: cancel ───────────────────────────────────────────────────────
+
+    @PutMapping("/api/admin/orders/{id}/cancel")
+    public ResponseEntity<ApiResponse<OrderDTO.Response>> cancelOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.cancelOrder(id)));
     }
 
     // ── Admin: assign courier ───────────────────────────────────────────────
 
     @PatchMapping("/api/admin/orders/{id}/assign-courier")
     public ResponseEntity<ApiResponse<OrderDTO.Response>> assignCourier(
+            @PathVariable Long id,
+            @RequestBody OrderDTO.CourierAssignRequest body) {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.assignCourier(id, body.getCourierId())));
+    }
+
+    @PutMapping("/api/admin/orders/{id}/assign-courier")
+    public ResponseEntity<ApiResponse<OrderDTO.Response>> assignCourierPut(
             @PathVariable Long id,
             @RequestBody OrderDTO.CourierAssignRequest body) {
         return ResponseEntity.ok(ApiResponse.ok(orderService.assignCourier(id, body.getCourierId())));

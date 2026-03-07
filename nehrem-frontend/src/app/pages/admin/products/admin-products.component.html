@@ -14,7 +14,7 @@
     <a [routerLink]="['/admin/couriers']"   routerLinkActive="active">Kuryerlər</a>
   </nav>
 
-  <!-- Modal Form -->
+  <!-- ── Product Form Modal ────────────────────────────────────────────────── -->
   @if (showForm()) {
     <div class="modal-overlay" (click)="showForm.set(false)">
       <div class="modal" (click)="$event.stopPropagation()">
@@ -49,7 +49,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>Qiymət (₼) *</label>
+              <label>Satış qiyməti (₼) *</label>
               <input formControlName="price" type="number" step="0.01" min="0.01"
                      [class.error]="hasError('price')">
               @if (hasError('price', 'required')) { <span class="err">Qiymət tələb olunur</span> }
@@ -60,12 +60,25 @@
               <input formControlName="discountPrice" type="number" step="0.01" min="0.01"
                      placeholder="Endirim yoxdursa boş buraxın">
             </div>
+          </div>
+
+          <div class="form-row">
             <div class="form-group">
               <label>Stok miqdarı *</label>
               <input formControlName="stockQuantity" type="number" min="0"
                      [class.error]="hasError('stockQuantity')">
               @if (hasError('stockQuantity', 'required')) { <span class="err">Tələb olunur</span> }
             </div>
+            @if (!editingId()) {
+            <div class="form-group">
+              <label>Alış qiyməti (₼)</label>
+              <input formControlName="purchasePrice" type="number" step="0.01" min="0.01"
+                     placeholder="İlk partiya üçün"
+                     [class.error]="hasError('purchasePrice')">
+              @if (hasError('purchasePrice', 'min')) { <span class="err">0-dan böyük olmalıdır</span> }
+              <small class="field-hint">Anbar uçotu üçün. Müştərilərə görünmür.</small>
+            </div>
+            }
           </div>
 
           <!-- Image -->
@@ -86,6 +99,81 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  }
+
+  <!-- ── Add Stock Modal ───────────────────────────────────────────────────── -->
+  @if (showStockModal()) {
+    <div class="modal-overlay" (click)="closeStockModal()">
+      <div class="modal modal--wide" (click)="$event.stopPropagation()">
+        <div class="modal__head">
+          <h2>📦 Stok əlavə et — {{ stockingProduct()?.name }}</h2>
+          <button class="modal__close" (click)="closeStockModal()">✕</button>
+        </div>
+
+        <div class="product-form">
+          <!-- Existing batches -->
+          <h3 class="batch-section-title">Mövcud partiyalar</h3>
+          @if (stockLoading()) {
+            <div class="admin-loading"><div class="spinner"></div></div>
+          } @else if (stockBatches().length === 0) {
+            <p class="empty-row" style="text-align:left;padding:.5rem 0">Bu məhsul üçün partiya yoxdur.</p>
+          } @else {
+            <div class="table-wrap" style="margin-bottom:1.25rem">
+              <table class="data-table batch-table">
+                <thead>
+                  <tr>
+                    <th>Tarix</th>
+                    <th>Alış qiyməti</th>
+                    <th>Qalan miqdar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (b of stockBatches(); track b.id) {
+                    <tr [class.inactive]="b.quantity === 0">
+                      <td>{{ b.dateAdded | date:'short' }}</td>
+                      <td>{{ b.purchasePrice | number:'1.2-2' }} ₼</td>
+                      <td [class.low-stock]="b.quantity > 0 && b.quantity <= 5">
+                        {{ b.quantity === 0 ? '— Bitib —' : b.quantity }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          <!-- Add new batch form -->
+          <h3 class="batch-section-title">Yeni partiya əlavə et</h3>
+          <form [formGroup]="batchForm" (ngSubmit)="submitBatch()">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Alış qiyməti (₼) *</label>
+                <input formControlName="purchasePrice" type="number" step="0.01" min="0.01"
+                       placeholder="0.00" [class.error]="hasBatchError('purchasePrice')">
+                @if (hasBatchError('purchasePrice', 'required')) { <span class="err">Tələb olunur</span> }
+                @if (hasBatchError('purchasePrice', 'min'))      { <span class="err">0-dan böyük olmalıdır</span> }
+              </div>
+              <div class="form-group">
+                <label>Miqdar *</label>
+                <input formControlName="quantity" type="number" min="1"
+                       placeholder="0" [class.error]="hasBatchError('quantity')">
+                @if (hasBatchError('quantity', 'required')) { <span class="err">Tələb olunur</span> }
+                @if (hasBatchError('quantity', 'min'))      { <span class="err">Minimum 1 olmalıdır</span> }
+              </div>
+            </div>
+
+            @if (stockError()) { <div class="alert-error">{{ stockError() }}</div> }
+
+            <div class="modal__actions">
+              <button type="button" class="btn-cancel" (click)="closeStockModal()">Bağla</button>
+              <button type="submit" class="btn-save" [disabled]="stockSubmitting()">
+                {{ stockSubmitting() ? 'Əlavə edilir…' : '+ Partiya əlavə et' }}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   }
@@ -118,8 +206,9 @@
             <th>Şəkil</th>
             <th>Ad</th>
             <th>Kateqoriya</th>
-            <th>Qiymət</th>
+            <th>Satış qiyməti</th>
             <th>Endirim</th>
+            <th>Alış qiyməti</th>
             <th>Stok</th>
             <th>Baxışlar</th>
             <th>Aktiv</th>
@@ -141,6 +230,13 @@
               <td>{{ p.categoryName ?? '—' }}</td>
               <td>{{ p.price | number:'1.2-2' }} ₼</td>
               <td>{{ p.discountPrice ? (p.discountPrice | number:'1.2-2') + ' ₼' : '—' }}</td>
+              <td>
+                @if (p.purchasePrice) {
+                  <span class="purchase-price-badge">{{ p.purchasePrice | number:'1.2-2' }} ₼</span>
+                } @else {
+                  <span class="no-rating">—</span>
+                }
+              </td>
               <td [class.low-stock]="p.stockQuantity <= 5">{{ p.stockQuantity }}</td>
               <td>
                 <span class="view-badge">
@@ -157,7 +253,8 @@
                 </span>
               </td>
               <td class="actions">
-                <button class="btn-edit"   (click)="openEdit(p)">✏️</button>
+                <button class="btn-edit"   (click)="openEdit(p)" title="Redaktə et">✏️</button>
+                <button class="btn-stock"  (click)="openAddStock(p)" title="Stok əlavə et">📦</button>
                 <button class="btn-toggle" (click)="toggleActive(p.id)"
                         [title]="p.active ? 'Gizlət' : 'Göstər'">
                   {{ p.active ? '🙈' : '👁️' }}

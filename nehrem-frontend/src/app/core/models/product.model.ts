@@ -13,6 +13,8 @@ export interface Product {
   reviewCount?: number;
   averageRating?: number;
   viewCount?: number;
+  /** Latest batch purchase price. Admin-only — not displayed on public shop. */
+  purchasePrice?: number;
 }
 
 export interface ProductRequest {
@@ -22,6 +24,8 @@ export interface ProductRequest {
   discountPrice?: number;
   stockQuantity: number;
   categoryId?: number;
+  /** Initial batch purchase price — admin only, optional. */
+  purchasePrice?: number;
 }
 
 export interface ProductPage {

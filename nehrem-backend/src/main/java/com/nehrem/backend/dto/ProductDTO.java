@@ -31,6 +31,10 @@ public class ProductDTO {
         private Integer stockQuantity;
 
         private Long categoryId;
+
+        /** Optional: purchase price for initial inventory batch. Admin-only. */
+        @DecimalMin(value = "0.01", message = "Purchase price must be greater than 0")
+        private BigDecimal purchasePrice;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
@@ -49,5 +53,7 @@ public class ProductDTO {
         private Long reviewCount;
         private Double averageRating;
         private Long viewCount;
+        /** Latest batch purchase price. Admin-only — not shown on public shop. */
+        private BigDecimal purchasePrice;
     }
 }

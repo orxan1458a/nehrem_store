@@ -44,11 +44,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   @ViewChild('revenueChart') revenueChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('statusChart')  statusChartRef!:  ElementRef<HTMLCanvasElement>;
   @ViewChild('topChart')     topChartRef!:     ElementRef<HTMLCanvasElement>;
+  @ViewChild('profitChart')  profitChartRef!:  ElementRef<HTMLCanvasElement>;
 
   private ordersChart?:  Chart;
   private revenueChart?: Chart;
   private statusChart?:  Chart;
   private topChart?:     Chart;
+  private profitChart?:  Chart;
 
   private pollSub?: Subscription;
 
@@ -89,6 +91,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.revenueChart?.destroy();
     this.statusChart?.destroy();
     this.topChart?.destroy();
+    this.profitChart?.destroy();
   }
 
   // ── Day filter ─────────────────────────────────────────────────────────────
@@ -105,6 +108,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.buildRevenueChart(data);
     this.buildStatusChart(data);
     this.buildTopChart(data);
+    this.buildProfitChart(data);
   }
 
   private updateCharts(data: ChartData): void {
@@ -117,6 +121,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.topChart!.data.labels = data.topProducts.map(p => p.name);
     this.topChart!.data.datasets[0].data = data.topProducts.map(p => p.quantity);
     this.topChart!.update('active');
+    // Profit chart
+    if (this.profitChart && data.profitByDate) {
+      this.profitChart.data.labels = data.profitByDate.map(d => d.label);
+      this.profitChart.data.datasets[0].data = data.profitByDate.map(d => d.revenue);
+      this.profitChart.data.datasets[1].data = data.profitByDate.map(d => d.cogs);
+      this.profitChart.data.datasets[2].data = data.profitByDate.map(d => d.profit);
+      this.profitChart.update('active');
+    }
   }
 
   private buildOrdersChart(data: ChartData): void {
@@ -144,7 +156,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       data: {
         labels: data.revenueByDate.map(d => d.label),
         datasets: [{
-          label: 'Revenue ($)',
+          label: 'Revenue (₼)',
           data: data.revenueByDate.map(d => d.value),
           borderColor: '#10b981',
           backgroundColor: 'rgba(16,185,129,0.10)',
@@ -209,6 +221,54 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.topChart = new Chart(this.topChartRef.nativeElement, cfg);
   }
 
+  private buildProfitChart(data: ChartData): void {
+    const pts = data.profitByDate ?? [];
+    const cfg: ChartConfiguration<'line'> = {
+      type: 'line',
+      data: {
+        labels: pts.map(d => d.label),
+        datasets: [
+          {
+            label: 'Gəlir (₼)',
+            data: pts.map(d => d.revenue),
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16,185,129,0.08)',
+            tension: 0.4, fill: false,
+            pointRadius: 3, pointBackgroundColor: '#10b981'
+          },
+          {
+            label: 'Maya (₼)',
+            data: pts.map(d => d.cogs),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.08)',
+            tension: 0.4, fill: false,
+            pointRadius: 3, pointBackgroundColor: '#f59e0b'
+          },
+          {
+            label: 'Mənfəət (₼)',
+            data: pts.map(d => d.profit),
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99,102,241,0.10)',
+            tension: 0.4, fill: true,
+            pointRadius: 3, pointBackgroundColor: '#6366f1'
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { font: { size: 11 }, padding: 12 } },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 11 } } },
+          y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 11 } }, beginAtZero: true }
+        }
+      }
+    };
+    this.profitChart = new Chart(this.profitChartRef.nativeElement, cfg);
+  }
+
   private updateLine(chart: Chart, labels: string[], values: number[]): void {
     chart.data.labels = labels;
     chart.data.datasets[0].data = values;
@@ -232,8 +292,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   // ── Template helpers ───────────────────────────────────────────────────────
 
   formatCurrency(v: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency', currency: 'USD', maximumFractionDigits: 0
-    }).format(v);
+    return new Intl.NumberFormat('az-AZ', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(v) + ' ₼';
   }
 }

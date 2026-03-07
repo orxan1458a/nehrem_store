@@ -13,6 +13,9 @@ export interface AnalyticsStats {
   totalRevenue: number;
   totalProducts: number;
   totalCustomers: number;
+  totalCOGS: number;
+  totalProfit: number;
+  inventoryValue: number;
 }
 
 export interface DataPoint {
@@ -30,11 +33,19 @@ export interface ProductSale {
   quantity: number;
 }
 
+export interface ProfitPoint {
+  label: string;
+  revenue: number;
+  cogs: number;
+  profit: number;
+}
+
 export interface ChartData {
   ordersByDate: DataPoint[];
   revenueByDate: DataPoint[];
   orderStatus: StatusCount[];
   topProducts: ProductSale[];
+  profitByDate: ProfitPoint[];
 }
 
 @Injectable({ providedIn: 'root' })

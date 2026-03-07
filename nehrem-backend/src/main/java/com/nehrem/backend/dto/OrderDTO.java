@@ -53,13 +53,19 @@ public class OrderDTO {
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class StatusUpdateRequest {
         @NotNull
-        private Order.OrderStatus status;
+        private Order.OrderStatus orderStatus;
     }
 
     /** PATCH /api/admin/orders/{id}/assign-courier */
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class CourierAssignRequest {
         private Long courierId; // null = unassign
+    }
+
+    /** PUT /api/admin/orders/{id}/accept */
+    @Data @NoArgsConstructor @AllArgsConstructor
+    public static class AcceptRequest {
+        private Long courierId; // optional — null = accept without courier
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
@@ -87,7 +93,7 @@ public class OrderDTO {
         private Order.DeliveryMethod deliveryMethod;
         private String address;
         private BigDecimal totalAmount;
-        private Order.OrderStatus status;
+        private Order.OrderStatus orderStatus;
         private String notes;
         private CourierInfo courier;
         private List<ItemResponse> items;

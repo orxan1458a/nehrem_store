@@ -20,6 +20,12 @@ public class AnalyticsDTO {
         private BigDecimal totalRevenue;
         private long totalProducts;
         private long totalCustomers;
+        /** Cost of goods sold — based on DELIVERED orders only, via FIFO. */
+        private BigDecimal totalCOGS;
+        /** Gross profit = delivered revenue - COGS. */
+        private BigDecimal totalProfit;
+        /** Current inventory value = SUM(batch.purchasePrice * batch.remainingQty). */
+        private BigDecimal inventoryValue;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
@@ -41,10 +47,19 @@ public class AnalyticsDTO {
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class ProfitPoint {
+        private String label;
+        private double revenue;
+        private double cogs;
+        private double profit;
+    }
+
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class ChartData {
         private List<DataPoint> ordersByDate;
         private List<DataPoint> revenueByDate;
         private List<StatusCount> orderStatus;
         private List<ProductSale> topProducts;
+        private List<ProfitPoint> profitByDate;
     }
 }

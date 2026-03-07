@@ -10,6 +10,7 @@ import com.nehrem.backend.exception.ResourceNotFoundException;
 import com.nehrem.backend.repository.CourierRepository;
 import com.nehrem.backend.repository.OrderRepository;
 import com.nehrem.backend.repository.ProductRepository;
+import com.nehrem.backend.service.InventoryService;
 import com.nehrem.backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository   orderRepository;
     private final ProductRepository productRepository;
     private final CourierRepository courierRepository;
+    private final InventoryService  inventoryService;
 
     @Override
     public OrderDTO.Response create(OrderDTO.Request request) {
@@ -58,16 +61,18 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(itemReq.getQuantity()));
             totalAmount = totalAmount.add(subtotal);
 
+            // FIFO stock deduction — returns total purchase cost for this item
+            BigDecimal purchaseCost = inventoryService.deductFifo(
+                    product.getId(), itemReq.getQuantity());
+
             orderItems.add(OrderItem.builder()
                     .product(product)
                     .productName(product.getName())
                     .quantity(itemReq.getQuantity())
                     .unitPrice(unitPrice)
                     .subtotal(subtotal)
+                    .purchaseCost(purchaseCost)
                     .build());
-
-            product.setStockQuantity(product.getStockQuantity() - itemReq.getQuantity());
-            productRepository.save(product);
         }
 
         Order order = Order.builder()
@@ -78,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
                 .address(request.getAddress())
                 .totalAmount(totalAmount)
                 .notes(request.getNotes())
-                .status(Order.OrderStatus.PENDING)
+                .orderStatus(Order.OrderStatus.PENDING)
                 .build();
 
         orderItems.forEach(item -> item.setOrder(order));
@@ -95,8 +100,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<OrderDTO.Response> getAllByStatus(Order.OrderStatus status, Pageable pageable) {
-        return orderRepository.findByStatusOrderByCreatedAtDesc(status, pageable).map(this::toResponse);
+    public Page<OrderDTO.Response> getAllByStatus(Order.OrderStatus orderStatus, Pageable pageable) {
+        return orderRepository.findByOrderStatusOrderByCreatedAtDesc(orderStatus, pageable).map(this::toResponse);
     }
 
     @Override
@@ -107,10 +112,39 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDTO.Response updateStatus(Long id, Order.OrderStatus status) {
+    public OrderDTO.Response updateStatus(Long id, Order.OrderStatus orderStatus) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", id));
-        order.setStatus(status);
+        if (orderStatus == Order.OrderStatus.CANCELLED
+                && order.getOrderStatus() != Order.OrderStatus.CANCELLED) {
+            returnStockForOrder(order);
+        }
+        order.setOrderStatus(orderStatus);
+        return toResponse(orderRepository.save(order));
+    }
+
+    @Override
+    public OrderDTO.Response acceptOrder(Long id, Long courierId) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
+        order.setOrderStatus(Order.OrderStatus.ACCEPTED);
+        if (courierId != null) {
+            Courier courier = courierRepository.findById(courierId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Courier", courierId));
+            order.setCourier(courier);
+        }
+        return toResponse(orderRepository.save(order));
+    }
+
+    @Override
+    public OrderDTO.Response cancelOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
+        if (order.getOrderStatus() == Order.OrderStatus.CANCELLED) {
+            throw new BusinessException("Order is already cancelled");
+        }
+        returnStockForOrder(order);
+        order.setOrderStatus(Order.OrderStatus.CANCELLED);
         return toResponse(orderRepository.save(order));
     }
 
@@ -132,7 +166,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Page<OrderDTO.Response> getCourierOrders(Long courierId, Pageable pageable) {
         return orderRepository
-                .findByCourierIdAndStatusOrderByCreatedAtDesc(courierId, Order.OrderStatus.ACCEPTED, pageable)
+                .findByCourierIdAndOrderStatusOrderByCreatedAtDesc(courierId, Order.OrderStatus.ACCEPTED, pageable)
                 .map(this::toResponse);
     }
 
@@ -143,11 +177,29 @@ public class OrderServiceImpl implements OrderService {
         if (order.getCourier() == null || !order.getCourier().getId().equals(courierId)) {
             throw new BusinessException("This order is not assigned to you");
         }
-        if (order.getStatus() != Order.OrderStatus.ACCEPTED) {
+        if (order.getOrderStatus() != Order.OrderStatus.ACCEPTED) {
             throw new BusinessException("Only ACCEPTED orders can be marked as delivered");
         }
-        order.setStatus(Order.OrderStatus.DELIVERED);
+        order.setOrderStatus(Order.OrderStatus.DELIVERED);
         return toResponse(orderRepository.save(order));
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+
+    /**
+     * Returns stock for all items in the order using the stored per-unit purchase price.
+     * Creates a new inventory batch per item so the returned stock enters back into FIFO.
+     */
+    private void returnStockForOrder(Order order) {
+        for (OrderItem item : order.getItems()) {
+            BigDecimal avgPurchasePrice = BigDecimal.ZERO;
+            if (item.getPurchaseCost() != null && item.getQuantity() > 0) {
+                avgPurchasePrice = item.getPurchaseCost()
+                        .divide(BigDecimal.valueOf(item.getQuantity()), 2, RoundingMode.HALF_UP);
+            }
+            inventoryService.returnStock(
+                    item.getProduct().getId(), item.getQuantity(), avgPurchasePrice);
+        }
     }
 
     // ── Mapper ───────────────────────────────────────────────
@@ -180,7 +232,7 @@ public class OrderServiceImpl implements OrderService {
                 .deliveryMethod(o.getDeliveryMethod())
                 .address(o.getAddress())
                 .totalAmount(o.getTotalAmount())
-                .status(o.getStatus())
+                .orderStatus(o.getOrderStatus())
                 .notes(o.getNotes())
                 .courier(courierInfo)
                 .items(items)

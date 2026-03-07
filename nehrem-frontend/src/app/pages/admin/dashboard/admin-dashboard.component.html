@@ -164,6 +164,51 @@
         </div>
       }
 
+      <!-- Maya Dəyəri (COGS) -->
+      <div class="stat-card stat-card--amber">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Maya Dəyəri (COGS)</span>
+          <span class="stat-card__value">{{ formatCurrency(stats()?.totalCOGS ?? 0) }}</span>
+          <span class="stat-card__sub">çatdırılmış sifarişlər</span>
+        </div>
+      </div>
+
+      <!-- Ümumi Mənfəət -->
+      <div class="stat-card stat-card--green">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Ümumi Mənfəət</span>
+          <span class="stat-card__value">{{ formatCurrency(stats()?.totalProfit ?? 0) }}</span>
+          <span class="stat-card__sub">gəlir − maya dəyəri</span>
+        </div>
+      </div>
+
+      <!-- Anbar Dəyəri -->
+      <div class="stat-card stat-card--teal">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Anbar Dəyəri</span>
+          <span class="stat-card__value">{{ formatCurrency(stats()?.inventoryValue ?? 0) }}</span>
+          <span class="stat-card__sub">cari stok alış qiymətinə görə</span>
+        </div>
+      </div>
+
     </div>
 
     <!-- ── Qrafik Sırası 1: Sifarişlər + Gəlir ────────────────────────────── -->
@@ -214,6 +259,19 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- ── Mənfəət Qrafiki ─────────────────────────────────────────────────── -->
+    <div class="charts-row">
+      <div class="chart-card" style="grid-column: 1 / -1">
+        <div class="chart-card__head">
+          <h3>Gəlir / Maya / Mənfəət</h3>
+          <span class="chart-card__sub">Çatdırılmış sifarişlər · Son {{ selectedDays() }} gün</span>
+        </div>
+        <div class="chart-card__body">
+          <canvas #profitChart></canvas>
+        </div>
+      </div>
     </div>
 
     <p class="refresh-note">Statistika hər 60 san yenilənir &nbsp;·&nbsp; Qrafiklər filter dəyişdikdə yenilənir</p>

@@ -2,11 +2,13 @@ package com.nehrem.backend.service.impl;
 
 import com.nehrem.backend.dto.ProductDTO;
 import com.nehrem.backend.entity.Category;
+import com.nehrem.backend.entity.InventoryBatch;
 import com.nehrem.backend.entity.Product;
 import com.nehrem.backend.entity.ProductView;
 import com.nehrem.backend.exception.BusinessException;
 import com.nehrem.backend.exception.ResourceNotFoundException;
 import com.nehrem.backend.repository.CategoryRepository;
+import com.nehrem.backend.repository.InventoryBatchRepository;
 import com.nehrem.backend.repository.ProductRepository;
 import com.nehrem.backend.repository.ProductViewRepository;
 import com.nehrem.backend.repository.ReviewRepository;
@@ -21,10 +23,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -33,10 +37,11 @@ import java.util.UUID;
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final ReviewRepository reviewRepository;
-    private final ProductViewRepository productViewRepository;
+    private final ProductRepository       productRepository;
+    private final CategoryRepository      categoryRepository;
+    private final ReviewRepository        reviewRepository;
+    private final ProductViewRepository   productViewRepository;
+    private final InventoryBatchRepository inventoryBatchRepository;
 
     @Value("${app.upload.dir:./uploads}")
     private String uploadDir;
@@ -65,12 +70,17 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO.Response create(ProductDTO.Request request, MultipartFile image) {
         Category category = resolveCategory(request.getCategoryId());
 
+        // If a purchase price is provided, start stockQuantity at 0 and let the batch add it.
+        // Otherwise, set directly (backward compat — no batch tracking).
+        boolean hasPurchasePrice = request.getPurchasePrice() != null
+                && request.getPurchasePrice().compareTo(BigDecimal.ZERO) > 0;
+
         Product product = Product.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .discountPrice(request.getDiscountPrice())
-                .stockQuantity(request.getStockQuantity())
+                .stockQuantity(hasPurchasePrice ? 0 : request.getStockQuantity())
                 .category(category)
                 .active(true)
                 .build();
@@ -79,7 +89,21 @@ public class ProductServiceImpl implements ProductService {
             product.setImageUrl(saveImage(image));
         }
 
-        return toResponse(productRepository.save(product));
+        product = productRepository.save(product);
+
+        if (hasPurchasePrice && request.getStockQuantity() > 0) {
+            InventoryBatch batch = InventoryBatch.builder()
+                    .product(product)
+                    .purchasePrice(request.getPurchasePrice())
+                    .quantity(request.getStockQuantity())
+                    .dateAdded(LocalDateTime.now())
+                    .build();
+            inventoryBatchRepository.save(batch);
+            product.setStockQuantity(request.getStockQuantity());
+            productRepository.save(product);
+        }
+
+        return toResponse(product);
     }
 
     @Override
@@ -176,6 +200,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductDTO.Response toResponse(Product p) {
+        BigDecimal purchasePrice = inventoryBatchRepository
+                .findTopByProductIdOrderByDateAddedDesc(p.getId())
+                .map(InventoryBatch::getPurchasePrice)
+                .orElse(null);
+
         return ProductDTO.Response.builder()
                 .id(p.getId())
                 .name(p.getName())
@@ -191,6 +220,7 @@ public class ProductServiceImpl implements ProductService {
                 .reviewCount(reviewRepository.countByProductId(p.getId()))
                 .averageRating(reviewRepository.averageRatingByProductId(p.getId()))
                 .viewCount(p.getViewCount())
+                .purchasePrice(purchasePrice)
                 .build();
     }
 }
