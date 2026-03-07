@@ -1,0 +1,221 @@
+<div class="admin-page">
+
+  <!-- Header -->
+  <div class="admin-page__head">
+    <h1>İdarə Paneli</h1>
+    <div class="head-right">
+      <div class="day-filter">
+        <button [class.active]="selectedDays() === 7"  (click)="changeDays(7)">7g</button>
+        <button [class.active]="selectedDays() === 30" (click)="changeDays(30)">30g</button>
+      </div>
+      <span class="live-badge"><span class="live-dot"></span> Canlı</span>
+    </div>
+  </div>
+
+  <!-- Admin Nav -->
+  <nav class="admin-nav">
+    <a [routerLink]="['/admin/dashboard']"  routerLinkActive="active">İdarə Paneli</a>
+    <a [routerLink]="['/admin/products']"   routerLinkActive="active">Məhsullar</a>
+    <a [routerLink]="['/admin/categories']" routerLinkActive="active">Kateqoriyalar</a>
+    <a [routerLink]="['/admin/orders']"     routerLinkActive="active">Sifarişlər</a>
+  </nav>
+
+  @if (loading()) {
+    <div class="admin-loading"><div class="spinner"></div></div>
+  } @else {
+
+    <!-- ── Statistika Kartları ──────────────────────────────────────────────── -->
+    <div class="stats-grid">
+
+      <!-- Ümumi Sifarişlər -->
+      <div class="stat-card stat-card--blue">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Ümumi Sifarişlər</span>
+          <span class="stat-card__value">{{ stats()?.totalOrders ?? 0 | number }}</span>
+        </div>
+      </div>
+
+      <!-- Gözləyən Sifarişlər -->
+      <div class="stat-card stat-card--orange">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Gözləyən Sifarişlər</span>
+          <span class="stat-card__value">{{ stats()?.pendingOrders ?? 0 | number }}</span>
+        </div>
+      </div>
+
+      <!-- Qəbul Edilmiş -->
+      <div class="stat-card stat-card--purple">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Qəbul Edilmiş Sifarişlər</span>
+          <span class="stat-card__value">{{ (stats()?.confirmedOrders ?? 0) + (stats()?.processingOrders ?? 0) | number }}</span>
+        </div>
+      </div>
+
+      <!-- Çatdırılmış -->
+      <div class="stat-card stat-card--green">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13" rx="1"/>
+            <path d="M16 8h4l3 5v3h-7V8z"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Çatdırılmış Sifarişlər</span>
+          <span class="stat-card__value">{{ stats()?.completedOrders ?? 0 | number }}</span>
+        </div>
+      </div>
+
+      <!-- Ümumi Gəlir -->
+      <div class="stat-card stat-card--teal">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Ümumi Gəlir</span>
+          <span class="stat-card__value">{{ formatCurrency(stats()?.totalRevenue ?? 0) }}</span>
+        </div>
+      </div>
+
+      <!-- Ümumi Məhsullar -->
+      <div class="stat-card stat-card--indigo">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Ümumi Məhsullar</span>
+          <span class="stat-card__value">{{ stats()?.totalProducts ?? 0 | number }}</span>
+        </div>
+      </div>
+
+      <!-- Ümumi Müştərilər -->
+      <div class="stat-card stat-card--pink">
+        <div class="stat-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-card__body">
+          <span class="stat-card__label">Ümumi Müştərilər</span>
+          <span class="stat-card__value">{{ stats()?.totalCustomers ?? 0 | number }}</span>
+        </div>
+      </div>
+
+      <!-- Bugünkü Ziyarətçilər -->
+      @if (visitors()) {
+        <div class="stat-card stat-card--amber">
+          <div class="stat-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8"  y1="2" x2="8"  y2="6"/>
+              <line x1="3"  y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div class="stat-card__body">
+            <span class="stat-card__label">Bugünkü Ziyarətçilər</span>
+            <span class="stat-card__value">{{ visitors()!.todayVisitors | number }}</span>
+            <span class="stat-card__sub">gecəyarısından bəri</span>
+          </div>
+        </div>
+      }
+
+      <!-- İndi Aktiv -->
+      @if (visitors()) {
+        <div class="stat-card stat-card--cyan">
+          <div class="stat-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div class="stat-card__body">
+            <span class="stat-card__label">İndi Aktiv</span>
+            <span class="stat-card__value">{{ visitors()!.activeVisitors | number }}</span>
+            <span class="stat-card__sub">son 5 dəq</span>
+          </div>
+          <span class="stat-card__pulse"></span>
+        </div>
+      }
+
+    </div>
+
+    <!-- ── Qrafik Sırası 1: Sifarişlər + Gəlir ────────────────────────────── -->
+    <div class="charts-row">
+
+      <div class="chart-card">
+        <div class="chart-card__head">
+          <h3>Tarix üzrə Sifarişlər</h3>
+          <span class="chart-card__sub">Son {{ selectedDays() }} gün</span>
+        </div>
+        <div class="chart-card__body">
+          <canvas #ordersChart></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card__head">
+          <h3>Gəlir Qrafiki</h3>
+          <span class="chart-card__sub">Son {{ selectedDays() }} gün</span>
+        </div>
+        <div class="chart-card__body">
+          <canvas #revenueChart></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Qrafik Sırası 2: Status + Ən Çox Satılanlar ───────────────────── -->
+    <div class="charts-row charts-row--mixed">
+
+      <div class="chart-card chart-card--sm">
+        <div class="chart-card__head">
+          <h3>Sifariş Statuslarının Paylanması</h3>
+          <span class="chart-card__sub">Bütün müddət</span>
+        </div>
+        <div class="chart-card__body chart-card__body--doughnut">
+          <canvas #statusChart></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card chart-card--lg">
+        <div class="chart-card__head">
+          <h3>Ən Çox Satılan Məhsullar</h3>
+          <span class="chart-card__sub">Satılan vahidlərə görə</span>
+        </div>
+        <div class="chart-card__body chart-card__body--bar">
+          <canvas #topChart></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="refresh-note">Statistika hər 60 san yenilənir &nbsp;·&nbsp; Qrafiklər filter dəyişdikdə yenilənir</p>
+  }
+
+</div>
