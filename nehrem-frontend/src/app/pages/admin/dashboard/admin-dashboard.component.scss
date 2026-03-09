@@ -73,6 +73,17 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (min-width: 1400px) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
@@ -179,6 +190,16 @@
   &--mixed {
     grid-template-columns: 2fr 3fr;
   }
+
+  @media (min-width: 1024px) {
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 1400px) {
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
 }
 
 // ── Chart card ────────────────────────────────────────────────────────────────
@@ -239,6 +260,31 @@
   font-size: .75rem;
   color: #ccc;
   text-align: right;
+}
+
+// ── Desktop stat card enhancements ────────────────────────────────────────────
+@media (min-width: 1024px) {
+  .stat-card {
+    padding: 1.5rem 1.5rem 1.35rem;
+
+    &__icon { width: 52px; height: 52px; border-radius: 13px; svg { width: 24px; height: 24px; } }
+    &__value { font-size: 2rem; }
+    &__label { font-size: .78rem; }
+  }
+
+  .chart-card {
+    &__head {
+      padding: 1.25rem 1.5rem .75rem;
+      h3 { font-size: 1.05rem; }
+    }
+    &__body {
+      height: 280px;
+      padding: 1.25rem 1.5rem 1.5rem;
+
+      &--doughnut { height: 320px; }
+      &--bar      { height: 320px; }
+    }
+  }
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────

@@ -57,17 +57,17 @@ export class OrderService {
       .pipe(map(r => r.data));
   }
 
-  getCourierOrders(courierId: number, page = 0, size = 20): Observable<any> {
+  getCourierOrders(page = 0, size = 20): Observable<any> {
     return this.http.get<ApiResponse<any>>(
       `${environment.apiUrl}/courier/orders`,
-      { params: { courierId, page, size } }
+      { params: { page, size } }
     ).pipe(map(r => r.data));
   }
 
-  markDelivered(orderId: number, courierId: number): Observable<OrderResponse> {
+  markDelivered(orderId: number): Observable<OrderResponse> {
     return this.http.patch<ApiResponse<OrderResponse>>(
       `${environment.apiUrl}/courier/orders/${orderId}/delivered`,
-      { courierId }
+      {}
     ).pipe(map(r => r.data));
   }
 }

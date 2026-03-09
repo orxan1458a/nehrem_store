@@ -3,74 +3,79 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export type Role = 'admin' | 'courier' | null;
+export type Role = 'ADMIN' | 'COURIER' | null;
+
+export interface JwtPayload {
+  userId:   number;
+  username: string;
+  role:     Role;
+  name:     string | null;
+}
+
+interface LoginResponse {
+  success: boolean;
+  data: {
+    accessToken: string;
+    role:        string;
+    userId:      number;
+    username:    string;
+    name:        string;
+  };
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
 
-  private readonly ROLE_KEY         = 'nh_role';
-  private readonly COURIER_ID_KEY   = 'nh_courier_id';
-  private readonly COURIER_NAME_KEY = 'nh_courier_name';
+  private readonly TOKEN_KEY = 'nh_token';
 
-  private _role        = signal<Role>(this.loadRole());
-  private _courierId   = signal<number | null>(this.loadCourierId());
-  private _courierName = signal<string | null>(localStorage.getItem(this.COURIER_NAME_KEY));
+  private _user = signal<JwtPayload | null>(this.loadUser());
 
-  readonly role        = this._role.asReadonly();
-  readonly courierId   = this._courierId.asReadonly();
-  readonly courierName = this._courierName.asReadonly();
-  readonly isAdmin     = computed(() => this._role() === 'admin');
-  readonly isCourier   = computed(() => this._role() === 'courier');
+  readonly isAdmin   = computed(() => this._user()?.role === 'ADMIN');
+  readonly isCourier = computed(() => this._user()?.role === 'COURIER');
+  readonly courierId = computed(() => this._user()?.userId ?? null);
+  readonly courierName = computed(() => this._user()?.name ?? null);
 
-  /** Admin login (local credentials check). */
-  login(username: string, password: string): boolean {
-    if (username === 'admin' && password === 'Nehrem4200!') {
-      this._role.set('admin');
-      localStorage.setItem(this.ROLE_KEY, 'admin');
-      return true;
-    }
-    return false;
-  }
-
-  /** Courier login via backend. Returns Observable<boolean>. */
-  courierLoginRequest(username: string, password: string): Observable<boolean> {
+  login(username: string, password: string): Observable<JwtPayload> {
     return this.http
-      .post<{ success: boolean; data: { id: number; name: string } }>(
-        `${environment.apiUrl}/courier/login`,
-        { username, password }
-      )
+      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, { username, password })
       .pipe(
         map(res => {
-          this._role.set('courier');
-          this._courierId.set(res.data.id);
-          this._courierName.set(res.data.name);
-          localStorage.setItem(this.ROLE_KEY,         'courier');
-          localStorage.setItem(this.COURIER_ID_KEY,   String(res.data.id));
-          localStorage.setItem(this.COURIER_NAME_KEY, res.data.name);
-          return true;
+          localStorage.setItem(this.TOKEN_KEY, res.data.accessToken);
+          const payload = this.decodeToken(res.data.accessToken);
+          this._user.set(payload);
+          return payload;
         })
       );
   }
 
   logout(): void {
-    this._role.set(null);
-    this._courierId.set(null);
-    this._courierName.set(null);
-    localStorage.removeItem(this.ROLE_KEY);
-    localStorage.removeItem(this.COURIER_ID_KEY);
-    localStorage.removeItem(this.COURIER_NAME_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
+    this._user.set(null);
   }
 
-  private loadRole(): Role {
-    const stored = localStorage.getItem(this.ROLE_KEY);
-    if (stored === 'admin')   return 'admin';
-    if (stored === 'courier') return 'courier';
-    return null;
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  private loadCourierId(): number | null {
-    const raw = localStorage.getItem(this.COURIER_ID_KEY);
-    return raw ? Number(raw) : null;
+  private loadUser(): JwtPayload | null {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return null;
+    try {
+      return this.decodeToken(token);
+    } catch {
+      localStorage.removeItem(this.TOKEN_KEY);
+      return null;
+    }
+  }
+
+  private decodeToken(token: string): JwtPayload {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return {
+      userId:   payload['userId'],
+      username: payload['sub'],
+      role:     payload['role'] as Role,
+      name:     payload['name'] ?? null
+    };
   }
 }

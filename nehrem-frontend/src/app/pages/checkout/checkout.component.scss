@@ -1,5 +1,5 @@
 .checkout {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem 1rem;
 
@@ -27,6 +27,34 @@
     h2 { font-size: 1.1rem; font-weight: 700; color: #1b4332; margin: 0 0 1rem; }
     hr  { border: none; border-top: 1px solid #eee; margin: .75rem 0; }
   }
+
+  @media (min-width: 1024px) {
+    padding: 2.5rem 2.5rem;
+
+    &__title { font-size: 2.1rem; margin-bottom: 2rem; }
+
+    &__layout {
+      grid-template-columns: 1fr 380px;
+      gap: 2.5rem;
+    }
+
+    &__summary {
+      padding: 2rem;
+      border-radius: 16px;
+      h2 { font-size: 1.2rem; }
+    }
+
+    &__form { gap: 1.75rem; }
+  }
+
+  @media (min-width: 1400px) {
+    padding: 3rem 3rem;
+
+    &__layout {
+      grid-template-columns: 1fr 420px;
+      gap: 3rem;
+    }
+  }
 }
 
 .form-section {
@@ -42,6 +70,13 @@
     margin: 0 0 1rem;
     padding-bottom: .5rem;
     border-bottom: 1.5px solid #e8f5e9;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 2rem;
+    border-radius: 16px;
+
+    h2 { font-size: 1.1rem; margin-bottom: 1.25rem; }
   }
 }
 

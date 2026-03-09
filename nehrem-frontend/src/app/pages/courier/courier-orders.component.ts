@@ -28,10 +28,8 @@ export class CourierOrdersComponent implements OnInit {
   ngOnInit(): void { this.loadOrders(); }
 
   loadOrders(): void {
-    const courierId = this.auth.courierId();
-    if (!courierId) { this.router.navigate(['/login']); return; }
     this.loading.set(true);
-    this.orderSvc.getCourierOrders(courierId, this.currentPage(), 20).subscribe({
+    this.orderSvc.getCourierOrders(this.currentPage(), 20).subscribe({
       next: (page: any) => {
         this.orders.set(page.content);
         this.totalPages.set(page.totalPages);
@@ -42,9 +40,8 @@ export class CourierOrdersComponent implements OnInit {
   }
 
   markDelivered(order: OrderResponse): void {
-    const courierId = this.auth.courierId()!;
     this.actionLoading.set(order.id);
-    this.orderSvc.markDelivered(order.id, courierId).subscribe({
+    this.orderSvc.markDelivered(order.id).subscribe({
       next: () => {
         this.orders.update(list => list.filter(o => o.id !== order.id));
         this.actionLoading.set(null);

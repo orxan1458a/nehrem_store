@@ -1,48 +1,53 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
-import { ProductService } from '../../core/services/product.service';
+import { FlashSaleComponent }   from '../../shared/components/flash-sale/flash-sale.component';
+import { ProductService }  from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
-import { CartService } from '../../core/services/cart.service';
-import { AuthService } from '../../core/services/auth.service';
+import { CartService }     from '../../core/services/cart.service';
+import { AuthService }     from '../../core/services/auth.service';
+import { SearchService }   from '../../core/services/search.service';
 import { Product, ProductPage } from '../../core/models/product.model';
 import { Category } from '../../core/models/category.model';
 
 @Component({
   selector: 'app-shop',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent],
+  imports: [CommonModule, FormsModule, ProductCardComponent, FlashSaleComponent],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
 })
-export class ShopComponent implements OnInit {
+export class ShopComponent implements OnInit, OnDestroy {
   private productSvc  = inject(ProductService);
   private categorySvc = inject(CategoryService);
   protected cartSvc   = inject(CartService);
   protected auth      = inject(AuthService);
+  searchSvc           = inject(SearchService);
   private router      = inject(Router);
 
-  categories = signal<Category[]>([]);
+  categories  = signal<Category[]>([]);
   productPage = signal<ProductPage | null>(null);
-  loading = signal(false);
-  toastMsg = signal('');
+  loading     = signal(false);
+  toastMsg    = signal('');
   selectedProduct = signal<Product | null>(null);
 
   selectedCategoryId = signal<number | undefined>(undefined);
-  searchQuery = signal('');
   currentPage = signal(0);
-  pageSize = 12;
+  pageSize    = 12;
 
-  private search$ = new Subject<string>();
+  // Detail sheet countdown
+  sheetCountdown = signal<string | null>(null);
+  private _sheetTimer: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.categorySvc.getAll().subscribe(c => this.categories.set(c));
     this.loadProducts();
 
-    this.search$.pipe(
+    // React to search changes (from header search OR shop page search input)
+    this.searchSvc.changes$.pipe(
       debounceTime(350),
       distinctUntilChanged()
     ).subscribe(() => {
@@ -52,8 +57,7 @@ export class ShopComponent implements OnInit {
   }
 
   onSearch(value: string): void {
-    this.searchQuery.set(value);
-    this.search$.next(value);
+    this.searchSvc.set(value);
   }
 
   selectCategory(id?: number): void {
@@ -66,12 +70,12 @@ export class ShopComponent implements OnInit {
     this.loading.set(true);
     this.productSvc.getAll({
       categoryId: this.selectedCategoryId(),
-      search: this.searchQuery() || undefined,
-      page: this.currentPage(),
-      size: this.pageSize
+      search:     this.searchSvc.query() || undefined,
+      page:       this.currentPage(),
+      size:       this.pageSize
     }).subscribe({
       next: page => { this.productPage.set(page); this.loading.set(false); },
-      error: ()   => this.loading.set(false)
+      error: ()  => this.loading.set(false)
     });
   }
 
@@ -96,8 +100,32 @@ export class ShopComponent implements OnInit {
   openDetail(product: Product): void {
     this.selectedProduct.set(product);
     this.productSvc.incrementView(product.id).subscribe();
+    // Start countdown if product has a limited-time discount
+    if (this._sheetTimer) clearInterval(this._sheetTimer);
+    if (product.discountEndDate) {
+      const tick = () => {
+        const ms = new Date(product.discountEndDate!).getTime() - Date.now();
+        if (ms <= 0) { this.sheetCountdown.set(null); return; }
+        const h = String(Math.floor(ms / 3_600_000)).padStart(2, '0');
+        const m = String(Math.floor((ms % 3_600_000) / 60_000)).padStart(2, '0');
+        const s = String(Math.floor((ms % 60_000) / 1000)).padStart(2, '0');
+        this.sheetCountdown.set(`${h}:${m}:${s}`);
+      };
+      tick();
+      this._sheetTimer = setInterval(tick, 1000);
+    } else {
+      this.sheetCountdown.set(null);
+    }
   }
-  closeDetail(): void { this.selectedProduct.set(null); }
+  ngOnDestroy(): void {
+    if (this._sheetTimer) clearInterval(this._sheetTimer);
+  }
+
+  closeDetail(): void {
+    this.selectedProduct.set(null);
+    if (this._sheetTimer) { clearInterval(this._sheetTimer); this._sheetTimer = null; }
+    this.sheetCountdown.set(null);
+  }
 
   addToCartFromDetail(product: Product): void {
     this.addToCart(product);

@@ -14,4 +14,5 @@ public interface ProductService {
     void delete(Long id);
     void toggleActive(Long id);
     void incrementView(Long id, String deviceId);
+    java.util.List<ProductDTO.Response> getFlashSaleProducts();
 }

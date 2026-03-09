@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -45,4 +46,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("search") String search,
             Pageable pageable
     );
+
+    @Query("SELECT p FROM Product p WHERE p.discountEndDate IS NOT NULL AND p.discountEndDate < :now")
+    List<Product> findExpiredDiscounts(@Param("now") Instant now);
+
+    @Query("""
+        SELECT p FROM Product p
+        WHERE p.active = true
+          AND p.discountPrice IS NOT NULL
+          AND p.discountEndDate IS NOT NULL
+          AND p.discountEndDate > :now
+        ORDER BY p.discountEndDate ASC
+    """)
+    List<Product> findActiveLimitedDiscountProducts(@Param("now") Instant now);
 }

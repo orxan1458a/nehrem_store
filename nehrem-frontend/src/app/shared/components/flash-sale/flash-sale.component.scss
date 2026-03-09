@@ -1,0 +1,395 @@
+// ── Flash Sale Section ────────────────────────────────────────────────────────
+.flash-sale {
+  margin-bottom: 1.5rem;
+
+  // ── Header ─────────────────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: .9rem 1.1rem;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(255,255,255,.018) 8px,
+        rgba(255,255,255,.018) 16px
+      );
+    }
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    z-index: 1;
+  }
+
+  &__icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 6px rgba(255,200,0,.7));
+    animation: icon-flicker 2s ease-in-out infinite;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+
+  &__subtitle {
+    font-size: .7rem;
+    color: rgba(255,255,255,.6);
+    margin: .1rem 0 0;
+  }
+
+  &__live-dot {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .68rem;
+    font-weight: 700;
+    color: #4ade80;
+    background: rgba(74,222,128,.12);
+    border: 1px solid rgba(74,222,128,.3);
+    padding: .25rem .65rem;
+    border-radius: 30px;
+    z-index: 1;
+  }
+
+  // ── Horizontal scrolling track ──────────────────────────────────────────────
+  &__track {
+    display: flex;
+    gap: .85rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: .25rem .1rem 1rem;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  // ── Tablet ─────────────────────────────────────────────────────────────────
+  @media (min-width: 768px) {
+    margin-bottom: 2rem;
+
+    &__header {
+      padding: 1.1rem 1.4rem;
+      border-radius: 22px;
+    }
+
+    &__title { font-size: 1.2rem; }
+    &__subtitle { font-size: .78rem; }
+
+    &__track {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      overflow-x: visible;
+      padding-bottom: 0;
+    }
+  }
+
+  // ── Desktop ────────────────────────────────────────────────────────────────
+  @media (min-width: 1024px) {
+    margin-bottom: 2.5rem;
+
+    &__header {
+      padding: 1.25rem 2rem;
+      border-radius: 24px;
+    }
+
+    &__title { font-size: 1.35rem; }
+
+    &__track {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+  }
+
+  // ── Large desktop ──────────────────────────────────────────────────────────
+  @media (min-width: 1400px) {
+    &__track {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.4rem;
+    }
+  }
+}
+
+// ── Live dot pulse animation ──────────────────────────────────────────────────
+.live-pulse {
+  width: 7px;
+  height: 7px;
+  background: #4ade80;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: rgba(74,222,128,.4);
+    animation: live-ripple 1.5s ease-out infinite;
+  }
+}
+
+@keyframes live-ripple {
+  0%   { transform: scale(.6); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes icon-flicker {
+  0%, 100% { transform: scale(1); }
+  45%       { transform: scale(1.12) rotate(-4deg); }
+  55%       { transform: scale(1.12) rotate(4deg); }
+}
+
+// ── Flash Deal Card ───────────────────────────────────────────────────────────
+.flash-deal {
+  flex-shrink: 0;
+  width: 190px;
+  scroll-snap-align: start;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.04);
+  cursor: pointer;
+  transition: transform .22s cubic-bezier(.25,.8,.25,1), box-shadow .22s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.13), 0 0 0 1px rgba(0,0,0,.05);
+  }
+
+  &:active { transform: translateY(-1px); }
+
+  &--oos { opacity: .65; }
+
+  // ── Discount badge ──────────────────────────────────────────────────────────
+  &__badge {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    z-index: 2;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    font-size: .62rem;
+    font-weight: 900;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: .03em;
+    box-shadow: 0 2px 8px rgba(239,68,68,.45);
+  }
+
+  // ── Image ───────────────────────────────────────────────────────────────────
+  &__image-wrap {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: #f4f6f8;
+    overflow: hidden;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .35s ease;
+  }
+
+  &:hover &__image { transform: scale(1.05); }
+
+  &__image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg { width: 40px; height: 40px; opacity: .35; }
+  }
+
+  &__oos-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+
+  // ── Body ────────────────────────────────────────────────────────────────────
+  &__body {
+    padding: .7rem .8rem .8rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    flex: 1;
+  }
+
+  &__cat {
+    font-size: .58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: #00BFA5;
+  }
+
+  &__name {
+    font-size: .82rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // ── Countdown timer ─────────────────────────────────────────────────────────
+  &__timer {
+    display: flex;
+    align-items: center;
+    gap: .22rem;
+    margin: .1rem 0;
+  }
+
+  &__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: .4rem;
+    margin-top: auto;
+  }
+
+  &__price-new {
+    font-size: .95rem;
+    font-weight: 900;
+    color: #ef4444;
+    letter-spacing: -.01em;
+  }
+
+  &__price-old {
+    font-size: .72rem;
+    color: #aaa;
+    text-decoration: line-through;
+  }
+
+  // ── Cart button ─────────────────────────────────────────────────────────────
+  &__cart-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    width: 100%;
+    padding: .55rem;
+    background: linear-gradient(135deg, #00BFA5, #00897B);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: .78rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity .15s, transform .15s;
+    letter-spacing: .01em;
+
+    &:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+    &:disabled { background: #d1d5db; cursor: not-allowed; }
+  }
+
+  // ── Tablet / desktop card width ─────────────────────────────────────────────
+  @media (min-width: 768px) {
+    width: auto;  // grid takes over
+
+    &__name { font-size: .9rem; }
+    &__price-new { font-size: 1.05rem; }
+    &__price-old { font-size: .78rem; }
+    &__cart-btn  { padding: .65rem; font-size: .85rem; }
+  }
+}
+
+// ── Timer block ───────────────────────────────────────────────────────────────
+.timer-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(180deg, #1a1a2e 0%, #0f3460 100%);
+  border-radius: 7px;
+  padding: .28rem .42rem .22rem;
+  min-width: 34px;
+
+  &__num {
+    font-size: .85rem;
+    font-weight: 900;
+    color: #fbbf24;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .01em;
+  }
+
+  &__label {
+    font-size: .45rem;
+    font-weight: 700;
+    color: rgba(255,255,255,.55);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-top: 2px;
+  }
+}
+
+.timer-colon {
+  font-size: .9rem;
+  font-weight: 900;
+  color: #6b7280;
+  line-height: 1;
+  margin-bottom: .35rem;
+}
+
+// ── Flash toast ───────────────────────────────────────────────────────────────
+.flash-toast {
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  padding: .6rem 1.2rem;
+  border-radius: 30px;
+  font-size: .85rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  animation: ft-fade 2.5s ease forwards;
+  z-index: 700;
+  white-space: nowrap;
+}
+
+@keyframes ft-fade {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}

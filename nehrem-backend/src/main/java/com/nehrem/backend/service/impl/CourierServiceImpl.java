@@ -2,110 +2,110 @@ package com.nehrem.backend.service.impl;
 
 import com.nehrem.backend.dto.CourierDTO;
 import com.nehrem.backend.dto.OrderDTO;
-import com.nehrem.backend.entity.Courier;
+import com.nehrem.backend.entity.User;
 import com.nehrem.backend.exception.BusinessException;
 import com.nehrem.backend.exception.ResourceNotFoundException;
-import com.nehrem.backend.repository.CourierRepository;
+import com.nehrem.backend.repository.UserRepository;
 import com.nehrem.backend.service.CourierService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CourierServiceImpl implements CourierService {
 
-    private final CourierRepository courierRepository;
+    private final UserRepository  userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
     public List<CourierDTO.Response> getAll() {
-        return courierRepository.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+        return userRepository.findByRole(User.Role.COURIER)
+                .stream().map(this::toResponse).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<OrderDTO.CourierInfo> getActive() {
-        return courierRepository.findByActiveTrue().stream()
-                .map(c -> OrderDTO.CourierInfo.builder()
-                        .id(c.getId())
-                        .name(c.getName())
-                        .phone(c.getPhone())
+        return userRepository.findByRoleAndActiveTrue(User.Role.COURIER)
+                .stream()
+                .map(u -> OrderDTO.CourierInfo.builder()
+                        .id(u.getId())
+                        .name(u.getName())
+                        .phone(u.getPhone())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public CourierDTO.Response create(CourierDTO.Request request) {
-        if (courierRepository.findByUsernameAndPassword(request.getUsername(), "").isPresent()
-                || courierRepository.findAll().stream()
-                        .anyMatch(c -> c.getUsername().equalsIgnoreCase(request.getUsername()))) {
+        if (userRepository.existsByUsername(request.getUsername().trim().toLowerCase())) {
             throw new BusinessException("Bu istifadəçi adı artıq mövcuddur");
         }
         if (request.getPassword() == null || request.getPassword().isBlank()) {
             throw new BusinessException("Şifrə tələb olunur");
         }
-        Courier courier = Courier.builder()
+        User user = User.builder()
+                .username(request.getUsername().trim().toLowerCase())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(User.Role.COURIER)
                 .name(request.getName())
                 .phone(request.getPhone())
-                .username(request.getUsername().trim().toLowerCase())
-                .password(request.getPassword())
                 .active(true)
                 .build();
-        return toResponse(courierRepository.save(courier));
+        return toResponse(userRepository.save(user));
     }
 
     @Override
     public CourierDTO.Response update(Long id, CourierDTO.Request request) {
-        Courier courier = courierRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Courier", id));
 
-        // Check username uniqueness (exclude self)
-        boolean usernameTaken = courierRepository.findAll().stream()
-                .anyMatch(c -> !c.getId().equals(id)
-                        && c.getUsername().equalsIgnoreCase(request.getUsername()));
+        String newUsername = request.getUsername().trim().toLowerCase();
+        boolean usernameTaken = userRepository.findByRole(User.Role.COURIER).stream()
+                .anyMatch(u -> !u.getId().equals(id) && u.getUsername().equals(newUsername));
         if (usernameTaken) {
             throw new BusinessException("Bu istifadəçi adı artıq mövcuddur");
         }
 
-        courier.setName(request.getName());
-        courier.setPhone(request.getPhone());
-        courier.setUsername(request.getUsername().trim().toLowerCase());
+        user.setUsername(newUsername);
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            courier.setPassword(request.getPassword());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        return toResponse(courierRepository.save(courier));
+        return toResponse(userRepository.save(user));
     }
 
     @Override
     public CourierDTO.Response toggleActive(Long id) {
-        Courier courier = courierRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Courier", id));
-        courier.setActive(!courier.getActive());
-        return toResponse(courierRepository.save(courier));
+        user.setActive(!user.getActive());
+        return toResponse(userRepository.save(user));
     }
 
     @Override
     public void delete(Long id) {
-        if (!courierRepository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("Courier", id);
         }
-        courierRepository.deleteById(id);
+        userRepository.deleteById(id);
     }
 
-    private CourierDTO.Response toResponse(Courier c) {
+    private CourierDTO.Response toResponse(User u) {
         return CourierDTO.Response.builder()
-                .id(c.getId())
-                .name(c.getName())
-                .phone(c.getPhone())
-                .username(c.getUsername())
-                .active(c.getActive())
+                .id(u.getId())
+                .name(u.getName())
+                .phone(u.getPhone())
+                .username(u.getUsername())
+                .active(u.getActive())
+                .createdAt(u.getCreatedAt())
                 .build();
     }
 }

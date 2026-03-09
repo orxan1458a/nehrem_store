@@ -1,6 +1,9 @@
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\config\CorsConfig.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\config\DataSeeder.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\config\SecurityConfig.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\config\WebConfig.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\AdminCourierController.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\AuthController.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\CategoryController.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\CourierController.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\DashboardController.java
@@ -11,6 +14,7 @@ C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\controller\VisitorController.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\AnalyticsDTO.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\ApiResponse.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\AuthDTO.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\CategoryDTO.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\CourierDTO.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\dto\DashboardStatsDTO.java
@@ -27,6 +31,7 @@ C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\Product.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\ProductView.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\Review.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\User.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\entity\Visitor.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\exception\BusinessException.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\exception\GlobalExceptionHandler.java
@@ -35,14 +40,20 @@ C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\CategoryRepository.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\CourierRepository.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\InventoryBatchRepository.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\OrderItemRepository.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\OrderRepository.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\ProductRepository.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\ProductViewRepository.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\ReviewRepository.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\UserRepository.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\repository\VisitorRepository.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\security\JwtAuthFilter.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\security\JwtUtils.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\AuthService.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\CategoryService.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\CourierService.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\DashboardAnalyticsService.java
+C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\AuthServiceImpl.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\CategoryServiceImpl.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\CourierServiceImpl.java
 C:\Users\Lenov0\Documents\ai startups\nehrem_store\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\DashboardAnalyticsServiceImpl.java

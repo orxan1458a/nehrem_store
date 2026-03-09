@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
@@ -34,6 +35,12 @@ public class Product {
 
     @Column(name = "discount_price", precision = 10, scale = 2)
     private BigDecimal discountPrice;
+
+    @Column(name = "discount_start_date")
+    private Instant discountStartDate;
+
+    @Column(name = "discount_end_date")
+    private Instant discountEndDate;
 
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;

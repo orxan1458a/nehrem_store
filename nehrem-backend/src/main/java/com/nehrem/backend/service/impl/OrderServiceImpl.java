@@ -1,15 +1,15 @@
 package com.nehrem.backend.service.impl;
 
 import com.nehrem.backend.dto.OrderDTO;
-import com.nehrem.backend.entity.Courier;
 import com.nehrem.backend.entity.Order;
 import com.nehrem.backend.entity.OrderItem;
 import com.nehrem.backend.entity.Product;
+import com.nehrem.backend.entity.User;
 import com.nehrem.backend.exception.BusinessException;
 import com.nehrem.backend.exception.ResourceNotFoundException;
-import com.nehrem.backend.repository.CourierRepository;
 import com.nehrem.backend.repository.OrderRepository;
 import com.nehrem.backend.repository.ProductRepository;
+import com.nehrem.backend.repository.UserRepository;
 import com.nehrem.backend.service.InventoryService;
 import com.nehrem.backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository   orderRepository;
     private final ProductRepository productRepository;
-    private final CourierRepository courierRepository;
+    private final UserRepository    userRepository;
     private final InventoryService  inventoryService;
 
     @Override
@@ -129,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", id));
         order.setOrderStatus(Order.OrderStatus.ACCEPTED);
         if (courierId != null) {
-            Courier courier = courierRepository.findById(courierId)
+            User courier = userRepository.findById(courierId)
                     .orElseThrow(() -> new ResourceNotFoundException("Courier", courierId));
             order.setCourier(courier);
         }
@@ -155,7 +155,7 @@ public class OrderServiceImpl implements OrderService {
         if (courierId == null) {
             order.setCourier(null);
         } else {
-            Courier courier = courierRepository.findById(courierId)
+            User courier = userRepository.findById(courierId)
                     .orElseThrow(() -> new ResourceNotFoundException("Courier", courierId));
             order.setCourier(courier);
         }

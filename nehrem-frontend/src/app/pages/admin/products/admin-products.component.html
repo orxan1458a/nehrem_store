@@ -62,6 +62,30 @@
             </div>
           </div>
 
+          <!-- Limited-time discount -->
+          <div class="form-group discount-timer-group">
+            <label class="toggle-label">
+              <input type="checkbox" formControlName="limitedDiscount" class="toggle-checkbox">
+              <span class="toggle-switch"></span>
+              Vaxtlı endirim (müddəti bitdikdə avtomatik silinər)
+            </label>
+          </div>
+
+          @if (limitedDiscountEnabled) {
+            <div class="form-group discount-timer-body">
+              <label>Endirim bitmə tarixi və saatı</label>
+              <input formControlName="discountEndDate" type="datetime-local"
+                     class="datetime-input">
+              <div class="duration-presets">
+                <span class="presets-label">Sürətli seçim:</span>
+                @for (d of durations; track d.hours) {
+                  <button type="button" class="preset-btn"
+                          (click)="setDiscountDuration(d.hours)">{{ d.label }}</button>
+                }
+              </div>
+            </div>
+          }
+
           <div class="form-row">
             <div class="form-group">
               <label>Stok miqdarı *</label>
@@ -132,7 +156,7 @@
                 <tbody>
                   @for (b of stockBatches(); track b.id) {
                     <tr [class.inactive]="b.quantity === 0">
-                      <td>{{ b.dateAdded | date:'short' }}</td>
+                      <td>{{ b.dateAdded | date:'dd.MM.yyyy HH:mm' }}</td>
                       <td>{{ b.purchasePrice | number:'1.2-2' }} ₼</td>
                       <td [class.low-stock]="b.quantity > 0 && b.quantity <= 5">
                         {{ b.quantity === 0 ? '— Bitib —' : b.quantity }}
@@ -229,7 +253,16 @@
               <td><strong>{{ p.name }}</strong></td>
               <td>{{ p.categoryName ?? '—' }}</td>
               <td>{{ p.price | number:'1.2-2' }} ₼</td>
-              <td>{{ p.discountPrice ? (p.discountPrice | number:'1.2-2') + ' ₼' : '—' }}</td>
+              <td>
+                @if (p.discountPrice) {
+                  <span>{{ p.discountPrice | number:'1.2-2' }} ₼</span>
+                  @if (p.discountEndDate) {
+                    <span class="discount-timer-badge" [title]="p.discountEndDate | date:'dd.MM.yyyy HH:mm'">
+                      ⏱ {{ discountTimeRemaining(p) }}
+                    </span>
+                  }
+                } @else { — }
+              </td>
               <td>
                 @if (p.purchasePrice) {
                   <span class="purchase-price-badge">{{ p.purchasePrice | number:'1.2-2' }} ₼</span>

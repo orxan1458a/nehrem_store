@@ -14,7 +14,7 @@
     }
 
     @if (hasDiscount) {
-      <span class="card__badge card__badge--sale">ENDİRİM</span>
+      <span class="card__badge card__badge--sale">-{{ discountPercent }}%</span>
     }
     @if (isOutOfStock) {
       <span class="card__badge card__badge--oos">Stokda yoxdur</span>
@@ -49,7 +49,10 @@
 
     <div class="card__footer">
       <div class="card__price">
-        <span class="card__price--current">{{ effectivePrice | number:'1.2-2' }} ₼</span>
+        <span class="card__price--current"
+              [class.card__price--discounted]="hasDiscount">
+          {{ effectivePrice | number:'1.2-2' }} ₼
+        </span>
         @if (hasDiscount) {
           <span class="card__price--old">{{ product.price | number:'1.2-2' }} ₼</span>
         }

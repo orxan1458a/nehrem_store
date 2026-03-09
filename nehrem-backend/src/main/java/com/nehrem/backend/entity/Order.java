@@ -52,10 +52,10 @@ public class Order {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    /** Courier assigned to deliver this order (nullable). */
+    /** Courier (User with COURIER role) assigned to deliver this order. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courier_id")
-    private Courier courier;
+    private User courier;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

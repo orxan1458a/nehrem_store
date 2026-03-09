@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class ProductDTO {
@@ -26,6 +27,9 @@ public class ProductDTO {
         @DecimalMin(value = "0.01", message = "Discount price must be greater than 0")
         private BigDecimal discountPrice;
 
+        /** Optional: when the discount should automatically expire (UTC Instant). */
+        private Instant discountEndDate;
+
         @NotNull(message = "Stock quantity is required")
         @Min(value = 0, message = "Stock quantity must be >= 0")
         private Integer stockQuantity;
@@ -44,6 +48,10 @@ public class ProductDTO {
         private String description;
         private BigDecimal price;
         private BigDecimal discountPrice;
+        /** UTC — serialized as "...Z" so browsers always parse it as UTC. */
+        private Instant discountStartDate;
+        /** UTC — serialized as "...Z" so browsers always parse it as UTC. */
+        private Instant discountEndDate;
         private Integer stockQuantity;
         private String imageUrl;
         private Long categoryId;

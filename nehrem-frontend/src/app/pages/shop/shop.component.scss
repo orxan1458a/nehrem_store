@@ -1,10 +1,13 @@
 .shop {
-  max-width: 480px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1rem 1rem 1.5rem;
 
   &__search {
     margin-bottom: 1rem;
+
+    // Hide on desktop — header search bar takes over
+    @media (min-width: 1024px) { display: none; }
   }
 
   &__categories {
@@ -49,6 +52,49 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: .85rem;
+  }
+
+  // ── Tablet (768px+) ──────────────────────────────────────────────────────
+  @media (min-width: 768px) {
+    padding: 1.5rem 1.5rem 2rem;
+
+    &__grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.1rem;
+    }
+
+    &__categories {
+      flex-wrap: wrap;
+      overflow-x: visible;
+      gap: .55rem;
+    }
+
+    &__section-title { font-size: 1.15rem; }
+  }
+
+  // ── Desktop (1024px+) ────────────────────────────────────────────────────
+  @media (min-width: 1024px) {
+    padding: 2rem 2.5rem 2.5rem;
+
+    &__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    &__section-header { margin-bottom: 1.1rem; }
+    &__section-title  { font-size: 1.25rem; }
+    &__search         { margin-bottom: 1.25rem; }
+    &__categories     { margin-bottom: 1.5rem; }
+  }
+
+  // ── Large Desktop (1400px+) ──────────────────────────────────────────────
+  @media (min-width: 1400px) {
+    padding: 2.5rem 3rem 3rem;
+
+    &__grid {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.4rem;
+    }
   }
 }
 
@@ -126,6 +172,42 @@
 
     svg { width: 100%; height: 100%; }
   }
+
+  // ── Tablet hero ──────────────────────────────────────────────────────────
+  @media (min-width: 768px) {
+    padding: 2rem 2rem 1.8rem;
+    border-radius: 24px;
+
+    &__title { font-size: 2rem; }
+    &__sub    { font-size: .9rem; }
+    &__tag    { font-size: .8rem; }
+    &__visual { width: 120px; height: 100px; }
+  }
+
+  // ── Desktop hero ─────────────────────────────────────────────────────────
+  @media (min-width: 1024px) {
+    padding: 2.5rem 3rem 2.5rem;
+    border-radius: 28px;
+    margin-bottom: 2rem;
+
+    &::before {
+      width: 200px; height: 200px;
+      top: -60px; right: -60px;
+    }
+
+    &__content { gap: .7rem; }
+    &__title   { font-size: 2.75rem; letter-spacing: -.03em; span { display: inline; } }
+    &__sub     { font-size: 1rem; }
+    &__tag     { font-size: .85rem; padding: .35rem 1rem; }
+    &__visual  { width: 180px; height: 150px; }
+  }
+
+  @media (min-width: 1400px) {
+    padding: 3rem 4rem 3rem;
+
+    &__title { font-size: 3.25rem; }
+    &__visual { width: 220px; height: 180px; }
+  }
 }
 
 /* ── Search ── */
@@ -161,6 +243,12 @@
   &:focus {
     border-color: #00BFA5;
     box-shadow: 0 0 0 3px rgba(0,191,165,.1);
+  }
+
+  @media (min-width: 1024px) {
+    padding: .85rem 1.25rem .85rem 2.8rem;
+    font-size: .95rem;
+    max-width: 600px;
   }
 }
 
@@ -303,6 +391,27 @@
 
     svg { width: 100%; height: 100%; }
   }
+
+  // ── Desktop promo banner ─────────────────────────────────────────────────
+  @media (min-width: 768px) {
+    margin-top: 2rem;
+    padding: 1.75rem 2rem;
+    border-radius: 22px;
+
+    &__title { font-size: 1.2rem; }
+    &__illustration { width: 110px; height: 82px; }
+  }
+
+  @media (min-width: 1024px) {
+    margin-top: 2.5rem;
+    padding: 2rem 2.5rem;
+    border-radius: 24px;
+
+    &__label  { font-size: .75rem; }
+    &__title  { font-size: 1.4rem; }
+    &__btn    { font-size: .9rem; padding: .6rem 1.4rem; border-radius: 12px; }
+    &__illustration { width: 140px; height: 105px; }
+  }
 }
 
 /* ── Spinner ── */
@@ -361,6 +470,13 @@
   &:hover {
     transform: scale(1.08);
     box-shadow: 0 6px 22px rgba(37,211,102,.55);
+  }
+
+  @media (min-width: 1024px) {
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
   }
 }
 
@@ -493,6 +609,40 @@
     font-weight: 900;
     color: #1a1a1a;
     letter-spacing: -.02em;
+
+    &--sale { color: #ef4444; }
+  }
+
+  &__flash-row {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    border-radius: 12px;
+    padding: .5rem .85rem;
+    margin-top: .15rem;
+  }
+
+  &__flash-icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  &__flash-label {
+    font-size: .72rem;
+    font-weight: 800;
+    color: rgba(255,255,255,.75);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    flex: 1;
+  }
+
+  &__flash-timer {
+    font-size: .95rem;
+    font-weight: 900;
+    color: #fbbf24;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .05em;
   }
 
   &__price-old {
@@ -587,9 +737,46 @@
 
     &:hover { background: #e0f7f3; }
   }
+
+  // ── Desktop: centered modal instead of bottom sheet ──────────────────────
+  @media (min-width: 1024px) {
+    bottom: auto;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 720px;
+    border-radius: 20px;
+    max-height: 88vh;
+    padding-bottom: 2rem;
+    animation: modalFadeIn .25s cubic-bezier(.25,.8,.25,1);
+
+    &__drag-handle { display: none; }
+
+    &__image-wrap {
+      border-radius: 16px 16px 0 0;
+      aspect-ratio: 16/9;
+    }
+
+    &__body { padding: 1.75rem 2rem 1.5rem; gap: .65rem; }
+    &__name { font-size: 1.5rem; }
+    &__price-current { font-size: 1.7rem; }
+
+    &__add-btn {
+      padding: 1.1rem;
+      font-size: 1.05rem;
+      border-radius: 14px;
+    }
+  }
 }
 
 @keyframes slideUp {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translate(-50%, -46%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
 }

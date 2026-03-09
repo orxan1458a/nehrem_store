@@ -9,6 +9,7 @@ import com.nehrem.backend.exception.BusinessException;
 import com.nehrem.backend.exception.ResourceNotFoundException;
 import com.nehrem.backend.repository.CategoryRepository;
 import com.nehrem.backend.repository.InventoryBatchRepository;
+import com.nehrem.backend.repository.OrderItemRepository;
 import com.nehrem.backend.repository.ProductRepository;
 import com.nehrem.backend.repository.ProductViewRepository;
 import com.nehrem.backend.repository.ReviewRepository;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -28,7 +30,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -37,11 +41,12 @@ import java.util.UUID;
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository       productRepository;
-    private final CategoryRepository      categoryRepository;
-    private final ReviewRepository        reviewRepository;
-    private final ProductViewRepository   productViewRepository;
+    private final ProductRepository        productRepository;
+    private final CategoryRepository       categoryRepository;
+    private final ReviewRepository         reviewRepository;
+    private final ProductViewRepository    productViewRepository;
     private final InventoryBatchRepository inventoryBatchRepository;
+    private final OrderItemRepository      orderItemRepository;
 
     @Value("${app.upload.dir:./uploads}")
     private String uploadDir;
@@ -75,11 +80,16 @@ public class ProductServiceImpl implements ProductService {
         boolean hasPurchasePrice = request.getPurchasePrice() != null
                 && request.getPurchasePrice().compareTo(BigDecimal.ZERO) > 0;
 
+        Instant discountStart = request.getDiscountPrice() != null ? Instant.now() : null;
+        Instant discountEnd   = request.getDiscountPrice() != null ? request.getDiscountEndDate() : null;
+
         Product product = Product.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .discountPrice(request.getDiscountPrice())
+                .discountStartDate(discountStart)
+                .discountEndDate(discountEnd)
                 .stockQuantity(hasPurchasePrice ? 0 : request.getStockQuantity())
                 .category(category)
                 .active(true)
@@ -114,9 +124,23 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setDiscountPrice(request.getDiscountPrice());
         product.setStockQuantity(request.getStockQuantity());
         product.setCategory(category);
+
+        // Discount: set start date when a new discount price is being applied or changed.
+        if (request.getDiscountPrice() != null) {
+            boolean discountChanged = !request.getDiscountPrice().equals(product.getDiscountPrice())
+                    || product.getDiscountStartDate() == null;
+            if (discountChanged) {
+                product.setDiscountStartDate(Instant.now());
+            }
+            product.setDiscountPrice(request.getDiscountPrice());
+            product.setDiscountEndDate(request.getDiscountEndDate());
+        } else {
+            product.setDiscountPrice(null);
+            product.setDiscountStartDate(null);
+            product.setDiscountEndDate(null);
+        }
 
         if (image != null && !image.isEmpty()) {
             deleteImageFile(product.getImageUrl());
@@ -129,6 +153,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         Product product = findById(id);
+        if (orderItemRepository.existsByProductId(id)) {
+            throw new BusinessException("Bu məhsul sifarişlərdə istifadə olunub və silinə bilməz. Əvəzinə deaktiv edin.");
+        }
+        reviewRepository.deleteByProductId(id);
+        inventoryBatchRepository.deleteByProductId(id);
+        productViewRepository.deleteByProductId(id);
         deleteImageFile(product.getImageUrl());
         productRepository.delete(product);
     }
@@ -153,6 +183,30 @@ public class ProductServiceImpl implements ProductService {
                 .productId(id)
                 .deviceId(deviceId)
                 .build());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO.Response> getFlashSaleProducts() {
+        return productRepository.findActiveLimitedDiscountProducts(Instant.now())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    /**
+     * Runs every minute; clears expired discounts so products revert to their
+     * normal price automatically without a manual admin action.
+     */
+    @Scheduled(fixedRate = 60_000)
+    public void expireDiscounts() {
+        List<Product> expired = productRepository.findExpiredDiscounts(Instant.now());
+        for (Product p : expired) {
+            p.setDiscountPrice(null);
+            p.setDiscountStartDate(null);
+            p.setDiscountEndDate(null);
+            productRepository.save(p);
+        }
     }
 
     // ── Helpers ──────────────────────────────────────────────
@@ -205,12 +259,23 @@ public class ProductServiceImpl implements ProductService {
                 .map(InventoryBatch::getPurchasePrice)
                 .orElse(null);
 
+        // If the discount end date has passed, treat the discount as inactive.
+        // The scheduled job will persist the clearance; this guards reads in between runs.
+        boolean discountExpired = p.getDiscountEndDate() != null
+                && p.getDiscountEndDate().isBefore(Instant.now());
+
+        BigDecimal effectiveDiscountPrice = discountExpired ? null : p.getDiscountPrice();
+        Instant effectiveStartDate        = discountExpired ? null : p.getDiscountStartDate();
+        Instant effectiveEndDate          = discountExpired ? null : p.getDiscountEndDate();
+
         return ProductDTO.Response.builder()
                 .id(p.getId())
                 .name(p.getName())
                 .description(p.getDescription())
                 .price(p.getPrice())
-                .discountPrice(p.getDiscountPrice())
+                .discountPrice(effectiveDiscountPrice)
+                .discountStartDate(effectiveStartDate)
+                .discountEndDate(effectiveEndDate)
                 .stockQuantity(p.getStockQuantity())
                 .imageUrl(p.getImageUrl())
                 .categoryId(p.getCategory() != null ? p.getCategory().getId() : null)

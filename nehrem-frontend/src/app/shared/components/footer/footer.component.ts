@@ -71,6 +71,10 @@ import { CartService } from '../../../core/services/cart.service';
       padding: 0 .5rem;
     }
 
+    @media (min-width: 1024px) {
+      .bottom-nav { display: none !important; }
+    }
+
     .bottom-nav__item {
       display: flex;
       flex-direction: column;

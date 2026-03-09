@@ -22,4 +22,6 @@ public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, 
     /** Total value of all inventory across all products and batches. */
     @Query("SELECT COALESCE(SUM(b.purchasePrice * b.quantity), 0) FROM InventoryBatch b WHERE b.quantity > 0")
     BigDecimal totalInventoryValue();
+
+    void deleteByProductId(Long productId);
 }

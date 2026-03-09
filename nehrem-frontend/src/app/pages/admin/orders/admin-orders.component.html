@@ -93,7 +93,7 @@
               }
             }
           </td>
-          <td>{{ order.createdAt | date:'short' }}</td>
+          <td>{{ order.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
           <td>
             <button class="btn-edit" (click)="toggleExpand(order.id)">
               {{ expanded() === order.id ? '▲' : '▼' }}

@@ -167,11 +167,38 @@
       color: #1a1a1a;
       letter-spacing: -.01em;
     }
+    &--discounted { color: #ef4444; }
     &--old {
       font-size: .7rem;
       color: #9ca3af;
       text-decoration: line-through;
     }
+  }
+
+  // ── Desktop card enhancements ────────────────────────────────────────────
+  @media (min-width: 1024px) {
+    border-radius: 18px;
+
+    &__body {
+      padding: .9rem 1.1rem 1.1rem;
+      gap: .25rem;
+    }
+
+    &__category { font-size: .68rem; }
+
+    &__name {
+      font-size: .95rem;
+      line-height: 1.4;
+    }
+
+    &__footer { margin-top: .75rem; }
+
+    &__price {
+      &--current { font-size: 1.1rem; }
+      &--old     { font-size: .78rem; }
+    }
+
+    &__heart { width: 34px; height: 34px; svg { width: 16px; height: 16px; } }
   }
 }
 
@@ -200,4 +227,11 @@
     transform: scale(1.08);
   }
   &:disabled { background: #d1d5db; cursor: not-allowed; }
+
+  @media (min-width: 1024px) {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    svg { width: 17px; height: 17px; }
+  }
 }

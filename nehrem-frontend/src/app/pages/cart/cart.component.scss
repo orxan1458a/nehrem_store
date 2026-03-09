@@ -1,5 +1,5 @@
 .cart-page {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem 1rem;
 
@@ -31,6 +31,34 @@
 
     h2 { font-size: 1.1rem; font-weight: 700; color: #00897B; margin: 0 0 1rem; }
     hr  { border: none; border-top: 1px solid #eee; margin: .75rem 0; }
+  }
+
+  @media (min-width: 1024px) {
+    padding: 2.5rem 2.5rem;
+
+    &__title { font-size: 2.1rem; margin-bottom: 2rem; }
+
+    &__layout {
+      grid-template-columns: 1fr 360px;
+      gap: 2.5rem;
+    }
+
+    &__items { gap: 1rem; }
+
+    &__summary {
+      padding: 2rem;
+      border-radius: 16px;
+      h2 { font-size: 1.2rem; }
+    }
+  }
+
+  @media (min-width: 1400px) {
+    padding: 3rem 3rem;
+
+    &__layout {
+      grid-template-columns: 1fr 400px;
+      gap: 3rem;
+    }
   }
 }
 
@@ -89,6 +117,17 @@
     padding: 4px;
     transition: color .15s;
     &:hover { color: #e63946; }
+  }
+
+  @media (min-width: 1024px) {
+    padding: 1.25rem 1.5rem;
+    border-radius: 14px;
+    gap: 1.5rem;
+
+    &__image { width: 88px; height: 88px; border-radius: 10px; }
+    &__name  { font-size: 1rem; }
+    &__price { font-size: .95rem; }
+    &__subtotal { font-size: 1.05rem; min-width: 100px; }
   }
 }
 

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -91,6 +92,11 @@ public class ProductController {
     public ResponseEntity<ApiResponse<Void>> toggleActive(@PathVariable Long id) {
         productService.toggleActive(id);
         return ResponseEntity.ok(ApiResponse.ok("Product status toggled", null));
+    }
+
+    @GetMapping("/flash-sale")
+    public ResponseEntity<ApiResponse<List<ProductDTO.Response>>> getFlashSale() {
+        return ResponseEntity.ok(ApiResponse.ok(productService.getFlashSaleProducts()));
     }
 
     @PostMapping("/{id}/view")

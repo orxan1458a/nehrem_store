@@ -19,7 +19,6 @@ export class LoginComponent {
   password = signal('');
   error    = signal('');
   loading  = signal(false);
-  mode     = signal<'admin' | 'courier'>('admin');
 
   onSubmit(): void {
     if (!this.username() || !this.password()) {
@@ -29,27 +28,21 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set('');
 
-    if (this.mode() === 'admin') {
-      setTimeout(() => {
-        const ok = this.auth.login(this.username(), this.password());
+    this.auth.login(this.username(), this.password()).subscribe({
+      next: payload => {
         this.loading.set(false);
-        if (ok) {
+        if (payload.role === 'ADMIN') {
           this.router.navigate(['/admin']);
-        } else {
-          this.error.set('İstifadəçi adı və ya şifrə yanlışdır.');
-        }
-      }, 400);
-    } else {
-      this.auth.courierLoginRequest(this.username(), this.password()).subscribe({
-        next: () => {
-          this.loading.set(false);
+        } else if (payload.role === 'COURIER') {
           this.router.navigate(['/courier']);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.error.set('İstifadəçi adı və ya şifrə yanlışdır.');
         }
-      });
-    }
+      },
+      error: err => {
+        this.loading.set(false);
+        this.error.set(
+          err?.error?.message ?? 'İstifadəçi adı və ya şifrə yanlışdır.'
+        );
+      }
+    });
   }
 }

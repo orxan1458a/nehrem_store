@@ -13,12 +13,12 @@ import { WishlistService } from '../../../core/services/wishlist.service';
 })
 export class ProductCardComponent {
   @Input({ required: true }) product!: Product;
-  @Output() addToCart  = new EventEmitter<Product>();
-  @Output() cardClick  = new EventEmitter<Product>();
-  @Output() editClick  = new EventEmitter<Product>();
+  @Output() addToCart = new EventEmitter<Product>();
+  @Output() cardClick = new EventEmitter<Product>();
+  @Output() editClick = new EventEmitter<Product>();
 
-  auth         = inject(AuthService);
-  wishlistSvc  = inject(WishlistService);
+  auth        = inject(AuthService);
+  wishlistSvc = inject(WishlistService);
 
   get isWishlisted(): boolean {
     return this.wishlistSvc.isWishlisted(this.product.id);

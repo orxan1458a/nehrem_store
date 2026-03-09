@@ -61,14 +61,28 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
 
   // ── Product form ─────────────────────────────────────────────────────────
   form = this.fb.group({
-    name:          ['', [Validators.required, Validators.maxLength(255)]],
-    description:   [''],
-    price:         [null as number | null, [Validators.required, Validators.min(0.01)]],
-    discountPrice: [null as number | null],
-    stockQuantity: [null as number | null, [Validators.required, Validators.min(0)]],
-    categoryId:    [null as number | null],
-    purchasePrice: [null as number | null, [Validators.min(0.01)]]
+    name:           ['', [Validators.required, Validators.maxLength(255)]],
+    description:    [''],
+    price:          [null as number | null, [Validators.required, Validators.min(0.01)]],
+    discountPrice:  [null as number | null],
+    limitedDiscount:[false],
+    discountEndDate:[null as string | null],
+    stockQuantity:  [null as number | null, [Validators.required, Validators.min(0)]],
+    categoryId:     [null as number | null],
+    purchasePrice:  [null as number | null, [Validators.min(0.01)]]
   });
+
+  // Preset duration options (hours)
+  readonly durations = [
+    { label: '1 saat',  hours: 1 },
+    { label: '1 gün',   hours: 24 },
+    { label: '3 gün',   hours: 72 },
+    { label: '7 gün',   hours: 168 },
+  ];
+
+  get limitedDiscountEnabled(): boolean {
+    return !!this.form.get('limitedDiscount')?.value;
+  }
 
   ngOnInit(): void {
     this.categorySvc.getAll().subscribe(c => this.categories.set(c));
@@ -128,7 +142,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
 
   openCreate(): void {
     this.editingId.set(null);
-    this.form.reset();
+    this.form.reset({ limitedDiscount: false });
     this.selectedImage.set(null);
     this.previewUrl.set(null);
     this.error.set('');
@@ -137,14 +151,26 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
 
   openEdit(product: Product): void {
     this.editingId.set(product.id);
+    const hasEndDate = !!product.discountEndDate;
+    // Convert UTC Instant string ("...Z") to local time for datetime-local input
+    const endDateLocal = hasEndDate
+      ? (() => {
+          const d = new Date(product.discountEndDate!);
+          const pad = (n: number) => String(n).padStart(2, '0');
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        })()
+      : null;
+
     this.form.patchValue({
-      name:          product.name,
-      description:   product.description ?? '',
-      price:         product.price,
-      discountPrice: product.discountPrice ?? null,
-      stockQuantity: product.stockQuantity,
-      categoryId:    product.categoryId ?? null,
-      purchasePrice: null   // don't pre-fill; edit doesn't create a new batch
+      name:           product.name,
+      description:    product.description ?? '',
+      price:          product.price,
+      discountPrice:  product.discountPrice ?? null,
+      limitedDiscount:hasEndDate,
+      discountEndDate:endDateLocal,
+      stockQuantity:  product.stockQuantity,
+      categoryId:     product.categoryId ?? null,
+      purchasePrice:  null
     });
     this.selectedImage.set(null);
     this.previewUrl.set(product.imageUrl ? `http://localhost:8080${product.imageUrl}` : null);
@@ -161,20 +187,36 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
+  setDiscountDuration(hours: number): void {
+    const end = new Date(Date.now() + hours * 3_600_000);
+    // datetime-local expects local time "YYYY-MM-DDTHH:mm" — NOT toISOString() which is UTC
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const local = `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}T${pad(end.getHours())}:${pad(end.getMinutes())}`;
+    this.form.get('discountEndDate')?.setValue(local);
+  }
+
   onSubmit(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.submitting.set(true);
     this.error.set('');
 
     const val = this.form.getRawValue();
+
+    // Convert local datetime string to ISO string for the API
+    let discountEndDate: string | undefined;
+    if (val.limitedDiscount && val.discountEndDate) {
+      discountEndDate = new Date(val.discountEndDate).toISOString();
+    }
+
     const req: ProductRequest = {
-      name:          val.name!,
-      description:   val.description || undefined,
-      price:         val.price!,
-      discountPrice: val.discountPrice || undefined,
-      stockQuantity: val.stockQuantity!,
-      categoryId:    val.categoryId || undefined,
-      purchasePrice: val.purchasePrice || undefined
+      name:           val.name!,
+      description:    val.description || undefined,
+      price:          val.price!,
+      discountPrice:  val.discountPrice || undefined,
+      discountEndDate,
+      stockQuantity:  val.stockQuantity!,
+      categoryId:     val.categoryId || undefined,
+      purchasePrice:  val.purchasePrice || undefined
     };
 
     const image = this.selectedImage() ?? undefined;
@@ -209,6 +251,18 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     const ctrl = this.batchForm.get(field);
     if (!ctrl?.touched) return false;
     return error ? ctrl.hasError(error) : ctrl.invalid;
+  }
+
+  /** Human-readable remaining time for a product's discount end date. */
+  discountTimeRemaining(product: Product): string | null {
+    if (!product.discountEndDate) return null;
+    const ms = new Date(product.discountEndDate).getTime() - Date.now();
+    if (ms <= 0) return 'Bitmişdir';
+    const h = Math.floor(ms / 3_600_000);
+    const m = Math.floor((ms % 3_600_000) / 60_000);
+    if (h >= 48) return `${Math.floor(h / 24)} gün`;
+    if (h >= 1)  return `${h} saat ${m} dəq`;
+    return `${m} dəqiqə`;
   }
 
   // ── Add Stock modal ──────────────────────────────────────────────────────
@@ -248,7 +302,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
         this.stockBatches.update(list => [...list, batch]);
         this.batchForm.reset();
         this.stockSubmitting.set(false);
-        this.loadProducts();  // refresh stock counts in table
+        this.loadProducts();
       },
       error: err => {
         this.stockError.set(err?.error?.message ?? 'Xəta baş verdi');

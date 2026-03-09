@@ -27,6 +27,12 @@
     </div>
   </div>
 
+  <!-- Flash Sale -->
+  <app-flash-sale
+    (cardClick)="openDetail($event)"
+    (addToCart)="addToCart($event)">
+  </app-flash-sale>
+
   <!-- Search -->
   <div class="shop__search">
     <div class="search-wrap">
@@ -34,7 +40,7 @@
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
       <input type="text" placeholder="Təmizlik vasitələri, sabunlar, salfet axtar"
-             [ngModel]="searchQuery()"
+             [ngModel]="searchSvc.query()"
              (ngModelChange)="onSearch($event)"
              class="search-input" />
     </div>
@@ -172,9 +178,19 @@
       }
       <h2 class="sheet__name">{{ p.name }}</h2>
 
+      <!-- Limited-time countdown in sheet -->
+      @if (sheetCountdown()) {
+        <div class="sheet__flash-row">
+          <span class="sheet__flash-icon">⚡</span>
+          <span class="sheet__flash-label">Müddətli Təklif</span>
+          <span class="sheet__flash-timer">{{ sheetCountdown() }}</span>
+        </div>
+      }
+
       <!-- Price row -->
       <div class="sheet__price-row">
-        <span class="sheet__price-current">
+        <span class="sheet__price-current"
+              [class.sheet__price-current--sale]="p.discountPrice && p.discountPrice < p.price">
           {{ (p.discountPrice ?? p.price) | number:'1.2-2' }} ₼
         </span>
         @if (p.discountPrice && p.discountPrice < p.price) {

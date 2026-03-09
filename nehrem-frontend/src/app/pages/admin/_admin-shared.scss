@@ -1,7 +1,7 @@
 // ─── Admin Shared Styles ───────────────────────────────────────────────────
 
 .admin-page {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem 1rem;
 
@@ -14,6 +14,19 @@
     gap: .75rem;
 
     h1 { font-size: 1.7rem; font-weight: 700; color: #1b4332; margin: 0; }
+  }
+
+  @media (min-width: 1024px) {
+    padding: 2.5rem 2.5rem;
+
+    &__head {
+      margin-bottom: 1.5rem;
+      h1 { font-size: 2rem; }
+    }
+  }
+
+  @media (min-width: 1400px) {
+    padding: 3rem 3rem;
   }
 }
 
@@ -42,6 +55,16 @@
     flex-shrink: 0;
 
     &.active, &:hover { color: #2d6a4f; border-color: #2d6a4f; }
+  }
+
+  @media (min-width: 1024px) {
+    gap: 1.75rem;
+    margin-bottom: 2rem;
+
+    a {
+      font-size: .95rem;
+      padding: .4rem .1rem;
+    }
   }
 }
 
@@ -353,6 +376,20 @@
 
   tr:last-child td { border-bottom: none; }
   tr.inactive td   { opacity: .55; }
+
+  @media (min-width: 1024px) {
+    font-size: .92rem;
+
+    th {
+      padding: 1rem 1.25rem;
+      font-size: .85rem;
+      letter-spacing: .03em;
+    }
+
+    td {
+      padding: .9rem 1.25rem;
+    }
+  }
 }
 
 .table-thumb {

@@ -43,6 +43,14 @@
 .order-detail {
   p { margin: 0 0 .75rem; font-size: .88rem; }
 
+  @media (min-width: 1024px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .5rem 2rem;
+
+    p { font-size: .92rem; margin-bottom: .5rem; }
+  }
+
   @media (max-width: 600px) {
     p { font-size: .82rem; }
   }
@@ -56,6 +64,11 @@
 
   th, td { padding: .5rem .75rem; border: 1px solid #e5e5e5; text-align: left; }
   th     { background: #f0faf5; color: #2d6a4f; font-weight: 700; white-space: nowrap; }
+
+  @media (min-width: 1024px) {
+    font-size: .9rem;
+    th, td { padding: .65rem 1rem; }
+  }
 
   @media (max-width: 480px) {
     font-size: .78rem;
