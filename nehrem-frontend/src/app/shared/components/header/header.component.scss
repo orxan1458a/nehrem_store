@@ -112,6 +112,21 @@
   }
 }
 
+// ── Nav cart link (icon + text + badge) ───────────────────────────────────────
+.header__nav-cart {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  position: relative;
+}
+
+.cart-badge--nav {
+  position: static;
+  top: auto;
+  right: auto;
+  margin-left: 1px;
+}
+
 // ── Admin nav links (Mağaza + İdarə Paneli) ───────────────────────────────────
 .header__admin-nav {
   display: none; // hidden on mobile
@@ -140,26 +155,7 @@
   flex-shrink: 0;
 }
 
-// ── Cart icon ─────────────────────────────────────────────────────────────────
-.header__cart {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: #1a1a1a;
-  border-radius: 10px;
-  transition: color .15s, background .15s;
-
-  svg { width: 22px; height: 22px; }
-
-  &:hover { color: #00BFA5; background: #e6faf7; }
-
-  // Hide on very small phones (bottom nav handles cart there)
-  @media (max-width: 520px) { display: none; }
-}
-
+// ── Cart badge ────────────────────────────────────────────────────────────────
 .cart-badge {
   position: absolute;
   top: 2px;
@@ -188,6 +184,32 @@
   border-radius: 20px;
   letter-spacing: .03em;
   white-space: nowrap;
+}
+
+// ── Change-password button ────────────────────────────────────────────────────
+.header__pwd-btn {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  background: #e8f5ee;
+  color: #2d6a4f;
+  border: none;
+  border-radius: 8px;
+  padding: .4rem .75rem;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+  white-space: nowrap;
+
+  &:hover { background: #c8e6d8; }
+
+  @media (max-width: 360px) { padding: .35rem .5rem; }
+}
+
+.header__pwd-btn-label {
+  @media (max-width: 520px) { display: none; }
 }
 
 // ── Logout button ─────────────────────────────────────────────────────────────
@@ -307,9 +329,6 @@
   // Mobile nav drawer must NEVER show on desktop
   .header__mobile-nav { display: none !important; }
 
-  // Cart always visible on desktop
-  .header__cart { display: flex !important; }
-
   .header__actions { gap: .85rem; }
 
   .header__logo .logo-text { font-size: 1.35rem; }
@@ -330,4 +349,180 @@
   .header__logo .logo-text { font-size: 1.1rem; }
   .header__role-badge { font-size: .65rem; padding: .2rem .5rem; }
   .header__logout-btn { padding: .35rem .6rem; font-size: .78rem; }
+}
+
+// ── Change Password Modal ──────────────────────────────────────────────────────
+.pwd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.pwd-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  overflow: hidden;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid #eee;
+
+    h2 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #1b4332; }
+  }
+
+  &__close {
+    width: 32px;
+    height: 32px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    font-size: .9rem;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s;
+    &:hover { background: #e0e0e0; }
+  }
+
+  &__body {
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .65rem;
+    padding-top: .25rem;
+  }
+}
+
+.pwd-field {
+  display: flex;
+  flex-direction: column;
+  gap: .28rem;
+
+  label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #444;
+  }
+
+  input {
+    padding: .6rem .9rem;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: .9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+
+    &:focus { border-color: #2d6a4f; }
+    &.error { border-color: #e63946; }
+  }
+}
+
+.pwd-err {
+  font-size: .74rem;
+  color: #e63946;
+}
+
+.pwd-alert {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem .9rem;
+  border-radius: 8px;
+  font-size: .86rem;
+  font-weight: 500;
+
+  &--success { background: #d1fae5; color: #065f46; }
+  &--error   { background: #fee2e2; color: #991b1b; }
+}
+
+.pwd-btn-save {
+  padding: .55rem 1.2rem;
+  background: #2d6a4f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: .88rem;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  transition: background .15s;
+
+  &:hover:not(:disabled) { background: #1b4332; }
+  &:disabled { background: #9ca3af; cursor: not-allowed; }
+}
+
+.pwd-btn-cancel {
+  padding: .55rem 1rem;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: .88rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+
+  &:hover { background: #e0e0e0; }
+}
+
+.pwd-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pwd-spin .65s linear infinite;
+}
+
+@keyframes pwd-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .pwd-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .pwd-modal {
+    border-radius: 20px 20px 0 0;
+    max-width: 100%;
+
+    &__actions {
+      flex-direction: column-reverse;
+      gap: .5rem;
+    }
+  }
+
+  .pwd-btn-save,
+  .pwd-btn-cancel {
+    width: 100%;
+    justify-content: center;
+    padding: .8rem 1rem;
+    font-size: .95rem;
+    border-radius: 10px;
+  }
 }

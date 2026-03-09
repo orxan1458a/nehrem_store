@@ -58,6 +58,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/dashboard/**").hasRole("ADMIN")
                 .requestMatchers("/api/inventory/**").hasRole("ADMIN")
 
+                // ── User (self-service) ──────────────────────────────────────
+                .requestMatchers(HttpMethod.POST, "/api/users/change-password").hasRole("ADMIN")
+
                 // ── Courier ──────────────────────────────────────────────────
                 .requestMatchers("/api/courier/**").hasRole("COURIER")
 

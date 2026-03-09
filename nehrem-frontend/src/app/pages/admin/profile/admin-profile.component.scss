@@ -1,0 +1,147 @@
+@use '../admin-shared' as *;
+
+// ── Profile Card ─────────────────────────────────────────────────────────────
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  margin-bottom: 1.5rem;
+
+  &__avatar {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    background: #e8f5ee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 32px;
+      height: 32px;
+      stroke: #2d6a4f;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+  }
+
+  &__name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1b4332;
+    margin: 0;
+  }
+
+  &__role {
+    font-size: .8rem;
+    font-weight: 700;
+    color: #fff;
+    background: #2d6a4f;
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin: 0;
+    width: fit-content;
+  }
+
+  &__username {
+    font-size: .83rem;
+    color: #888;
+    margin: 0;
+    font-family: monospace;
+  }
+}
+
+// ── Section Card ─────────────────────────────────────────────────────────────
+.section-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  max-width: 520px;
+
+  &__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1b4332;
+    margin: 0 0 1.25rem;
+  }
+}
+
+// ── Alerts ───────────────────────────────────────────────────────────────────
+.alert {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .7rem 1rem;
+  border-radius: 8px;
+  font-size: .88rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+
+  &--success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  &--error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+// ── Password Form ─────────────────────────────────────────────────────────────
+.pwd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-actions {
+  padding-top: .25rem;
+}
+
+// ── Spinner inside button ────────────────────────────────────────────────────
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .65s linear infinite;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .section-card {
+    padding: 1.25rem;
+    max-width: 100%;
+  }
+
+  .profile-card {
+    padding: 1.25rem;
+    gap: 1rem;
+
+    &__avatar {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+
+      svg { width: 26px; height: 26px; }
+    }
+
+    &__name { font-size: 1rem; }
+  }
+}

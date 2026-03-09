@@ -6,6 +6,9 @@ import { Product } from '../models/product.model';
 export class CartService {
   private _items = signal<CartItem[]>(this.loadFromStorage());
 
+  private readonly FREE_DELIVERY_THRESHOLD = 15;
+  private readonly DELIVERY_FEE_AMOUNT     = 2;
+
   readonly items    = this._items.asReadonly();
   readonly count    = computed(() => this._items().reduce((s, i) => s + i.quantity, 0));
   readonly subtotal = computed(() =>
@@ -13,6 +16,13 @@ export class CartService {
       const price = i.product.discountPrice ?? i.product.price;
       return s + price * i.quantity;
     }, 0)
+  );
+  readonly deliveryFee          = computed(() =>
+    this.subtotal() >= this.FREE_DELIVERY_THRESHOLD ? 0 : this.DELIVERY_FEE_AMOUNT
+  );
+  readonly total                = computed(() => this.subtotal() + this.deliveryFee());
+  readonly amountToFreeDelivery = computed(() =>
+    Math.max(0, this.FREE_DELIVERY_THRESHOLD - this.subtotal())
   );
 
   addItem(product: Product, qty = 1): void {

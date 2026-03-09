@@ -54,14 +54,34 @@
       <!-- Summary -->
       <aside class="cart-page__summary">
         <h2>Sifariş xülasəsi</h2>
+
         <div class="summary-row">
-          <span>Məhsullar ({{ cart.count() }})</span>
+          <span>Ara cəm ({{ cart.count() }})</span>
           <span>{{ cart.subtotal() | number:'1.2-2' }} ₼</span>
         </div>
+
+        <div class="summary-row">
+          <span>Çatdırılma</span>
+          @if (cart.deliveryFee() === 0) {
+            <span class="delivery-free">Pulsuz</span>
+          } @else {
+            <span>{{ cart.deliveryFee() | number:'1.2-2' }} ₼</span>
+          }
+        </div>
+
+        @if (cart.amountToFreeDelivery() > 0) {
+          <div class="free-delivery-nudge">
+            Pulsuz çatdırılma üçün
+            <strong>{{ cart.amountToFreeDelivery() | number:'1.2-2' }} ₼</strong>
+            daha əlavə edin.
+          </div>
+        }
+
         <hr>
+
         <div class="summary-row summary-row--total">
           <strong>Cəmi</strong>
-          <strong>{{ cart.subtotal() | number:'1.2-2' }} ₼</strong>
+          <strong>{{ cart.total() | number:'1.2-2' }} ₼</strong>
         </div>
         <a routerLink="/checkout" class="btn-primary btn-checkout">Sifarişi tamamla</a>
         <a routerLink="/shop" class="btn-secondary">Alışverişə davam et</a>

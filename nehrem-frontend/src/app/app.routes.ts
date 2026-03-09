@@ -57,6 +57,11 @@ export const routes: Routes = [
         path: 'couriers',
         loadComponent: () => import('./pages/admin/couriers/admin-couriers.component')
           .then(m => m.AdminCouriersComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./pages/admin/profile/admin-profile.component')
+          .then(m => m.AdminProfileComponent)
       }
     ]
   },

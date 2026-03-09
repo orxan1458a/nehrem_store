@@ -31,6 +31,7 @@ export class AuthService {
 
   private _user = signal<JwtPayload | null>(this.loadUser());
 
+  readonly user      = this._user.asReadonly();
   readonly isAdmin   = computed(() => this._user()?.role === 'ADMIN');
   readonly isCourier = computed(() => this._user()?.role === 'COURIER');
   readonly courierId = computed(() => this._user()?.userId ?? null);

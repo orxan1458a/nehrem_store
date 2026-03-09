@@ -154,6 +154,21 @@
   &--total { font-size: 1.05rem; }
 }
 
+.delivery-free {
+  color: #00897B;
+  font-weight: 700;
+}
+
+.free-delivery-nudge {
+  background: #e6faf7;
+  color: #00695C;
+  border-radius: 8px;
+  padding: .5rem .75rem;
+  font-size: .82rem;
+  margin: .25rem 0 .5rem;
+  line-height: 1.4;
+}
+
 .btn-primary, .btn-secondary {
   display: block;
   text-align: center;
