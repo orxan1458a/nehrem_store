@@ -58,20 +58,37 @@
 
               <!-- Countdown -->
               <div class="flash-deal__timer" aria-label="Qalan vaxt">
-                <div class="timer-block">
-                  <span class="timer-block__num">{{ card.h }}</span>
-                  <span class="timer-block__label">saat</span>
-                </div>
-                <span class="timer-colon">:</span>
-                <div class="timer-block">
-                  <span class="timer-block__num">{{ card.m }}</span>
-                  <span class="timer-block__label">dəq</span>
-                </div>
-                <span class="timer-colon">:</span>
-                <div class="timer-block">
-                  <span class="timer-block__num">{{ card.s }}</span>
-                  <span class="timer-block__label">san</span>
-                </div>
+                @if (card.mode === 'dhm') {
+                  <div class="timer-block">
+                    <span class="timer-block__num">{{ card.d }}</span>
+                    <span class="timer-block__label">gün</span>
+                  </div>
+                  <span class="timer-colon">:</span>
+                  <div class="timer-block">
+                    <span class="timer-block__num">{{ card.h }}</span>
+                    <span class="timer-block__label">saat</span>
+                  </div>
+                  <span class="timer-colon">:</span>
+                  <div class="timer-block">
+                    <span class="timer-block__num">{{ card.m }}</span>
+                    <span class="timer-block__label">dəq</span>
+                  </div>
+                } @else {
+                  <div class="timer-block">
+                    <span class="timer-block__num">{{ card.h }}</span>
+                    <span class="timer-block__label">saat</span>
+                  </div>
+                  <span class="timer-colon">:</span>
+                  <div class="timer-block">
+                    <span class="timer-block__num">{{ card.m }}</span>
+                    <span class="timer-block__label">dəq</span>
+                  </div>
+                  <span class="timer-colon">:</span>
+                  <div class="timer-block">
+                    <span class="timer-block__num">{{ card.s }}</span>
+                    <span class="timer-block__label">san</span>
+                  </div>
+                }
               </div>
 
               <!-- Prices -->

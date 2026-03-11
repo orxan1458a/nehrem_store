@@ -8,9 +8,11 @@ import { Product }        from '../../../core/models/product.model';
 
 interface FlashCard {
   product: Product;
+  d: string;
   h: string;
   m: string;
   s: string;
+  mode: 'hms' | 'dhm';
   expired: boolean;
 }
 
@@ -65,18 +67,34 @@ export class FlashSaleComponent implements OnInit, OnDestroy {
     return { product, ...parts };
   }
 
-  private _computeParts(product: Product): { h: string; m: string; s: string; expired: boolean } {
-    if (!product.discountEndDate) return { h: '00', m: '00', s: '00', expired: false };
+  private _computeParts(product: Product): { d: string; h: string; m: string; s: string; mode: 'hms' | 'dhm'; expired: boolean } {
+    const zero = { d: '00', h: '00', m: '00', s: '00', mode: 'hms' as const };
+    if (!product.discountEndDate) return { ...zero, expired: false };
     const ms = new Date(product.discountEndDate).getTime() - Date.now();
-    if (ms <= 0)  return { h: '00', m: '00', s: '00', expired: true };
+    if (ms <= 0) return { ...zero, expired: true };
     const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
+    const totalH   = Math.floor(totalSec / 3600);
+    if (totalH >= 24) {
+      const d = Math.floor(totalH / 24);
+      const h = totalH % 24;
+      const m = Math.floor((totalSec % 3600) / 60);
+      return {
+        d: String(d).padStart(2, '0'),
+        h: String(h).padStart(2, '0'),
+        m: String(m).padStart(2, '0'),
+        s: '00',
+        mode: 'dhm',
+        expired: false
+      };
+    }
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
     return {
-      h: String(h).padStart(2, '0'),
+      d: '00',
+      h: String(totalH).padStart(2, '0'),
       m: String(m).padStart(2, '0'),
       s: String(s).padStart(2, '0'),
+      mode: 'hms',
       expired: false
     };
   }

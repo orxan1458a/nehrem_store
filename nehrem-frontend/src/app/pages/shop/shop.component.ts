@@ -106,10 +106,19 @@ export class ShopComponent implements OnInit, OnDestroy {
       const tick = () => {
         const ms = new Date(product.discountEndDate!).getTime() - Date.now();
         if (ms <= 0) { this.sheetCountdown.set(null); return; }
-        const h = String(Math.floor(ms / 3_600_000)).padStart(2, '0');
-        const m = String(Math.floor((ms % 3_600_000) / 60_000)).padStart(2, '0');
-        const s = String(Math.floor((ms % 60_000) / 1000)).padStart(2, '0');
-        this.sheetCountdown.set(`${h}:${m}:${s}`);
+        const totalSec = Math.floor(ms / 1000);
+        const totalH   = Math.floor(totalSec / 3600);
+        if (totalH >= 24) {
+          const d = String(Math.floor(totalH / 24)).padStart(2, '0');
+          const h = String(totalH % 24).padStart(2, '0');
+          const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+          this.sheetCountdown.set(`${d}g ${h}:${m}`);
+        } else {
+          const h = String(totalH).padStart(2, '0');
+          const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+          const s = String(totalSec % 60).padStart(2, '0');
+          this.sheetCountdown.set(`${h}:${m}:${s}`);
+        }
       };
       tick();
       this._sheetTimer = setInterval(tick, 1000);
