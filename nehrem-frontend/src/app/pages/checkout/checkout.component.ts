@@ -4,7 +4,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
-import { WhatsappService } from '../../core/services/whatsapp.service';
 import { DeliveryMethod } from '../../core/models/order.model';
 
 @Component({
@@ -15,15 +14,15 @@ import { DeliveryMethod } from '../../core/models/order.model';
   styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent {
-  private fb          = inject(FormBuilder);
-  private cartSvc     = inject(CartService);
-  private orderSvc    = inject(OrderService);
-  private whatsappSvc = inject(WhatsappService);
-  private router      = inject(Router);
+  private fb       = inject(FormBuilder);
+  private cartSvc  = inject(CartService);
+  private orderSvc = inject(OrderService);
+  private router   = inject(Router);
 
-  cart = this.cartSvc;
+  cart       = this.cartSvc;
   submitting = signal(false);
-  error = signal('');
+  success    = signal(false);
+  error      = signal('');
 
   form = this.fb.group({
     firstName:      ['', [Validators.required, Validators.maxLength(100)]],
@@ -60,7 +59,6 @@ export class CheckoutComponent {
 
     const val = this.form.getRawValue();
 
-    // Save order to backend first, then open WhatsApp
     this.orderSvc.create({
       firstName:      val.firstName!,
       lastName:       val.lastName!,
@@ -74,24 +72,13 @@ export class CheckoutComponent {
       }))
     }).subscribe({
       next: () => {
-        // Open WhatsApp with formatted message
-        this.whatsappSvc.openWhatsApp(
-          {
-            firstName:      val.firstName!,
-            lastName:       val.lastName!,
-            phone:          val.phone!,
-            deliveryMethod: val.deliveryMethod as DeliveryMethod,
-            address:        val.address || undefined,
-            notes:          val.notes   || undefined
-          },
-          this.cart.items(),
-          this.cart.subtotal()
-        );
         this.cart.clear();
-        this.router.navigate(['/shop']);
+        this.success.set(true);
+        this.submitting.set(false);
+        setTimeout(() => this.router.navigate(['/']), 4000);
       },
       error: err => {
-        this.error.set(err?.error?.message ?? 'Sifariş göndərilmədi. Yenidən cəhd edin.');
+        this.error.set(err?.error?.message ?? 'Sifariş göndərilərkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.');
         this.submitting.set(false);
       }
     });

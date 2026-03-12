@@ -1,7 +1,14 @@
 <div class="checkout">
   <h1 class="checkout__title">Sifarişin təsdiqi</h1>
 
-  @if (cart.items().length === 0) {
+  @if (success()) {
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <h2>Sifariş qəbul edildi!</h2>
+      <p>Sifarişiniz uğurla qəbul edildi.<br>Tezliklə sizinlə əlaqə saxlanılacaq.</p>
+      <span class="success-redirect">Bir neçə saniyə ərzində ana səhifəyə yönləndiriləcəksiniz…</span>
+    </div>
+  } @else if (cart.items().length === 0) {
     <div class="checkout__empty">
       <p>Səbətiniz boşdur. Sifarişi tamamlamadan əvvəl məhsul əlavə edin.</p>
     </div>
@@ -91,7 +98,7 @@
           @if (submitting()) {
             Sifariş göndərilir…
           } @else {
-            ✅ WhatsApp vasitəsilə sifarişi təsdiqlə
+            Sifarişi Təsdiqlə
           }
         </button>
       </form>
