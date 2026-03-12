@@ -42,6 +42,15 @@ public class User implements UserDetails {
     @Column(length = 20)
     private String phone;
 
+    /** Telegram chat ID saved when user subscribes via the bot. */
+    @Column(name = "telegram_chat_id")
+    private Long telegramChatId;
+
+    /** Whether the user has subscribed to Telegram order notifications. */
+    @Column(name = "telegram_subscribed", nullable = false)
+    @Builder.Default
+    private Boolean telegramSubscribed = false;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean active = true;

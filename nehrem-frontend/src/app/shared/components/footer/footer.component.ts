@@ -8,6 +8,7 @@ import { CartService } from '../../../core/services/cart.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   template: `
+    @if (!auth.isCourier()) {
     <nav class="bottom-nav">
       <a routerLink="/shop" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="bottom-nav__item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -54,6 +55,7 @@ import { CartService } from '../../../core/services/cart.service';
         </a>
       }
     </nav>
+    }
   `,
   styles: [`
     .bottom-nav {

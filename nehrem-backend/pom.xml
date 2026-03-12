@@ -75,6 +75,26 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Telegram Bot (long-polling, no Spring starter needed) -->
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots</artifactId>
+            <version>6.9.7.1</version>
+            <exclusions>
+                <!--
+                  telegrambots pulls jackson-module-jaxb-annotations which requires
+                  javax.xml.bind (removed from JDK 9+). Exclude it — we do not need
+                  JAXB annotation support for the bot, and its presence causes
+                  Hibernate's JacksonIntegration to crash at startup with
+                  NoClassDefFoundError: javax/xml/bind/annotation/XmlElement.
+                -->
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-jaxb-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

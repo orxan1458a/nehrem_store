@@ -12,6 +12,7 @@ import com.nehrem.backend.repository.ProductRepository;
 import com.nehrem.backend.repository.UserRepository;
 import com.nehrem.backend.service.InventoryService;
 import com.nehrem.backend.service.OrderService;
+import com.nehrem.backend.service.TelegramNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,10 +30,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository   orderRepository;
-    private final ProductRepository productRepository;
-    private final UserRepository    userRepository;
-    private final InventoryService  inventoryService;
+    private final OrderRepository            orderRepository;
+    private final ProductRepository          productRepository;
+    private final UserRepository             userRepository;
+    private final InventoryService           inventoryService;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Override
     public OrderDTO.Response create(OrderDTO.Request request) {
@@ -89,7 +91,9 @@ public class OrderServiceImpl implements OrderService {
         orderItems.forEach(item -> item.setOrder(order));
         order.setItems(orderItems);
 
-        return toResponse(orderRepository.save(order));
+        OrderDTO.Response response = toResponse(orderRepository.save(order));
+        telegramNotificationService.notifyAdminsNewOrder(response);
+        return response;
     }
 
     @Override
@@ -133,7 +137,9 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new ResourceNotFoundException("Courier", courierId));
             order.setCourier(courier);
         }
-        return toResponse(orderRepository.save(order));
+        OrderDTO.Response response = toResponse(orderRepository.save(order));
+        telegramNotificationService.notifyOrderAccepted(response);
+        return response;
     }
 
     @Override
@@ -145,7 +151,9 @@ public class OrderServiceImpl implements OrderService {
         }
         returnStockForOrder(order);
         order.setOrderStatus(Order.OrderStatus.CANCELLED);
-        return toResponse(orderRepository.save(order));
+        OrderDTO.Response response = toResponse(orderRepository.save(order));
+        telegramNotificationService.notifyAdminOrderUpdate(response, "Cancelled");
+        return response;
     }
 
     @Override
@@ -181,7 +189,9 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException("Only ACCEPTED orders can be marked as delivered");
         }
         order.setOrderStatus(Order.OrderStatus.DELIVERED);
-        return toResponse(orderRepository.save(order));
+        OrderDTO.Response response = toResponse(orderRepository.save(order));
+        telegramNotificationService.notifyAdminOrderUpdate(response, "Delivered");
+        return response;
     }
 
     // ── Helpers ──────────────────────────────────────────────

@@ -17,4 +17,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByRole(User.Role role);
 
     List<User> findByRoleAndActiveTrue(User.Role role);
+
+    /** Returns all subscribed users with the given role for Telegram notifications. */
+    List<User> findByRoleAndTelegramSubscribedTrue(User.Role role);
+
+    /** Looks up a user by their Telegram chat ID (for subscription management). */
+    Optional<User> findByTelegramChatId(Long telegramChatId);
+
+    /** Returns all users in the given roles (used for phone-number matching during subscription). */
+    List<User> findByRoleIn(List<User.Role> roles);
 }
