@@ -27,29 +27,29 @@
     </div>
     }
 
-    <!-- ── Desktop Nav Links (inside bar, hidden on mobile) ─────────────── -->
-    @if (!auth.isAdmin() && !auth.isCourier()) {
-    <nav class="header__desktop-nav">
-      <a routerLink="/shop" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Mağaza</a>
-      <a routerLink="/wishlist" routerLinkActive="active">Seçilmişlər</a>
-      <a routerLink="/my-orders" routerLinkActive="active">Sifarişlərim</a>
-      <a routerLink="/cart" routerLinkActive="active" class="header__nav-cart">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" width="15" height="15">
-          <circle cx="9" cy="21" r="1" />
-          <circle cx="20" cy="21" r="1" />
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-        </svg>
-        @if (cart.count() > 0) {
-        <span class="cart-badge cart-badge--nav">{{ cart.count() }}</span>
-        }
-      </a>
-      <a routerLink="/login" routerLinkActive="active">Daxil ol</a>
-    </nav>
-    }
-
     <!-- ── Actions ───────────────────────────────────────────────────────── -->
     <div class="header__actions">
+
+      <!-- Desktop Nav Links (hidden on mobile) -->
+      @if (!auth.isAdmin() && !auth.isCourier()) {
+      <nav class="header__desktop-nav">
+        <a routerLink="/shop" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Mağaza</a>
+        <a routerLink="/wishlist" routerLinkActive="active">Seçilmişlər</a>
+        <a routerLink="/my-orders" routerLinkActive="active">Sifarişlərim</a>
+        <a routerLink="/cart" routerLinkActive="active" class="header__nav-cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" width="15" height="15">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          </svg>
+          @if (cart.count() > 0) {
+          <span class="cart-badge cart-badge--nav">{{ cart.count() }}</span>
+          }
+        </a>
+        <a routerLink="/login" routerLinkActive="active">Daxil ol</a>
+      </nav>
+      }
 
       <!-- Admin nav links -->
       @if (auth.isAdmin()) {
