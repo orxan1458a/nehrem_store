@@ -15,28 +15,33 @@ import { OrderResponse, OrderStatus, CourierInfo } from '../../../core/models/or
 export class AdminOrdersComponent implements OnInit {
   private orderSvc = inject(OrderService);
 
-  orders        = signal<OrderResponse[]>([]);
-  couriers      = signal<CourierInfo[]>([]);
-  loading       = signal(true);
-  totalPages    = signal(0);
-  currentPage   = signal(0);
-  expanded      = signal<number | null>(null);
-  activeFilter  = signal<OrderStatus | 'ALL'>('ALL');
+  orders = signal<OrderResponse[]>([]);
+  couriers = signal<CourierInfo[]>([]);
+  loading = signal(true);
+  totalPages = signal(0);
+  currentPage = signal(0);
+  expanded = signal<number | null>(null);
+  activeFilter = signal<OrderStatus | 'ALL'>('ALL');
   actionLoading = signal<number | null>(null);
+  /** Per-status order counts, e.g. { PENDING: 5, ACCEPTED: 3 }. */
+  statusCounts = signal<Record<string, number>>({});
 
   /** Tracks per-row courier selection for PENDING orders (not yet sent to API). */
   private courierSelections = new Map<number, number | null>();
 
   readonly filters: Array<{ label: string; value: OrderStatus | 'ALL' }> = [
-    { label: 'Hamısı',       value: 'ALL' },
-    { label: 'Gözləyir',     value: 'PENDING' },
+    { label: 'Hamısı', value: 'ALL' },
+    { label: 'Gözləyir', value: 'PENDING' },
     { label: 'Qəbul edildi', value: 'ACCEPTED' },
-    { label: 'Çatdırıldı',  value: 'DELIVERED' },
-    { label: 'Ləğv edildi',  value: 'CANCELLED' },
+    { label: 'Yoldadır', value: 'OUT_FOR_DELIVERY' },
+    { label: 'Çatdırıldı', value: 'DELIVERED' },
+    { label: 'Uğursuz', value: 'FAIL_ATTEMPT' },
+    { label: 'Ləğv edildi', value: 'CANCELLED' },
   ];
 
   ngOnInit(): void {
     this.loadOrders();
+    this.loadCounts();
     this.orderSvc.getActiveCouriers().subscribe(c => this.couriers.set(c));
   }
 
@@ -51,6 +56,21 @@ export class AdminOrdersComponent implements OnInit {
       },
       error: () => this.loading.set(false)
     });
+  }
+
+  loadCounts(): void {
+    this.orderSvc.getOrderStatusCounts().subscribe({
+      next: counts => this.statusCounts.set(counts),
+      error: () => {}
+    });
+  }
+
+  countFor(value: OrderStatus | 'ALL'): number | null {
+    if (value === 'ALL') {
+      const total = Object.values(this.statusCounts()).reduce((s, n) => s + n, 0);
+      return total || null;
+    }
+    return this.statusCounts()[value] ?? null;
   }
 
   setFilter(f: OrderStatus | 'ALL'): void {
@@ -72,9 +92,7 @@ export class AdminOrdersComponent implements OnInit {
     window.open(`/admin/orders/${id}/print`, '_blank');
   }
 
-  /**
-   * Accept a PENDING order, optionally assigning the courier selected in the row dropdown.
-   */
+  /** Accept a PENDING order, optionally assigning the courier selected in the row dropdown. */
   accept(order: OrderResponse): void {
     const courierId = this.courierSelections.get(order.id) ?? null;
     this.actionLoading.set(order.id);
@@ -83,34 +101,48 @@ export class AdminOrdersComponent implements OnInit {
         this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
         this.courierSelections.delete(order.id);
         this.actionLoading.set(null);
+        this.loadCounts();
       },
       error: () => this.actionLoading.set(null)
     });
   }
 
-  /**
-   * Cancel an order (any status).
-   */
+  /** Cancel an order (any status). */
   cancel(order: OrderResponse): void {
     this.actionLoading.set(order.id);
     this.orderSvc.cancelOrder(order.id).subscribe({
       next: updated => {
         this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
         this.actionLoading.set(null);
+        this.loadCounts();
       },
       error: () => this.actionLoading.set(null)
     });
   }
 
-  /**
-   * Mark an ACCEPTED order as DELIVERED (admin shortcut).
-   */
+  /** Generic status update via admin /status endpoint (not for FAIL_ATTEMPT). */
   setStatus(order: OrderResponse, status: OrderStatus): void {
     this.actionLoading.set(order.id);
     this.orderSvc.updateStatus(order.id, status).subscribe({
       next: updated => {
         this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
         this.actionLoading.set(null);
+        this.loadCounts();
+      },
+      error: () => this.actionLoading.set(null)
+    });
+  }
+
+  /** Admin records a failed delivery attempt — prompts for a mandatory reason. */
+  markFailAttempt(order: OrderResponse): void {
+    const reason = window.prompt('Çatdırılma uğursuzluğunun səbəbi (məcburidir):');
+    if (!reason || !reason.trim()) return;
+    this.actionLoading.set(order.id);
+    this.orderSvc.adminMarkFailAttempt(order.id, reason.trim()).subscribe({
+      next: updated => {
+        this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
+        this.actionLoading.set(null);
+        this.loadCounts();
       },
       error: () => this.actionLoading.set(null)
     });
@@ -147,12 +179,19 @@ export class AdminOrdersComponent implements OnInit {
 
   statusLabel(status: OrderStatus): string {
     const map: Record<OrderStatus, string> = {
-      PENDING:   'Gözləyir',
-      ACCEPTED:  'Qəbul edildi',
+      PENDING: 'Gözləyir',
+      ACCEPTED: 'Qəbul edildi',
+      OUT_FOR_DELIVERY: 'Yoldadır',
       DELIVERED: 'Çatdırıldı',
+      FAIL_ATTEMPT: 'Uğursuz çatdırılma',
       CANCELLED: 'Ləğv edildi',
     };
     return map[status] ?? status;
+  }
+
+  /** Maps a filter value to a CSS modifier for the badge, e.g. OUT_FOR_DELIVERY → out-for-delivery. */
+  badgeClass(value: OrderStatus | 'ALL'): string {
+    return value.toLowerCase().replace(/_/g, '-');
   }
 
   get pages(): number[] {

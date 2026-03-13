@@ -68,6 +68,13 @@ public class OrderDTO {
         private Long courierId; // optional — null = accept without courier
     }
 
+    /** PATCH /api/admin/orders/{id}/fail-attempt  |  PATCH /api/courier/orders/{id}/fail-attempt */
+    @Data @NoArgsConstructor @AllArgsConstructor
+    public static class FailAttemptRequest {
+        @NotBlank(message = "Delivery failure reason is required")
+        private String reason;
+    }
+
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class ItemResponse {
         private Long productId;
@@ -95,6 +102,7 @@ public class OrderDTO {
         private BigDecimal totalAmount;
         private Order.OrderStatus orderStatus;
         private String notes;
+        private String deliveryFailReason;
         private CourierInfo courier;
         private List<ItemResponse> items;
         private LocalDateTime createdAt;

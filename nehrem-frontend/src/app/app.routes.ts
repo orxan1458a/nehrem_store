@@ -24,6 +24,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/wishlist/wishlist.component').then(m => m.WishlistComponent)
   },
   {
+    path: 'my-orders',
+    loadComponent: () => import('./pages/my-orders/my-orders.component').then(m => m.MyOrdersComponent)
+  },
+  {
     path: 'admin',
     canActivate: [adminGuard],
     children: [

@@ -1,5 +1,5 @@
 export type DeliveryMethod = 'DELIVERY' | 'PICKUP';
-export type OrderStatus = 'PENDING' | 'ACCEPTED' | 'DELIVERED' | 'CANCELLED';
+export type OrderStatus = 'PENDING' | 'ACCEPTED' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'FAIL_ATTEMPT' | 'CANCELLED';
 
 export interface OrderItemRequest {
   productId: number;
@@ -40,6 +40,7 @@ export interface OrderResponse {
   totalAmount: number;
   orderStatus: OrderStatus;
   notes?: string;
+  deliveryFailReason?: string;
   courier?: CourierInfo;
   items: OrderItemResponse[];
   createdAt: string;

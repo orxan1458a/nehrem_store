@@ -14,8 +14,13 @@
   <!-- Status filter tabs -->
   <div class="filter-tabs">
     @for (f of filters; track f.value) {
-    <button class="filter-tab" [class.active]="activeFilter() === f.value" (click)="setFilter(f.value)">
+    <button class="filter-tab"
+            [class.active]="activeFilter() === f.value"
+            (click)="setFilter(f.value)">
       {{ f.label }}
+      @if (countFor(f.value)) {
+        <span class="status-count-badge" [class]="'status-count-badge badge-' + badgeClass(f.value)">{{ countFor(f.value) }}</span>
+      }
     </button>
     }
   </div>
@@ -66,16 +71,25 @@
                   (click)="cancel(order)">Ləğv et</button>
                 }
                 @if (order.orderStatus === 'ACCEPTED') {
-                <button class="btn-action btn-deliver" [disabled]="actionLoading() === order.id"
-                  (click)="setStatus(order, 'DELIVERED')">Çatdırıldı</button>
+                  @if (order.deliveryMethod === 'PICKUP') {
+                  <!-- Store pickup: customer collects — admin marks directly as delivered -->
+                  <button class="btn-action btn-deliver" [disabled]="actionLoading() === order.id"
+                    (click)="setStatus(order, 'DELIVERED')">Çatdırıldı</button>
+                  }
                 <button class="btn-action btn-cancel" [disabled]="actionLoading() === order.id"
                   (click)="cancel(order)">Ləğv et</button>
+                }
+                @if (order.orderStatus === 'OUT_FOR_DELIVERY') {
+                <button class="btn-action btn-deliver" [disabled]="actionLoading() === order.id"
+                  (click)="setStatus(order, 'DELIVERED')">Çatdırıldı</button>
+                <button class="btn-action btn-fail" [disabled]="actionLoading() === order.id"
+                  (click)="markFailAttempt(order)">Uğursuz</button>
                 }
               </div>
             </div>
           </td>
           <td>
-            @if (order.orderStatus === 'PENDING' || order.orderStatus === 'ACCEPTED') {
+            @if (order.orderStatus === 'PENDING' || order.orderStatus === 'ACCEPTED' || order.orderStatus === 'OUT_FOR_DELIVERY') {
             <select class="courier-select" [disabled]="actionLoading() === order.id"
               [value]="getSelectedCourier(order)"
               (change)="onCourierChange(order, $event)">
@@ -112,6 +126,9 @@
               }
               @if (order.notes) {
               <p><strong>Qeydlər:</strong> {{ order.notes }}</p>
+              }
+              @if (order.deliveryFailReason) {
+              <p class="fail-reason"><strong>Uğursuzluq səbəbi:</strong> {{ order.deliveryFailReason }}</p>
               }
               @if (order.courier) {
               <p><strong>Kuryer:</strong> {{ order.courier.name }} — {{ order.courier.phone }}</p>

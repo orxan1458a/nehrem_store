@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -105,5 +107,13 @@ public class DashboardAnalyticsServiceImpl implements DashboardAnalyticsService 
                 .topProducts(topProducts)
                 .profitByDate(profitByDate)
                 .build();
+    }
+
+    @Override
+    public Map<String, Long> getOrderStatusCounts() {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        orderRepository.countByStatusNative()
+                .forEach(row -> counts.put(row[0].toString(), ((Number) row[1]).longValue()));
+        return counts;
     }
 }

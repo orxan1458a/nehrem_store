@@ -1,0 +1,172 @@
+<div class="tracking-page">
+  <div class="tracking-container">
+
+    <div class="tracking-header">
+      <a routerLink="/shop" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Mağazaya qayıt
+      </a>
+      <h1>Sifarişlərim</h1>
+      <p class="tracking-subtitle">Sifarişlərinizin cari vəziyyətini izləyin</p>
+    </div>
+
+    @if (loading()) {
+      <div class="tracking-loading">
+        <div class="spinner"></div>
+        <p>Sifarişlər yüklənir...</p>
+      </div>
+    } @else if (orders().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h2>Sifariş tapılmadı</h2>
+        <p>Bu cihazda heç bir sifariş yerləşdirməmisiniz.</p>
+        <a routerLink="/shop" class="btn-shop">Alış-verişə başla</a>
+      </div>
+    } @else {
+      <div class="orders-layout">
+
+        <!-- ── Order list ──────────────────────────────────────────────── -->
+        <aside class="orders-list">
+          <h2 class="orders-list__title">Sifarişlər ({{ orders().length }})</h2>
+          @for (order of orders(); track order.id) {
+            <button class="order-card" [class.selected]="selectedId() === order.id"
+              (click)="selectOrder(order.id)" type="button">
+              <div class="order-card__top">
+                <span class="order-card__num">Sifariş #{{ order.id }}</span>
+                <span class="order-card__badge" [class]="'order-card__badge status-' + statusClass(order.orderStatus)">
+                  {{ statusLabel(order.orderStatus) }}
+                </span>
+              </div>
+              <div class="order-card__meta">
+                <span>{{ order.firstName }} {{ order.lastName }}</span>
+                <strong>{{ order.totalAmount | number:'1.2-2' }} ₼</strong>
+              </div>
+              <div class="order-card__date">{{ order.createdAt | date:'dd.MM.yyyy HH:mm' }}</div>
+            </button>
+          }
+        </aside>
+
+        <!-- ── Order detail + timeline ────────────────────────────────── -->
+        <main class="order-detail" [class.visible]="selectedOrder()">
+          @if (selectedOrder(); as order) {
+
+            <div class="detail-head">
+              <div class="detail-head__left">
+                <h2>Sifariş #{{ order.id }}</h2>
+                <span class="detail-method">
+                  {{ order.deliveryMethod === 'DELIVERY' ? '🚚 Çatdırılma' : '🏪 Mağazadan götürmə' }}
+                </span>
+              </div>
+              <span class="detail-amount">{{ order.totalAmount | number:'1.2-2' }} ₼</span>
+            </div>
+
+            <!-- ── Timeline ──────────────────────────────────────────── -->
+            <div class="timeline-wrap">
+              @if (order.orderStatus === 'CANCELLED') {
+                <div class="cancelled-banner">
+                  <span>✕</span> Bu sifariş ləğv edildi
+                </div>
+              }
+              @if (order.orderStatus === 'FAIL_ATTEMPT') {
+                <div class="fail-banner">
+                  <span>⚠️</span> Çatdırılma cəhdi uğursuz oldu
+                  @if (order.deliveryFailReason) {
+                    <p class="fail-reason">Səbəb: {{ order.deliveryFailReason }}</p>
+                  }
+                </div>
+              }
+
+              <div class="timeline">
+                @for (stage of stagesFor(order); track stage.key) {
+                  @let state = stageState(order, stage);
+                  <div class="timeline-stage" [class]="'timeline-stage stage-' + state">
+                    <div class="stage-node">
+                      <span class="stage-icon">{{ stage.icon }}</span>
+                    </div>
+                    <div class="stage-label">{{ stage.label }}</div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- ── Info grid ─────────────────────────────────────────── -->
+            <div class="detail-info">
+              <div class="info-item">
+                <span class="info-label">Ad Soyad</span>
+                <span class="info-value">{{ order.firstName }} {{ order.lastName }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Telefon</span>
+                <span class="info-value">{{ order.phone }}</span>
+              </div>
+              @if (order.address) {
+                <div class="info-item">
+                  <span class="info-label">Ünvan</span>
+                  <span class="info-value">{{ order.address }}</span>
+                </div>
+              }
+              @if (order.courier) {
+                <div class="info-item">
+                  <span class="info-label">Kuryer</span>
+                  <span class="info-value">{{ order.courier.name }}</span>
+                </div>
+              }
+              <div class="info-item">
+                <span class="info-label">Sifariş tarixi</span>
+                <span class="info-value">{{ order.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+              </div>
+              @if (order.notes) {
+                <div class="info-item info-item--full">
+                  <span class="info-label">Qeyd</span>
+                  <span class="info-value">{{ order.notes }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- ── Items ─────────────────────────────────────────────── -->
+            <div class="detail-items">
+              <h3>Məhsullar</h3>
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th>Məhsul</th>
+                    <th>Miqdar</th>
+                    <th>Qiymət</th>
+                    <th>Cəm</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of order.items; track item.productId) {
+                    <tr>
+                      <td>{{ item.productName }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ item.unitPrice | number:'1.2-2' }} ₼</td>
+                      <td>{{ item.subtotal | number:'1.2-2' }} ₼</td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3"><strong>Ümumi</strong></td>
+                    <td><strong>{{ order.totalAmount | number:'1.2-2' }} ₼</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+          } @else {
+            <div class="select-prompt">
+              <div class="select-prompt__icon">👈</div>
+              <p>Ətraflı məlumat üçün bir sifariş seçin</p>
+            </div>
+          }
+        </main>
+
+      </div>
+    }
+
+  </div>
+</div>

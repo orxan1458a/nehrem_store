@@ -52,6 +52,10 @@ public class Order {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    /** Reason provided when a delivery attempt fails (FAIL_ATTEMPT status). */
+    @Column(name = "delivery_fail_reason", columnDefinition = "TEXT")
+    private String deliveryFailReason;
+
     /** Courier (User with COURIER role) assigned to deliver this order. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courier_id")
@@ -72,10 +76,12 @@ public class Order {
     public enum DeliveryMethod { DELIVERY, PICKUP }
 
     /**
-     * PENDING   = Gözləyir
-     * ACCEPTED  = Qəbul edildi
-     * DELIVERED = Çatdırıldı
-     * CANCELLED = Ləğv edildi
+     * PENDING          = Gözləyir
+     * ACCEPTED         = Qəbul edildi
+     * OUT_FOR_DELIVERY = Yoldadır
+     * DELIVERED        = Çatdırıldı
+     * FAIL_ATTEMPT     = Uğursuz çatdırılma cəhdi
+     * CANCELLED        = Ləğv edildi
      */
-    public enum OrderStatus { PENDING, ACCEPTED, DELIVERED, CANCELLED }
+    public enum OrderStatus { PENDING, ACCEPTED, OUT_FOR_DELIVERY, DELIVERED, FAIL_ATTEMPT, CANCELLED }
 }

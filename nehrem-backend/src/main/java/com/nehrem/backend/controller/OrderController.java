@@ -76,6 +76,15 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok(orderService.cancelOrder(id)));
     }
 
+    // ── Admin: fail-attempt (requires reason) ───────────────────────────────
+
+    @PatchMapping("/api/admin/orders/{id}/fail-attempt")
+    public ResponseEntity<ApiResponse<OrderDTO.Response>> adminFailAttempt(
+            @PathVariable Long id,
+            @Valid @RequestBody OrderDTO.FailAttemptRequest body) {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.adminMarkFailAttempt(id, body.getReason())));
+    }
+
     // ── Admin: assign courier ───────────────────────────────────────────────
 
     @PatchMapping("/api/admin/orders/{id}/assign-courier")

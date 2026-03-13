@@ -32,6 +32,7 @@
     <nav class="header__desktop-nav">
       <a routerLink="/shop" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Mağaza</a>
       <a routerLink="/wishlist" routerLinkActive="active">Seçilmişlər</a>
+      <a routerLink="/my-orders" routerLinkActive="active">Sifarişlərim</a>
       <a routerLink="/cart" routerLinkActive="active" class="header__nav-cart">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           stroke-linejoin="round" width="15" height="15">
@@ -119,6 +120,16 @@
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
       </svg>
       Səbət
+    </a>
+    <a routerLink="/my-orders" routerLinkActive="active" (click)="closeMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round" width="22" height="22">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+        <rect x="9" y="3" width="6" height="4" rx="1" />
+        <line x1="9" y1="12" x2="15" y2="12" />
+        <line x1="9" y1="16" x2="13" y2="16" />
+      </svg>
+      Sifarişlərim
     </a>
     <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

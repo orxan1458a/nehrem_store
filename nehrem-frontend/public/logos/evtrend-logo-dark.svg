@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 56" fill="none">
+  <defs>
+    <linearGradient id="hg-dark" x1="4" y1="4" x2="46" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#2DD4BF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="220" height="56" rx="10" fill="#0F172A"/>
+
+  <!-- ── Icon (left, 52px wide) ─────────────────────────────────── -->
+  <!-- Chimney -->
+  <rect x="34" y="9" width="5" height="9" rx="1" fill="#38BDF8"/>
+  <!-- Roof -->
+  <path d="M25 4L3 24H47L25 4Z" fill="#0284C7"/>
+  <path d="M25 4L3 24H47L25 4Z" fill="url(#hg-dark)" opacity="0.35"/>
+  <!-- Walls -->
+  <rect x="7" y="22" width="36" height="27" rx="3" fill="url(#hg-dark)"/>
+  <!-- Door -->
+  <rect x="18" y="31" width="13" height="18" rx="2.5" fill="white" fill-opacity="0.15"/>
+  <!-- Door outline -->
+  <rect x="18" y="31" width="13" height="18" rx="2.5" stroke="white" stroke-opacity="0.35" stroke-width="1"/>
+  <!-- Door knob -->
+  <circle cx="28.5" cy="40" r="1.1" fill="white" fill-opacity="0.5"/>
+  <!-- Sparkle -->
+  <circle cx="43" cy="13" r="2.5" fill="#FB923C"/>
+  <path d="M43 9.5V11.5M43 14.5V16.5M39.5 13H41.5M44.5 13H46.5" stroke="#FB923C" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- ── Text ─────────────────────────────────────────────────── -->
+  <text font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="30" font-weight="800" fill="#38BDF8">
+    <tspan x="58" y="39">Ev</tspan>
+  </text>
+  <text font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="30" font-weight="500" fill="#F1F5F9">
+    <tspan x="98" y="39">Trend</tspan>
+  </text>
+</svg>

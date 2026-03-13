@@ -15,5 +15,8 @@ public interface OrderService {
     OrderDTO.Response cancelOrder(Long id);
     OrderDTO.Response assignCourier(Long id, Long courierId);
     Page<OrderDTO.Response> getCourierOrders(Long courierId, Pageable pageable);
+    OrderDTO.Response markOutForDelivery(Long orderId, Long courierId);
     OrderDTO.Response markDelivered(Long orderId, Long courierId);
+    OrderDTO.Response markFailAttempt(Long orderId, Long courierId, String reason);
+    OrderDTO.Response adminMarkFailAttempt(Long id, String reason);
 }

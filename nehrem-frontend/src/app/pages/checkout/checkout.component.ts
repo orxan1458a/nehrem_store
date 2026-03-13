@@ -71,7 +71,8 @@ export class CheckoutComponent {
         quantity:  i.quantity
       }))
     }).subscribe({
-      next: () => {
+      next: (order) => {
+        this.saveOrderToStorage(order.id);
         this.cart.clear();
         this.success.set(true);
         this.submitting.set(false);
@@ -82,6 +83,15 @@ export class CheckoutComponent {
         this.submitting.set(false);
       }
     });
+  }
+
+  private saveOrderToStorage(orderId: number): void {
+    try {
+      const raw = localStorage.getItem('guest_orders');
+      const ids: number[] = raw ? JSON.parse(raw) : [];
+      if (!ids.includes(orderId)) ids.push(orderId);
+      localStorage.setItem('guest_orders', JSON.stringify(ids));
+    } catch { /* storage unavailable */ }
   }
 
   hasError(field: string, error = ''): boolean {

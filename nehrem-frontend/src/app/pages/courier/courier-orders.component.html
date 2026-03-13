@@ -14,7 +14,7 @@
 
   <main class="courier-main">
     <h2 class="section-title">Mənim Sifarişlərim</h2>
-    <p class="section-sub">Aşağıdakılar sizə təyin edilmiş və çatdırılmağı gözləyən sifarişlərdir.</p>
+    <p class="section-sub">Aşağıdakılar sizə təyin edilmiş sifarişlərdir.</p>
 
     @if (loading()) {
       <div class="courier-loading"><div class="spinner"></div></div>
@@ -26,9 +26,13 @@
     } @else {
       <div class="order-cards">
         @for (order of orders(); track order.id) {
-          <div class="order-card">
+          <div class="order-card" [class.card--outfordelivery]="order.orderStatus === 'OUT_FOR_DELIVERY'">
             <div class="order-card__head">
               <span class="order-id">#{{ order.id }}</span>
+              <span class="order-status-badge" [class.badge--accepted]="order.orderStatus === 'ACCEPTED'" [class.badge--outfordelivery]="order.orderStatus === 'OUT_FOR_DELIVERY'">
+                @if (order.orderStatus === 'ACCEPTED') { Qəbul edildi }
+                @if (order.orderStatus === 'OUT_FOR_DELIVERY') { 🚚 Yoldadır }
+              </span>
               <span class="order-date">{{ order.createdAt | date:'dd MMM, HH:mm' }}</span>
             </div>
 
@@ -53,11 +57,39 @@
 
             <div class="order-card__foot">
               <span class="total">{{ order.totalAmount | number:'1.2-2' }} ₼</span>
-              <button class="btn-delivered"
-                      [disabled]="actionLoading() === order.id"
-                      (click)="markDelivered(order)">
-                {{ actionLoading() === order.id ? 'Göndərilir…' : 'Çatdırıldı ✓' }}
-              </button>
+
+              <!-- ACCEPTED: courier starts the delivery run -->
+              @if (order.orderStatus === 'ACCEPTED') {
+                <button class="btn-start-delivery"
+                        [disabled]="actionLoading() === order.id"
+                        (click)="startDelivery(order)">
+                  {{ actionLoading() === order.id ? 'Göndərilir…' : '🚚 Çatdırmağa başla' }}
+                </button>
+              }
+
+              <!-- OUT_FOR_DELIVERY: delivered or failed attempt -->
+              @if (order.orderStatus === 'OUT_FOR_DELIVERY') {
+                <button class="btn-delivered"
+                        [disabled]="actionLoading() === order.id"
+                        (click)="markDelivered(order)">
+                  {{ actionLoading() === order.id ? 'Göndərilir…' : 'Çatdırıldı ✓' }}
+                </button>
+
+                <div class="fail-attempt-block">
+                  <input
+                    class="fail-reason-input"
+                    type="text"
+                    placeholder="Uğursuzluq səbəbi (məcburidir)"
+                    [value]="getFailReason(order.id)"
+                    (input)="setFailReason(order.id, $any($event.target).value)"
+                  />
+                  <button class="btn-fail"
+                          [disabled]="actionLoading() === order.id || !getFailReason(order.id).trim()"
+                          (click)="markFailAttempt(order)">
+                    Uğursuz cəhd
+                  </button>
+                </div>
+              }
             </div>
           </div>
         }

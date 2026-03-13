@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -20,6 +21,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findByOrderStatusOrderByCreatedAtDesc(Order.OrderStatus orderStatus, Pageable pageable);
 
     Page<Order> findByCourierIdAndOrderStatusOrderByCreatedAtDesc(Long courierId, Order.OrderStatus orderStatus, Pageable pageable);
+
+    /** Used to fetch courier dashboard orders: shows ACCEPTED + OUT_FOR_DELIVERY. */
+    Page<Order> findByCourierIdAndOrderStatusInOrderByCreatedAtDesc(Long courierId, Collection<Order.OrderStatus> statuses, Pageable pageable);
 
     Page<Order> findByCourierIdOrderByCreatedAtDesc(Long courierId, Pageable pageable);
 

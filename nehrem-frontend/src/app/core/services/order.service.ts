@@ -57,6 +57,13 @@ export class OrderService {
       .pipe(map(r => r.data));
   }
 
+  /** Returns order count per status: { PENDING: 5, ACCEPTED: 3, … } */
+  getOrderStatusCounts(): Observable<Record<string, number>> {
+    return this.http.get<ApiResponse<Record<string, number>>>(
+      `${this.adminBase}/dashboard/order-counts`
+    ).pipe(map(r => r.data));
+  }
+
   getCourierOrders(page = 0, size = 20): Observable<any> {
     return this.http.get<ApiResponse<any>>(
       `${environment.apiUrl}/courier/orders`,
@@ -64,10 +71,31 @@ export class OrderService {
     ).pipe(map(r => r.data));
   }
 
+  markOutForDelivery(orderId: number): Observable<OrderResponse> {
+    return this.http.patch<ApiResponse<OrderResponse>>(
+      `${environment.apiUrl}/courier/orders/${orderId}/out-for-delivery`,
+      {}
+    ).pipe(map(r => r.data));
+  }
+
   markDelivered(orderId: number): Observable<OrderResponse> {
     return this.http.patch<ApiResponse<OrderResponse>>(
       `${environment.apiUrl}/courier/orders/${orderId}/delivered`,
       {}
+    ).pipe(map(r => r.data));
+  }
+
+  markFailAttempt(orderId: number, reason: string): Observable<OrderResponse> {
+    return this.http.patch<ApiResponse<OrderResponse>>(
+      `${environment.apiUrl}/courier/orders/${orderId}/fail-attempt`,
+      { reason }
+    ).pipe(map(r => r.data));
+  }
+
+  adminMarkFailAttempt(orderId: number, reason: string): Observable<OrderResponse> {
+    return this.http.patch<ApiResponse<OrderResponse>>(
+      `${this.adminBase}/orders/${orderId}/fail-attempt`,
+      { reason }
     ).pipe(map(r => r.data));
   }
 }

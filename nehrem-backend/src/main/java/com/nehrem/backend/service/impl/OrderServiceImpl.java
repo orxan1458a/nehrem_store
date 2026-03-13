@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,6 +118,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO.Response updateStatus(Long id, Order.OrderStatus orderStatus) {
+        if (orderStatus == Order.OrderStatus.FAIL_ATTEMPT) {
+            throw new BusinessException("Use the /fail-attempt endpoint to record a failed delivery (reason is required)");
+        }
+        if (orderStatus == Order.OrderStatus.OUT_FOR_DELIVERY) {
+            throw new BusinessException("Use the courier /out-for-delivery endpoint to start delivery");
+        }
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", id));
         if (orderStatus == Order.OrderStatus.CANCELLED
@@ -125,6 +132,21 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setOrderStatus(orderStatus);
         return toResponse(orderRepository.save(order));
+    }
+
+    /** Admin-only: record a failed delivery attempt with a mandatory reason. */
+    @Override
+    public OrderDTO.Response adminMarkFailAttempt(Long id, String reason) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
+        if (order.getOrderStatus() != Order.OrderStatus.OUT_FOR_DELIVERY) {
+            throw new BusinessException("Only OUT_FOR_DELIVERY orders can be marked as failed attempt");
+        }
+        order.setOrderStatus(Order.OrderStatus.FAIL_ATTEMPT);
+        order.setDeliveryFailReason(reason);
+        OrderDTO.Response response = toResponse(orderRepository.save(order));
+        telegramNotificationService.notifyAdminOrderUpdate(response, "Failed Delivery Attempt: " + reason);
+        return response;
     }
 
     @Override
@@ -174,8 +196,27 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Page<OrderDTO.Response> getCourierOrders(Long courierId, Pageable pageable) {
         return orderRepository
-                .findByCourierIdAndOrderStatusOrderByCreatedAtDesc(courierId, Order.OrderStatus.ACCEPTED, pageable)
+                .findByCourierIdAndOrderStatusInOrderByCreatedAtDesc(
+                        courierId,
+                        EnumSet.of(Order.OrderStatus.ACCEPTED, Order.OrderStatus.OUT_FOR_DELIVERY),
+                        pageable)
                 .map(this::toResponse);
+    }
+
+    @Override
+    public OrderDTO.Response markOutForDelivery(Long orderId, Long courierId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
+        if (order.getCourier() == null || !order.getCourier().getId().equals(courierId)) {
+            throw new BusinessException("This order is not assigned to you");
+        }
+        if (order.getOrderStatus() != Order.OrderStatus.ACCEPTED) {
+            throw new BusinessException("Only ACCEPTED orders can be marked as out for delivery");
+        }
+        order.setOrderStatus(Order.OrderStatus.OUT_FOR_DELIVERY);
+        OrderDTO.Response response = toResponse(orderRepository.save(order));
+        telegramNotificationService.notifyAdminOrderUpdate(response, "Out for Delivery");
+        return response;
     }
 
     @Override
@@ -185,12 +226,30 @@ public class OrderServiceImpl implements OrderService {
         if (order.getCourier() == null || !order.getCourier().getId().equals(courierId)) {
             throw new BusinessException("This order is not assigned to you");
         }
-        if (order.getOrderStatus() != Order.OrderStatus.ACCEPTED) {
-            throw new BusinessException("Only ACCEPTED orders can be marked as delivered");
+        if (order.getOrderStatus() != Order.OrderStatus.OUT_FOR_DELIVERY
+                && order.getOrderStatus() != Order.OrderStatus.ACCEPTED) {
+            throw new BusinessException("Only ACCEPTED or OUT_FOR_DELIVERY orders can be marked as delivered");
         }
         order.setOrderStatus(Order.OrderStatus.DELIVERED);
         OrderDTO.Response response = toResponse(orderRepository.save(order));
         telegramNotificationService.notifyAdminOrderUpdate(response, "Delivered");
+        return response;
+    }
+
+    @Override
+    public OrderDTO.Response markFailAttempt(Long orderId, Long courierId, String reason) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
+        if (order.getCourier() == null || !order.getCourier().getId().equals(courierId)) {
+            throw new BusinessException("This order is not assigned to you");
+        }
+        if (order.getOrderStatus() != Order.OrderStatus.OUT_FOR_DELIVERY) {
+            throw new BusinessException("Only OUT_FOR_DELIVERY orders can be marked as failed attempt");
+        }
+        order.setOrderStatus(Order.OrderStatus.FAIL_ATTEMPT);
+        order.setDeliveryFailReason(reason);
+        OrderDTO.Response response = toResponse(orderRepository.save(order));
+        telegramNotificationService.notifyAdminOrderUpdate(response, "Failed Delivery Attempt: " + reason);
         return response;
     }
 
@@ -244,6 +303,7 @@ public class OrderServiceImpl implements OrderService {
                 .totalAmount(o.getTotalAmount())
                 .orderStatus(o.getOrderStatus())
                 .notes(o.getNotes())
+                .deliveryFailReason(o.getDeliveryFailReason())
                 .courier(courierInfo)
                 .items(items)
                 .createdAt(o.getCreatedAt())
