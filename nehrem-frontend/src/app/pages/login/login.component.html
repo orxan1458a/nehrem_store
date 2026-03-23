@@ -3,10 +3,14 @@
 
     <!-- Logo -->
     <div class="login-card__logo">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17 8C8 10 5.9 16.17 3.82 19.29C3.35 19.97 3.7 21 4.5 21C6.5 21 10.5 20 12 17C14 14 14.5 11.5 17 8Z" fill="#00BFA5"/>
-        <path d="M17 8C15 10 13 12.5 12 17C14.5 17 16.5 15 17 13C17.5 11 17.5 9.5 17 8Z" fill="#00897B"/>
-      </svg>
+      @if (logoSvc.logo$ | async; as logoUrl) {
+        <img [src]="logoSvc.bustUrl(logoUrl)" class="login-logo-img" alt="EvTrend" />
+      } @else {
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17 8C8 10 5.9 16.17 3.82 19.29C3.35 19.97 3.7 21 4.5 21C6.5 21 10.5 20 12 17C14 14 14.5 11.5 17 8Z" fill="#00BFA5"/>
+          <path d="M17 8C15 10 13 12.5 12 17C14.5 17 16.5 15 17 13C17.5 11 17.5 9.5 17 8Z" fill="#00897B"/>
+        </svg>
+      }
       <span>EvTrend</span>
     </div>
 

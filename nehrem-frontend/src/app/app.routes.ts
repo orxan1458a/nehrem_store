@@ -66,6 +66,11 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./pages/admin/profile/admin-profile.component')
           .then(m => m.AdminProfileComponent)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./pages/admin/settings/admin-settings.component')
+          .then(m => m.AdminSettingsComponent)
       }
     ]
   },

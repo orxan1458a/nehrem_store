@@ -1,19 +1,21 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../../core/services/order.service';
 import { OrderResponse } from '../../../../core/models/order.model';
+import { LogoService } from '../../../../core/services/logo.service';
 
 @Component({
   selector: 'app-order-print',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AsyncPipe],
   templateUrl: './order-print.component.html',
   styleUrl: './order-print.component.scss'
 })
 export class OrderPrintComponent implements OnInit, OnDestroy {
   private route      = inject(ActivatedRoute);
   private orderSvc   = inject(OrderService);
+  logoSvc            = inject(LogoService);
 
   order: OrderResponse | null = null;
   loading = true;

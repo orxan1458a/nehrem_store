@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CartService }   from '../../../core/services/cart.service';
 import { AuthService }   from '../../../core/services/auth.service';
 import { SearchService } from '../../../core/services/search.service';
 import { UserService }   from '../../../core/services/user.service';
+import { LogoService }   from '../../../core/services/logo.service';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const np = group.get('newPassword')?.value;
@@ -15,7 +17,7 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, ReactiveFormsModule],
+  imports: [RouterLink, RouterLinkActive, ReactiveFormsModule, AsyncPipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -23,6 +25,7 @@ export class HeaderComponent {
   cart      = inject(CartService);
   auth      = inject(AuthService);
   searchSvc = inject(SearchService);
+  logoSvc   = inject(LogoService);
   private router   = inject(Router);
   private fb       = inject(FormBuilder);
   private userSvc  = inject(UserService);

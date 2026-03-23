@@ -1,5 +1,9 @@
-<app-header></app-header>
+@if (!isPrintPage()) {
+  <app-header></app-header>
+}
 <main class="main-content">
   <router-outlet></router-outlet>
 </main>
-<app-footer></app-footer>
+@if (!isPrintPage()) {
+  <app-footer></app-footer>
+}
