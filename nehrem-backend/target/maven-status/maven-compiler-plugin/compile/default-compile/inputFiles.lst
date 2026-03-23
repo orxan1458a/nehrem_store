@@ -13,7 +13,6 @@ C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\ja
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\InventoryController.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\OrderController.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\ProductController.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\ReviewController.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\SettingController.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\UserController.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\controller\VisitorController.java
@@ -41,7 +40,6 @@ C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\ja
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\OrderItem.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\Product.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\ProductView.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\Review.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\User.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\entity\Visitor.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\exception\BusinessException.java
@@ -56,7 +54,6 @@ C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\ja
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\OrderRepository.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\ProductRepository.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\ProductViewRepository.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\ReviewRepository.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\UserRepository.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\repository\VisitorRepository.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\security\JwtAuthFilter.java
@@ -74,7 +71,6 @@ C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\ja
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\InventoryServiceImpl.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\OrderServiceImpl.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\ProductServiceImpl.java
-C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\ReviewServiceImpl.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\SettingServiceImpl.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\TelegramNotificationServiceImpl.java
 C:\Users\As\Documents\angular_projects\nehrem-project\nehrem-backend\src\main\java\com\nehrem\backend\service\impl\UserServiceImpl.java

@@ -51,6 +51,7 @@ img, video, iframe, embed, object {
 a { color: inherit; text-decoration: none; }
 
 .main-content {
+  padding-top: 64px;
   min-height: calc(100vh - 64px - 72px);
   padding-bottom: 80px;
 

@@ -12,7 +12,6 @@ import com.nehrem.backend.repository.InventoryBatchRepository;
 import com.nehrem.backend.repository.OrderItemRepository;
 import com.nehrem.backend.repository.ProductRepository;
 import com.nehrem.backend.repository.ProductViewRepository;
-import com.nehrem.backend.repository.ReviewRepository;
 import com.nehrem.backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +42,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository        productRepository;
     private final CategoryRepository       categoryRepository;
-    private final ReviewRepository         reviewRepository;
     private final ProductViewRepository    productViewRepository;
     private final InventoryBatchRepository inventoryBatchRepository;
     private final OrderItemRepository      orderItemRepository;
@@ -156,7 +154,6 @@ public class ProductServiceImpl implements ProductService {
         if (orderItemRepository.existsByProductId(id)) {
             throw new BusinessException("Bu məhsul sifarişlərdə istifadə olunub və silinə bilməz. Əvəzinə deaktiv edin.");
         }
-        reviewRepository.deleteByProductId(id);
         inventoryBatchRepository.deleteByProductId(id);
         productViewRepository.deleteByProductId(id);
         deleteImageFile(product.getImageUrl());
@@ -282,8 +279,6 @@ public class ProductServiceImpl implements ProductService {
                 .categoryName(p.getCategory() != null ? p.getCategory().getName() : null)
                 .active(p.getActive())
                 .createdAt(p.getCreatedAt())
-                .reviewCount(reviewRepository.countByProductId(p.getId()))
-                .averageRating(reviewRepository.averageRatingByProductId(p.getId()))
                 .viewCount(p.getViewCount())
                 .purchasePrice(purchasePrice)
                 .build();

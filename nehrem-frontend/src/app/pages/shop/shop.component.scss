@@ -508,17 +508,26 @@
   animation: slideUp .28s cubic-bezier(.25,.8,.25,1);
   padding-bottom: 90px;
 
+  &__top {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px 6px;
+  }
+
   &__drag-handle {
     width: 36px;
     height: 4px;
     background: #e5e7eb;
     border-radius: 2px;
-    margin: 12px auto 0;
   }
 
   &__close {
     position: absolute;
-    top: 12px;
     right: 14px;
     width: 32px;
     height: 32px;
@@ -542,7 +551,6 @@
     aspect-ratio: 4/3;
     background: #f4f6f8;
     overflow: hidden;
-    margin-top: 8px;
   }
 
   &__image {

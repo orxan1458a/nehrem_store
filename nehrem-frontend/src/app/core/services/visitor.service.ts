@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, interval, map } from 'rxjs';
 import { ApiResponse } from '../models/order.model';
 import { environment } from '../../../environments/environment';
 
@@ -20,8 +20,12 @@ export class VisitorService {
   private deviceId = this.getOrCreateDeviceId();
 
   ping(): void {
-    this.http.post<ApiResponse<void>>(`${this.base}/ping`, { deviceId: this.deviceId })
-      .subscribe({ error: () => {} });
+    const send = () =>
+      this.http.post<ApiResponse<void>>(`${this.base}/ping`, { deviceId: this.deviceId })
+        .subscribe({ error: () => {} });
+
+    send();
+    interval(3 * 60 * 1000).subscribe(() => send());
   }
 
   getStats(): Observable<DashboardStats> {

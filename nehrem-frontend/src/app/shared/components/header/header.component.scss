@@ -1,10 +1,19 @@
 // ── Header Shell ──────────────────────────────────────────────────────────────
 .header {
-  background: #fff;
-  box-shadow: 0 1px 0 rgba(0,0,0,.08);
-  position: sticky;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgba(0,0,0,.06);
+  position: fixed;
   top: 0;
+  left: 0;
+  width: 100%;
   z-index: 1000;
+  transition: box-shadow .2s ease;
+
+  &.scrolled {
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  }
 }
 
 // ── Inner bar (always full-width, max-width centered) ─────────────────────────
@@ -99,17 +108,27 @@
   display: none; // mobile: hidden
 
   a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
     text-decoration: none;
-    color: #555;
-    font-weight: 600;
-    font-size: .88rem;
-    padding: .4rem .8rem;
-    border-radius: 8px;
+    color: #6b7280;
+    padding: .45rem .6rem;
+    border-radius: 10px;
     transition: background .15s, color .15s;
     white-space: nowrap;
 
-    &.active,
-    &:hover { color: #00BFA5; background: #e6faf7; }
+    svg { display: block; flex-shrink: 0; }
+
+    .nav-label {
+      display: none;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    &.active { color: #00BFA5; background: #e6faf7; }
+    &:hover  { color: #00BFA5; background: #e6faf7; }
   }
 }
 
@@ -187,32 +206,6 @@
   white-space: nowrap;
 }
 
-// ── Change-password button ────────────────────────────────────────────────────
-.header__pwd-btn {
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  background: #e8f5ee;
-  color: #2d6a4f;
-  border: none;
-  border-radius: 8px;
-  padding: .4rem .75rem;
-  font-size: .85rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background .15s;
-  white-space: nowrap;
-
-  &:hover { background: #c8e6d8; }
-
-  @media (max-width: 360px) { padding: .35rem .5rem; }
-}
-
-.header__pwd-btn-label {
-  @media (max-width: 520px) { display: none; }
-}
-
 // ── Logout button ─────────────────────────────────────────────────────────────
 .header__logout-btn {
   display: flex;
@@ -261,36 +254,61 @@
 }
 
 // ── Mobile Nav Drawer ─────────────────────────────────────────────────────────
+@keyframes nav-slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .header__mobile-nav {
-  display: none;           // hidden by default
+  display: none;
   position: fixed;
-  inset: 64px 0 0 0;      // covers full screen below header
+  inset: 64px 0 0 0;
   background: #fff;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: .75rem;
   z-index: 999;
+  padding-bottom: 80px; // clear fixed bottom nav bar
 
-  &.open { display: flex; } // shown when burger is tapped
+  &.open {
+    display: flex;
+    animation: nav-slide-down .22s ease;
+  }
 
   a {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    color: #444;
+    gap: .85rem;
+    color: #374151;
     font-weight: 600;
-    font-size: 1.15rem;
-    padding: .75rem 2rem;
-    border-radius: 12px;
-    width: 220px;
+    font-size: 1.05rem;
+    padding: .85rem 1.5rem;
+    border-radius: 14px;
+    width: 240px;
     text-decoration: none;
-    transition: background .15s, color .15s;
+    transition: background .15s, color .15s, transform .15s;
 
-    svg { flex-shrink: 0; }
+    svg {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      opacity: .75;
+      transition: opacity .15s;
+    }
 
-    &.active,
-    &:hover { color: #00BFA5; background: #e6faf7; }
+    &.active {
+      color: #00BFA5;
+      background: #e6faf7;
+      svg { opacity: 1; }
+    }
+
+    &:hover {
+      color: #00BFA5;
+      background: #f0fdf9;
+      transform: translateX(4px);
+      svg { opacity: 1; }
+    }
   }
 }
 
@@ -314,6 +332,8 @@
     align-items: center;
     gap: .1rem;
     flex-shrink: 0;
+
+    a .nav-label { display: inline; }
   }
 
   // Show admin nav links
@@ -352,178 +372,3 @@
   .header__logout-btn { padding: .35rem .6rem; font-size: .78rem; }
 }
 
-// ── Change Password Modal ──────────────────────────────────────────────────────
-.pwd-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.pwd-modal {
-  background: #fff;
-  border-radius: 14px;
-  width: 100%;
-  max-width: 440px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.18);
-  overflow: hidden;
-
-  &__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.1rem 1.4rem;
-    border-bottom: 1px solid #eee;
-
-    h2 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #1b4332; }
-  }
-
-  &__close {
-    width: 32px;
-    height: 32px;
-    background: #f5f5f5;
-    border: none;
-    border-radius: 50%;
-    font-size: .9rem;
-    cursor: pointer;
-    color: #666;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background .15s;
-    &:hover { background: #e0e0e0; }
-  }
-
-  &__body {
-    padding: 1.4rem;
-    display: flex;
-    flex-direction: column;
-    gap: .9rem;
-  }
-
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: .65rem;
-    padding-top: .25rem;
-  }
-}
-
-.pwd-field {
-  display: flex;
-  flex-direction: column;
-  gap: .28rem;
-
-  label {
-    font-size: .82rem;
-    font-weight: 600;
-    color: #444;
-  }
-
-  input {
-    padding: .6rem .9rem;
-    border: 1.5px solid #ddd;
-    border-radius: 8px;
-    font-size: .9rem;
-    font-family: inherit;
-    outline: none;
-    transition: border-color .2s;
-
-    &:focus { border-color: #2d6a4f; }
-    &.error { border-color: #e63946; }
-  }
-}
-
-.pwd-err {
-  font-size: .74rem;
-  color: #e63946;
-}
-
-.pwd-alert {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .65rem .9rem;
-  border-radius: 8px;
-  font-size: .86rem;
-  font-weight: 500;
-
-  &--success { background: #d1fae5; color: #065f46; }
-  &--error   { background: #fee2e2; color: #991b1b; }
-}
-
-.pwd-btn-save {
-  padding: .55rem 1.2rem;
-  background: #2d6a4f;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: .88rem;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  gap: .4rem;
-  transition: background .15s;
-
-  &:hover:not(:disabled) { background: #1b4332; }
-  &:disabled { background: #9ca3af; cursor: not-allowed; }
-}
-
-.pwd-btn-cancel {
-  padding: .55rem 1rem;
-  background: #f0f0f0;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: .88rem;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background .15s;
-
-  &:hover { background: #e0e0e0; }
-}
-
-.pwd-spinner {
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  border: 2px solid rgba(255,255,255,.4);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: pwd-spin .65s linear infinite;
-}
-
-@keyframes pwd-spin { to { transform: rotate(360deg); } }
-
-@media (max-width: 480px) {
-  .pwd-overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .pwd-modal {
-    border-radius: 20px 20px 0 0;
-    max-width: 100%;
-
-    &__actions {
-      flex-direction: column-reverse;
-      gap: .5rem;
-    }
-  }
-
-  .pwd-btn-save,
-  .pwd-btn-cancel {
-    width: 100%;
-    justify-content: center;
-    padding: .8rem 1rem;
-    font-size: .95rem;
-    border-radius: 10px;
-  }
-}

@@ -1,23 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CartService }   from '../../../core/services/cart.service';
 import { AuthService }   from '../../../core/services/auth.service';
 import { SearchService } from '../../../core/services/search.service';
-import { UserService }   from '../../../core/services/user.service';
-import { LogoService }   from '../../../core/services/logo.service';
-
-function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
-  const np = group.get('newPassword')?.value;
-  const cp = group.get('confirmPassword')?.value;
-  return np && cp && np !== cp ? { passwordsMismatch: true } : null;
-}
+import { LogoService }     from '../../../core/services/logo.service';
+import { BrandingService } from '../../../core/services/branding.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, ReactiveFormsModule, AsyncPipe],
+  imports: [RouterLink, RouterLinkActive, AsyncPipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -25,67 +18,35 @@ export class HeaderComponent {
   cart      = inject(CartService);
   auth      = inject(AuthService);
   searchSvc = inject(SearchService);
-  logoSvc   = inject(LogoService);
-  private router   = inject(Router);
-  private fb       = inject(FormBuilder);
-  private userSvc  = inject(UserService);
+  logoSvc     = inject(LogoService);
+  brandingSvc = inject(BrandingService);
+  private router = inject(Router);
 
-  menuOpen     = signal(false);
-  showPwdModal = signal(false);
-  submitting   = signal(false);
-  pwdSuccess   = signal('');
-  pwdError     = signal('');
+  isScrolled = false;
 
-  pwdForm = this.fb.group({
-    currentPassword: ['', Validators.required],
-    newPassword:     ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', Validators.required]
-  }, { validators: passwordsMatchValidator });
-
-  toggleMenu(): void { this.menuOpen.update(v => !v); }
-  closeMenu(): void  { this.menuOpen.set(false); }
-
-  openPwdModal(): void {
-    this.pwdForm.reset();
-    this.pwdSuccess.set('');
-    this.pwdError.set('');
-    this.showPwdModal.set(true);
+  @HostListener('window:scroll', [])
+  onScroll(): void {
+    this.isScrolled = window.scrollY > 10;
   }
 
-  closePwdModal(): void { this.showPwdModal.set(false); }
-
-  onChangePwd(): void {
-    if (this.pwdForm.invalid) { this.pwdForm.markAllAsTouched(); return; }
-    this.submitting.set(true);
-    this.pwdSuccess.set('');
-    this.pwdError.set('');
-
-    const v = this.pwdForm.getRawValue();
-    this.userSvc.changePassword({
-      currentPassword: v.currentPassword!,
-      newPassword:     v.newPassword!,
-      confirmPassword: v.confirmPassword!
-    }).subscribe({
-      next: msg => {
-        this.pwdSuccess.set(msg);
-        this.pwdForm.reset();
-        this.submitting.set(false);
-      },
-      error: err => {
-        this.pwdError.set(err?.error?.message ?? 'Xəta baş verdi');
-        this.submitting.set(false);
-      }
-    });
+  @HostListener('window:resize', [])
+  onResize(): void {
+    if (window.innerWidth >= 1024 && this.menuOpen()) {
+      this.closeMenu();
+    }
   }
 
-  hasError(field: string, code = ''): boolean {
-    const ctrl = this.pwdForm.get(field);
-    if (!ctrl?.touched) return false;
-    return code ? ctrl.hasError(code) : ctrl.invalid;
+  menuOpen = signal(false);
+
+  toggleMenu(): void {
+    const next = !this.menuOpen();
+    this.menuOpen.set(next);
+    document.body.style.overflow = next ? 'hidden' : '';
   }
 
-  get passwordsMismatch(): boolean {
-    return !!(this.pwdForm.get('confirmPassword')?.touched && this.pwdForm.hasError('passwordsMismatch'));
+  closeMenu(): void {
+    this.menuOpen.set(false);
+    document.body.style.overflow = '';
   }
 
   onSearchInput(event: Event): void {

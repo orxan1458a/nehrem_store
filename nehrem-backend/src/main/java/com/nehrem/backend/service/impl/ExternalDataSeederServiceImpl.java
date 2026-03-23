@@ -6,11 +6,9 @@ import com.nehrem.backend.dto.external.DummyJsonReview;
 import com.nehrem.backend.entity.Category;
 import com.nehrem.backend.entity.InventoryBatch;
 import com.nehrem.backend.entity.Product;
-import com.nehrem.backend.entity.Review;
 import com.nehrem.backend.repository.CategoryRepository;
 import com.nehrem.backend.repository.InventoryBatchRepository;
 import com.nehrem.backend.repository.ProductRepository;
-import com.nehrem.backend.repository.ReviewRepository;
 import com.nehrem.backend.service.ExternalDataSeederService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +52,6 @@ public class ExternalDataSeederServiceImpl implements ExternalDataSeederService 
     private final CategoryRepository      categoryRepository;
     private final ProductRepository       productRepository;
     private final InventoryBatchRepository inventoryBatchRepository;
-    private final ReviewRepository        reviewRepository;
 
     @Override
     @Transactional
@@ -115,15 +112,6 @@ public class ExternalDataSeederServiceImpl implements ExternalDataSeederService 
                         .dateAdded(LocalDateTime.now())
                         .build();
                 inventoryBatchRepository.save(batch);
-            }
-
-            // 2e. Persist reviews
-            if (raw.getReviews() != null) {
-                for (DummyJsonReview rawReview : raw.getReviews()) {
-                    Review review = buildReview(rawReview, product);
-                    reviewRepository.save(review);
-                    reviewsCreated++;
-                }
             }
         }
 
@@ -258,21 +246,7 @@ public class ExternalDataSeederServiceImpl implements ExternalDataSeederService 
                 .build();
     }
 
-    /**
-     * Maps a DummyJSON review to our Review entity.
-     */
-    private Review buildReview(DummyJsonReview rawReview, Product product) {
-        int rating = rawReview.getRating() != null
-                ? Math.max(1, Math.min(5, rawReview.getRating()))
-                : 3;
-
-        return Review.builder()
-                .product(product)
-                .rating(rating)
-                .comment(rawReview.getComment())
-                .reviewerName(rawReview.getReviewerName())
-                .build();
-    }
+  
 
     /**
      * Converts a slug like "mens-shirts" or "beauty" to "Mens Shirts" / "Beauty".

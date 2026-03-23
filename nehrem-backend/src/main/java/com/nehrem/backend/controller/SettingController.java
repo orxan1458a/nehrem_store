@@ -17,23 +17,62 @@ public class SettingController {
 
     private final SettingService settingService;
 
-    /** Public — anyone can fetch the current logo URL */
+    // ── Logo ─────────────────────────────────────────────────────────────────
+
     @GetMapping("/logo")
     public ResponseEntity<ApiResponse<SettingDTO.Response>> getLogo() {
         return ResponseEntity.ok(ApiResponse.ok(settingService.getLogo()));
     }
 
-    /** Admin only — update logo by providing a URL directly */
     @PutMapping("/logo")
     public ResponseEntity<ApiResponse<SettingDTO.Response>> updateLogoUrl(
             @RequestBody Map<String, String> body) {
         return ResponseEntity.ok(ApiResponse.ok("Logo updated", settingService.updateLogoUrl(body.get("value"))));
     }
 
-    /** Admin only — upload logo image file */
     @PostMapping("/logo/upload")
     public ResponseEntity<ApiResponse<SettingDTO.Response>> uploadLogo(
             @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(ApiResponse.ok("Logo uploaded", settingService.uploadLogo(file)));
+    }
+
+    // ── App Name ─────────────────────────────────────────────────────────────
+
+    @GetMapping("/app-name")
+    public ResponseEntity<ApiResponse<SettingDTO.Response>> getAppName() {
+        return ResponseEntity.ok(ApiResponse.ok(settingService.getAppName()));
+    }
+
+    @PutMapping("/app-name")
+    public ResponseEntity<ApiResponse<SettingDTO.Response>> updateAppName(
+            @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(ApiResponse.ok("App name updated", settingService.updateAppName(body.get("value"))));
+    }
+
+    // ── Favicon ──────────────────────────────────────────────────────────────
+
+    @GetMapping("/favicon")
+    public ResponseEntity<ApiResponse<SettingDTO.Response>> getFavicon() {
+        return ResponseEntity.ok(ApiResponse.ok(settingService.getFavicon()));
+    }
+
+    @PostMapping("/favicon/upload")
+    public ResponseEntity<ApiResponse<SettingDTO.Response>> uploadFavicon(
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(ApiResponse.ok("Favicon uploaded", settingService.uploadFavicon(file)));
+    }
+
+    // ── Homepage ──────────────────────────────────────────────────────────────
+
+    @GetMapping("/homepage")
+    public ResponseEntity<ApiResponse<SettingDTO.HomepageSettings>> getHomepageSettings() {
+        return ResponseEntity.ok(ApiResponse.ok(settingService.getHomepageSettings()));
+    }
+
+    @PutMapping("/homepage/discount-limit")
+    public ResponseEntity<ApiResponse<SettingDTO.Response>> updateHomepageDiscountLimit(
+            @RequestBody Map<String, Integer> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Limit updated",
+                settingService.updateHomepageDiscountLimit(body.getOrDefault("value", 5))));
     }
 }

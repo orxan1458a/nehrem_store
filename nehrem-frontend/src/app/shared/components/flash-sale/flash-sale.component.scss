@@ -2,6 +2,73 @@
 .flash-sale {
   margin-bottom: 1.5rem;
 
+  // ── Show-all button ─────────────────────────────────────────────────────────
+  // Mobile: vertical "see more" tile — last item in the horizontal scroll track
+  &__show-all-wrap {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: stretch;
+    width: 72px;
+  }
+
+  &__show-all-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    width: 100%;
+    min-height: 200px;
+    padding: 1rem .5rem;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(160deg, #00BFA5 0%, #00897B 100%);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,191,165,.35);
+    transition: opacity .18s, transform .18s;
+
+    &:hover  { opacity: .88; }
+    &:active { transform: scale(.96); }
+  }
+
+  &__show-all-text { display: none; }
+  &__chevron-icon  { display: none; }
+  &__more-icon     { display: block; opacity: .95; }
+
+  // Tablet+: full-row pill below the grid
+  @media (min-width: 768px) {
+    &__show-all-wrap {
+      grid-column: 1 / -1;
+      width: auto;
+      align-items: center;
+      justify-content: center;
+      margin-top: .5rem;
+    }
+
+    &__show-all-btn {
+      flex-direction: row;
+      min-height: unset;
+      width: auto;
+      padding: .55rem 1.4rem;
+      border-radius: 999px;
+      background: transparent;
+      color: #00BFA5;
+      border: 1.5px solid #00BFA5;
+      box-shadow: none;
+      font-size: .9rem;
+      font-weight: 600;
+      gap: .4rem;
+
+      &:hover { background: #00BFA5; color: #fff; opacity: 1; }
+    }
+
+    &__show-all-text { display: inline; }
+    &__chevron-icon  { display: block; }
+    &__more-icon     { display: none; }
+  }
+
   // ── Header ─────────────────────────────────────────────────────────────────
   &__header {
     display: flex;

@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -26,66 +25,146 @@ import java.util.UUID;
 @Transactional
 public class SettingServiceImpl implements SettingService {
 
-    private static final String LOGO_KEY = "app_logo";
-    private static final List<String> ALLOWED_EXTENSIONS = List.of(".png", ".jpg", ".jpeg", ".svg", ".webp");
-    private static final long MAX_SIZE_BYTES = 2L * 1024 * 1024; // 2 MB
+    private static final String LOGO_KEY              = "app_logo";
+    private static final String APP_NAME_KEY          = "app_name";
+    private static final String FAVICON_KEY           = "favicon";
+    private static final String HOMEPAGE_LIMIT_KEY    = "homepage_discount_limit";
+    private static final int    DEFAULT_HOMEPAGE_LIMIT = 5;
+
+    private static final List<String> LOGO_EXTENSIONS    = List.of(".png", ".jpg", ".jpeg", ".svg", ".webp");
+    private static final List<String> FAVICON_EXTENSIONS = List.of(".ico", ".png");
+
+    private static final long LOGO_MAX_BYTES    = 2L * 1024 * 1024; // 2 MB
+    private static final long FAVICON_MAX_BYTES = 1L * 1024 * 1024; // 1 MB
 
     private final AppSettingRepository settingRepository;
 
     @Value("${app.upload.dir:./uploads}")
     private String uploadDir;
 
+    // ── Logo ─────────────────────────────────────────────────────────────────
+
     @Override
     @Transactional(readOnly = true)
     public SettingDTO.Response getLogo() {
-        return settingRepository.findByKey(LOGO_KEY)
-                .map(this::toResponse)
-                .orElse(SettingDTO.Response.builder().key(LOGO_KEY).value(null).build());
+        return getOrEmpty(LOGO_KEY);
     }
 
     @Override
     public SettingDTO.Response updateLogoUrl(String url) {
-        AppSetting setting = settingRepository.findByKey(LOGO_KEY)
-                .orElse(AppSetting.builder().key(LOGO_KEY).build());
-        setting.setValue(url);
-        return toResponse(settingRepository.save(setting));
+        return upsert(LOGO_KEY, url);
     }
 
     @Override
     public SettingDTO.Response uploadLogo(MultipartFile file) {
+        validateFile(file, LOGO_EXTENSIONS, LOGO_MAX_BYTES, "Logo");
+        String url = saveFile(file, LOGO_KEY, "logo_");
+        return upsert(LOGO_KEY, url);
+    }
+
+    // ── App Name ─────────────────────────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public SettingDTO.Response getAppName() {
+        return getOrDefault(APP_NAME_KEY, "EvTrend");
+    }
+
+    @Override
+    public SettingDTO.Response updateAppName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new BusinessException("App name cannot be empty");
+        }
+        return upsert(APP_NAME_KEY, name.trim());
+    }
+
+    // ── Favicon ──────────────────────────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public SettingDTO.Response getFavicon() {
+        return getOrEmpty(FAVICON_KEY);
+    }
+
+    @Override
+    public SettingDTO.Response uploadFavicon(MultipartFile file) {
+        validateFile(file, FAVICON_EXTENSIONS, FAVICON_MAX_BYTES, "Favicon");
+        String url = saveFile(file, FAVICON_KEY, "favicon_");
+        return upsert(FAVICON_KEY, url);
+    }
+
+    // ── Homepage ──────────────────────────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public SettingDTO.HomepageSettings getHomepageSettings() {
+        int limit = settingRepository.findByKey(HOMEPAGE_LIMIT_KEY)
+                .map(s -> {
+                    try { return Integer.parseInt(s.getValue()); }
+                    catch (NumberFormatException e) { return DEFAULT_HOMEPAGE_LIMIT; }
+                })
+                .orElse(DEFAULT_HOMEPAGE_LIMIT);
+        return SettingDTO.HomepageSettings.builder()
+                .homepageDiscountLimit(limit)
+                .build();
+    }
+
+    @Override
+    public SettingDTO.Response updateHomepageDiscountLimit(int limit) {
+        if (limit < 1) throw new BusinessException("Limit must be at least 1");
+        return upsert(HOMEPAGE_LIMIT_KEY, String.valueOf(limit));
+    }
+
+    // ── Shared helpers ────────────────────────────────────────────────────────
+
+    private SettingDTO.Response getOrEmpty(String key) {
+        return settingRepository.findByKey(key)
+                .map(this::toResponse)
+                .orElse(SettingDTO.Response.builder().key(key).value(null).build());
+    }
+
+    private SettingDTO.Response getOrDefault(String key, String defaultValue) {
+        return settingRepository.findByKey(key)
+                .map(this::toResponse)
+                .orElse(SettingDTO.Response.builder().key(key).value(defaultValue).build());
+    }
+
+    private SettingDTO.Response upsert(String key, String value) {
+        AppSetting setting = settingRepository.findByKey(key)
+                .orElse(AppSetting.builder().key(key).build());
+        setting.setValue(value);
+        return toResponse(settingRepository.save(setting));
+    }
+
+    private void validateFile(MultipartFile file, List<String> allowedExts, long maxBytes, String label) {
         if (file == null || file.isEmpty()) {
-            throw new BusinessException("File is required");
+            throw new BusinessException(label + " file is required");
         }
-        if (file.getSize() > MAX_SIZE_BYTES) {
-            throw new BusinessException("File size must be less than 2MB");
+        if (file.getSize() > maxBytes) {
+            throw new BusinessException(label + " file must be less than " + (maxBytes / 1024 / 1024) + "MB");
         }
-
-        String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        String extension = originalFilename.contains(".")
-                ? originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase()
-                : "";
-
-        if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new BusinessException("Only PNG, JPG, SVG, and WEBP files are allowed");
+        String ext = extension(file.getOriginalFilename());
+        if (!allowedExts.contains(ext)) {
+            throw new BusinessException(label + " must be one of: " + String.join(", ", allowedExts));
         }
+    }
 
+    /** Saves the file, deletes the old one for the given key, returns the URL path. */
+    private String saveFile(MultipartFile file, String key, String prefix) {
         try {
             Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
             Files.createDirectories(uploadPath);
 
-            // Delete previous managed logo file
-            settingRepository.findByKey(LOGO_KEY).ifPresent(s -> deleteFile(s.getValue()));
+            settingRepository.findByKey(key).ifPresent(s -> deleteFile(s.getValue()));
 
-            String fileName = "logo_" + UUID.randomUUID() + extension;
+            String fileName = prefix + UUID.randomUUID() + extension(file.getOriginalFilename());
             Files.copy(file.getInputStream(), uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 
-            return updateLogoUrl("/uploads/" + fileName);
+            return "/uploads/" + fileName;
         } catch (IOException ex) {
-            throw new BusinessException("Could not save logo: " + ex.getMessage());
+            throw new BusinessException("Could not save file: " + ex.getMessage());
         }
     }
-
-    // ── Helpers ──────────────────────────────────────────────
 
     private void deleteFile(String url) {
         if (url == null || url.isBlank() || !url.startsWith("/uploads/")) return;
@@ -94,6 +173,14 @@ public class SettingServiceImpl implements SettingService {
             Path filePath = Paths.get(uploadDir).toAbsolutePath().normalize().resolve(filename);
             Files.deleteIfExists(filePath);
         } catch (IOException ignored) {}
+    }
+
+    private String extension(String filename) {
+        if (filename == null || filename.isBlank()) return "";
+        String clean = StringUtils.cleanPath(filename);
+        return clean.contains(".")
+                ? clean.substring(clean.lastIndexOf('.')).toLowerCase()
+                : "";
     }
 
     private SettingDTO.Response toResponse(AppSetting s) {

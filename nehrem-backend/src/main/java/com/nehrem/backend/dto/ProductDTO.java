@@ -58,8 +58,6 @@ public class ProductDTO {
         private String categoryName;
         private Boolean active;
         private LocalDateTime createdAt;
-        private Long reviewCount;
-        private Double averageRating;
         private Long viewCount;
         /** Latest batch purchase price. Admin-only — not shown on public shop. */
         private BigDecimal purchasePrice;

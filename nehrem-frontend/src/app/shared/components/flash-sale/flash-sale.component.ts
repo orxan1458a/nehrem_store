@@ -2,9 +2,10 @@ import {
   Component, OnInit, OnDestroy, Output, EventEmitter, inject, signal, computed
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductService } from '../../../core/services/product.service';
-import { CartService }    from '../../../core/services/cart.service';
-import { Product }        from '../../../core/models/product.model';
+import { ProductService }  from '../../../core/services/product.service';
+import { CartService }     from '../../../core/services/cart.service';
+import { HomepageService } from '../../../core/services/homepage.service';
+import { Product }         from '../../../core/models/product.model';
 
 interface FlashCard {
   product: Product;
@@ -24,33 +25,52 @@ interface FlashCard {
   styleUrl: './flash-sale.component.scss'
 })
 export class FlashSaleComponent implements OnInit, OnDestroy {
-  @Output() cardClick  = new EventEmitter<Product>();
-  @Output() addToCart  = new EventEmitter<Product>();
+  @Output() cardClick = new EventEmitter<Product>();
+  @Output() addToCart = new EventEmitter<Product>();
 
-  private productSvc = inject(ProductService);
-  private cartSvc    = inject(CartService);
+  private productSvc  = inject(ProductService);
+  private cartSvc     = inject(CartService);
+  private homepageSvc = inject(HomepageService);
 
-  cards     = signal<FlashCard[]>([]);
-  loading   = signal(true);
-  toastMsg  = signal('');
+  cards    = signal<FlashCard[]>([]);
+  loading  = signal(true);
+  toastMsg = signal('');
+  showAll  = signal(false);
+
+  /** Active (non-expired) cards */
+  private activeCards = computed(() => this.cards().filter(c => !c.expired));
+
+  /** Cards visible based on limit or showAll */
+  displayedCards = computed(() => {
+    const active = this.activeCards();
+    if (this.showAll()) return active;
+    const limit = this.homepageSvc.homepageDiscountLimit$.value;
+    return active.slice(0, limit);
+  });
+
+  /** True when there are hidden cards to reveal */
+  hasMore = computed(() =>
+    !this.showAll() &&
+    this.activeCards().length > this.homepageSvc.homepageDiscountLimit$.value
+  );
+
+  get hasCards(): boolean { return this.activeCards().length > 0; }
 
   private _tick:    ReturnType<typeof setInterval> | null = null;
   private _refresh: ReturnType<typeof setInterval> | null = null;
 
-  get hasCards(): boolean { return this.cards().some(c => !c.expired); }
-
   ngOnInit(): void {
     this._load();
-    // Refresh the list every 60 s to pick up newly added flash deals or truly expired ones
     this._refresh = setInterval(() => this._load(), 60_000);
-    // Tick countdown every second
-    this._tick = setInterval(() => this._tickAll(), 1000);
+    this._tick    = setInterval(() => this._tickAll(), 1000);
   }
 
   ngOnDestroy(): void {
     if (this._tick)    clearInterval(this._tick);
     if (this._refresh) clearInterval(this._refresh);
   }
+
+  showAllCards(): void { this.showAll.set(true); }
 
   private _load(): void {
     this.productSvc.getFlashSale().subscribe({
@@ -63,8 +83,7 @@ export class FlashSaleComponent implements OnInit, OnDestroy {
   }
 
   private _toCard(product: Product): FlashCard {
-    const parts = this._computeParts(product);
-    return { product, ...parts };
+    return { product, ...this._computeParts(product) };
   }
 
   private _computeParts(product: Product): { d: string; h: string; m: string; s: string; mode: 'hms' | 'dhm'; expired: boolean } {
@@ -75,25 +94,20 @@ export class FlashSaleComponent implements OnInit, OnDestroy {
     const totalSec = Math.floor(ms / 1000);
     const totalH   = Math.floor(totalSec / 3600);
     if (totalH >= 24) {
-      const d = Math.floor(totalH / 24);
-      const h = totalH % 24;
-      const m = Math.floor((totalSec % 3600) / 60);
       return {
-        d: String(d).padStart(2, '0'),
-        h: String(h).padStart(2, '0'),
-        m: String(m).padStart(2, '0'),
-        s: '00',
+        d:    String(Math.floor(totalH / 24)).padStart(2, '0'),
+        h:    String(totalH % 24).padStart(2, '0'),
+        m:    String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0'),
+        s:    '00',
         mode: 'dhm',
         expired: false
       };
     }
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
     return {
-      d: '00',
-      h: String(totalH).padStart(2, '0'),
-      m: String(m).padStart(2, '0'),
-      s: String(s).padStart(2, '0'),
+      d:    '00',
+      h:    String(totalH).padStart(2, '0'),
+      m:    String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0'),
+      s:    String(totalSec % 60).padStart(2, '0'),
       mode: 'hms',
       expired: false
     };

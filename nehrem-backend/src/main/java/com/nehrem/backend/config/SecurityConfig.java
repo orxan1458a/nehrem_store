@@ -42,10 +42,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,  "/api/orders").permitAll()
                 .requestMatchers(HttpMethod.GET,   "/api/orders/*").permitAll()
                 .requestMatchers(HttpMethod.POST,  "/api/products/*/view").permitAll()
-                .requestMatchers(HttpMethod.POST,  "/api/visitor/**").permitAll()
-                .requestMatchers(HttpMethod.GET,   "/api/visitor/**").permitAll()
+                .requestMatchers(HttpMethod.POST,  "/api/visitors/ping").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers(HttpMethod.GET,   "/api/settings/logo").permitAll()
+                .requestMatchers(HttpMethod.GET,   "/api/settings/app-name").permitAll()
+                .requestMatchers(HttpMethod.GET,   "/api/settings/favicon").permitAll()
+                .requestMatchers(HttpMethod.GET,   "/api/settings/homepage").permitAll()
 
                 // ── Admin ────────────────────────────────────────────────────
                 .requestMatchers(HttpMethod.PUT,  "/api/settings/**").hasRole("ADMIN")
@@ -61,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
                 .requestMatchers("/api/dashboard/**").hasRole("ADMIN")
                 .requestMatchers("/api/inventory/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/visitors/stats").hasRole("ADMIN")
 
                 // ── User (self-service) ──────────────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/users/change-password").hasRole("ADMIN")

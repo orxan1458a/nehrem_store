@@ -3,7 +3,8 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../../core/services/order.service';
 import { OrderResponse } from '../../../../core/models/order.model';
-import { LogoService } from '../../../../core/services/logo.service';
+import { LogoService }     from '../../../../core/services/logo.service';
+import { BrandingService } from '../../../../core/services/branding.service';
 
 @Component({
   selector: 'app-order-print',
@@ -15,7 +16,8 @@ import { LogoService } from '../../../../core/services/logo.service';
 export class OrderPrintComponent implements OnInit, OnDestroy {
   private route      = inject(ActivatedRoute);
   private orderSvc   = inject(OrderService);
-  logoSvc            = inject(LogoService);
+  logoSvc     = inject(LogoService);
+  brandingSvc = inject(BrandingService);
 
   order: OrderResponse | null = null;
   loading = true;

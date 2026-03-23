@@ -3,7 +3,8 @@ import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { LogoService } from '../../core/services/logo.service';
+import { LogoService }     from '../../core/services/logo.service';
+import { BrandingService } from '../../core/services/branding.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,8 @@ import { LogoService } from '../../core/services/logo.service';
 export class LoginComponent {
   private auth   = inject(AuthService);
   private router = inject(Router);
-  logoSvc = inject(LogoService);
+  logoSvc     = inject(LogoService);
+  brandingSvc = inject(BrandingService);
 
   username = signal('');
   password = signal('');

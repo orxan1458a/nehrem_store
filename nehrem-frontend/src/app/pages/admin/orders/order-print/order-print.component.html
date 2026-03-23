@@ -16,7 +16,7 @@
             <path d="M17 8C15 10 13 12.5 12 17C14.5 17 16.5 15 17 13C17.5 11 17.5 9.5 17 8Z" fill="#00897B"/>
           </svg>
         }
-        EvTrend
+        {{ brandingSvc.appName$ | async }}
       </div>
       <div class="label__order-id">#{{ order.id }}</div>
     </div>

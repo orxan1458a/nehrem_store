@@ -18,4 +18,12 @@ public class SettingDTO {
         private String value;
         private LocalDateTime updatedAt;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HomepageSettings {
+        private int homepageDiscountLimit;
+    }
 }

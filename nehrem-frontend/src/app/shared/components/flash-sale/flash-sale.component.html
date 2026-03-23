@@ -18,106 +18,123 @@
 
     <!-- Cards track -->
     <div class="flash-sale__track">
-      @for (card of cards(); track card.product.id) {
-        @if (!card.expired) {
-          <article class="flash-deal" (click)="onCardClick(card.product)"
-                   [class.flash-deal--oos]="card.product.stockQuantity <= 0">
+      @for (card of displayedCards(); track card.product.id) {
+        <article class="flash-deal" (click)="onCardClick(card.product)"
+                 [class.flash-deal--oos]="card.product.stockQuantity <= 0">
 
-            <!-- Discount badge -->
-            <div class="flash-deal__badge">
-              -{{ discountPercent(card.product) }}%
-            </div>
+          <!-- Discount badge -->
+          <div class="flash-deal__badge">
+            -{{ discountPercent(card.product) }}%
+          </div>
 
-            <!-- Image -->
-            <div class="flash-deal__image-wrap">
-              @if (card.product.imageUrl) {
-                <img [src]="'http://localhost:8080' + card.product.imageUrl"
-                     [alt]="card.product.name"
-                     class="flash-deal__image"
-                     loading="lazy">
+          <!-- Image -->
+          <div class="flash-deal__image-wrap">
+            @if (card.product.imageUrl) {
+              <img [src]="'http://localhost:8080' + card.product.imageUrl"
+                   [alt]="card.product.name"
+                   class="flash-deal__image"
+                   loading="lazy">
+            } @else {
+              <div class="flash-deal__image-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+              </div>
+            }
+            @if (card.product.stockQuantity <= 0) {
+              <div class="flash-deal__oos-overlay">Stokda yoxdur</div>
+            }
+          </div>
+
+          <!-- Body -->
+          <div class="flash-deal__body">
+            @if (card.product.categoryName) {
+              <span class="flash-deal__cat">{{ card.product.categoryName }}</span>
+            }
+            <h3 class="flash-deal__name">{{ card.product.name }}</h3>
+
+            <!-- Countdown -->
+            <div class="flash-deal__timer" aria-label="Qalan vaxt">
+              @if (card.mode === 'dhm') {
+                <div class="timer-block">
+                  <span class="timer-block__num">{{ card.d }}</span>
+                  <span class="timer-block__label">gün</span>
+                </div>
+                <span class="timer-colon">:</span>
+                <div class="timer-block">
+                  <span class="timer-block__num">{{ card.h }}</span>
+                  <span class="timer-block__label">saat</span>
+                </div>
+                <span class="timer-colon">:</span>
+                <div class="timer-block">
+                  <span class="timer-block__num">{{ card.m }}</span>
+                  <span class="timer-block__label">dəq</span>
+                </div>
               } @else {
-                <div class="flash-deal__image-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                    <line x1="3" y1="6" x2="21" y2="6"/>
-                    <path d="M16 10a4 4 0 0 1-8 0"/>
-                  </svg>
+                <div class="timer-block">
+                  <span class="timer-block__num">{{ card.h }}</span>
+                  <span class="timer-block__label">saat</span>
+                </div>
+                <span class="timer-colon">:</span>
+                <div class="timer-block">
+                  <span class="timer-block__num">{{ card.m }}</span>
+                  <span class="timer-block__label">dəq</span>
+                </div>
+                <span class="timer-colon">:</span>
+                <div class="timer-block">
+                  <span class="timer-block__num">{{ card.s }}</span>
+                  <span class="timer-block__label">san</span>
                 </div>
               }
-              @if (card.product.stockQuantity <= 0) {
-                <div class="flash-deal__oos-overlay">Stokda yoxdur</div>
-              }
             </div>
 
-            <!-- Body -->
-            <div class="flash-deal__body">
-              @if (card.product.categoryName) {
-                <span class="flash-deal__cat">{{ card.product.categoryName }}</span>
-              }
-              <h3 class="flash-deal__name">{{ card.product.name }}</h3>
-
-              <!-- Countdown -->
-              <div class="flash-deal__timer" aria-label="Qalan vaxt">
-                @if (card.mode === 'dhm') {
-                  <div class="timer-block">
-                    <span class="timer-block__num">{{ card.d }}</span>
-                    <span class="timer-block__label">gün</span>
-                  </div>
-                  <span class="timer-colon">:</span>
-                  <div class="timer-block">
-                    <span class="timer-block__num">{{ card.h }}</span>
-                    <span class="timer-block__label">saat</span>
-                  </div>
-                  <span class="timer-colon">:</span>
-                  <div class="timer-block">
-                    <span class="timer-block__num">{{ card.m }}</span>
-                    <span class="timer-block__label">dəq</span>
-                  </div>
-                } @else {
-                  <div class="timer-block">
-                    <span class="timer-block__num">{{ card.h }}</span>
-                    <span class="timer-block__label">saat</span>
-                  </div>
-                  <span class="timer-colon">:</span>
-                  <div class="timer-block">
-                    <span class="timer-block__num">{{ card.m }}</span>
-                    <span class="timer-block__label">dəq</span>
-                  </div>
-                  <span class="timer-colon">:</span>
-                  <div class="timer-block">
-                    <span class="timer-block__num">{{ card.s }}</span>
-                    <span class="timer-block__label">san</span>
-                  </div>
-                }
-              </div>
-
-              <!-- Prices -->
-              <div class="flash-deal__price-row">
-                <span class="flash-deal__price-new">
-                  {{ (card.product.discountPrice ?? card.product.price) | number:'1.2-2' }} ₼
+            <!-- Prices -->
+            <div class="flash-deal__price-row">
+              <span class="flash-deal__price-new">
+                {{ (card.product.discountPrice ?? card.product.price) | number:'1.2-2' }} ₼
+              </span>
+              @if (card.product.discountPrice) {
+                <span class="flash-deal__price-old">
+                  {{ card.product.price | number:'1.2-2' }} ₼
                 </span>
-                @if (card.product.discountPrice) {
-                  <span class="flash-deal__price-old">
-                    {{ card.product.price | number:'1.2-2' }} ₼
-                  </span>
-                }
-              </div>
-
-              <!-- Add to cart -->
-              <button class="flash-deal__cart-btn"
-                      [disabled]="card.product.stockQuantity <= 0"
-                      (click)="onAddToCart($event, card.product)"
-                      aria-label="Səbətə əlavə et">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-                  <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                </svg>
-                {{ card.product.stockQuantity <= 0 ? 'Bitdi' : 'Əlavə et' }}
-              </button>
+              }
             </div>
-          </article>
-        }
+
+            <!-- Add to cart -->
+            <button class="flash-deal__cart-btn"
+                    [disabled]="card.product.stockQuantity <= 0"
+                    (click)="onAddToCart($event, card.product)"
+                    aria-label="Səbətə əlavə et">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              {{ card.product.stockQuantity <= 0 ? 'Bitdi' : 'Əlavə et' }}
+            </button>
+          </div>
+        </article>
+      }
+
+      <!-- Show-all: last item in track on mobile, full-row on tablet+ -->
+      @if (hasMore()) {
+        <div class="flash-sale__show-all-wrap">
+          <button class="flash-sale__show-all-btn" (click)="showAllCards()">
+            <!-- mobile: right-arrow card -->
+            <svg class="flash-sale__more-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="flash-sale__show-all-text">Hamısını göstər</span>
+            <!-- tablet+: chevron down -->
+            <svg class="flash-sale__chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+        </div>
       }
     </div>
 

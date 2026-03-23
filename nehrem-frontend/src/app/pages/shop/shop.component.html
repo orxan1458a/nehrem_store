@@ -144,14 +144,16 @@
 @if (selectedProduct(); as p) {
   <div class="sheet-backdrop" (click)="closeDetail()"></div>
   <div class="sheet">
-    <div class="sheet__drag-handle"></div>
 
-    <!-- Close -->
-    <button class="sheet__close" (click)="closeDetail()" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
+    <!-- Sticky top bar: drag handle + close -->
+    <div class="sheet__top">
+      <div class="sheet__drag-handle"></div>
+      <button class="sheet__close" (click)="closeDetail()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
 
     <!-- Image -->
     <div class="sheet__image-wrap">
