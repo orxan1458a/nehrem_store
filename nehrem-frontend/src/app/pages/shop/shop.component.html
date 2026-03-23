@@ -7,7 +7,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
           <rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
         </svg>
-        15₼-dan pulsuz çatdırılma
+        {{ deliverySvc.settings().freeDeliveryThreshold }}₼-dan pulsuz çatdırılma
       </p>
       <h1 class="hero__title">Evinizi <span>Gözəlləşdirin</span></h1>
       <p class="hero__sub">Keyfiyyətli ev məhsulları, sərfəli qiymətlər</p>
@@ -111,7 +111,7 @@
   <div class="promo-banner">
     <div class="promo-banner__content">
       <p class="promo-banner__label">MƏHDUDİYYƏTLİ TƏKLİF</p>
-      <h3 class="promo-banner__title">15₼-dan yuxarı sifarişlərə<br>pulsuz çatdırılma!</h3>
+      <h3 class="promo-banner__title">{{ deliverySvc.settings().freeDeliveryThreshold }}₼-dan yuxarı sifarişlərə<br>pulsuz çatdırılma!</h3>
       <button class="promo-banner__btn" (click)="goToCart()">İndi əldə et</button>
     </div>
     <div class="promo-banner__illustration">

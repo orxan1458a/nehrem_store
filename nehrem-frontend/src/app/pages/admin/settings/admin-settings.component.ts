@@ -6,6 +6,7 @@ import { BrandingService } from '../../../core/services/branding.service';
 import { HomepageService } from '../../../core/services/homepage.service';
 import { UserService }     from '../../../core/services/user.service';
 import { ContactService, ContactSettings } from '../../../core/services/contact.service';
+import { DeliveryService } from '../../../core/services/delivery.service';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const np = group.get('newPassword')?.value;
@@ -187,6 +188,58 @@ function optionalUrl(ctrl: AbstractControl): ValidationErrors | null {
         @if (limitError())   { <div class="alert alert--error">{{ limitError() }}</div> }
 
         <p class="hint">Minimum 1, maksimum 50. "Hamısını göstər" düyməsi bu limitdən sonra görünür.</p>
+      </div>
+
+      <!-- ── Delivery Settings ─────────────────────────────────────────── -->
+      <div class="settings-card">
+        <h2 class="settings-card__heading">Çatdırılma Tənzimləmələri</h2>
+
+        @if (deliverySuccess()) { <div class="alert alert--success">{{ deliverySuccess() }}</div> }
+        @if (deliveryError())   { <div class="alert alert--error">{{ deliveryError() }}</div> }
+
+        <div class="delivery-row">
+          <div class="delivery-row__label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <polyline points="20 12 20 22 4 22 4 12"/>
+              <rect x="2" y="7" width="20" height="5" rx="1"/>
+              <path d="M12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+            <span>Pulsuz çatdırılma həddi (₼)</span>
+          </div>
+          <input class="text-input text-input--sm" type="number"
+                 [(ngModel)]="deliveryThresholdInput"
+                 min="0" step="0.5" placeholder="məs. 15" />
+        </div>
+
+        <div class="delivery-row">
+          <div class="delivery-row__label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <rect x="1" y="3" width="15" height="13" rx="1"/>
+              <path d="M16 8h4l3 5v3h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <span>Çatdırılma haqqı (₼)</span>
+          </div>
+          <input class="text-input text-input--sm" type="number"
+                 [(ngModel)]="deliveryFeeInput"
+                 min="0" step="0.5" placeholder="məs. 2" />
+        </div>
+
+        <p class="hint" style="margin-top:.5rem">
+          Cari: həddin <strong>{{ deliverySvc.settings().freeDeliveryThreshold }} ₼</strong>,
+          haqq <strong>{{ deliverySvc.settings().deliveryFee }} ₼</strong>
+        </p>
+
+        <div class="actions" style="margin-top:.75rem">
+          <button class="btn btn--primary"
+                  [disabled]="deliveryThresholdInput < 0 || deliveryFeeInput < 0 || deliverySaving()"
+                  (click)="saveDelivery()">
+            @if (deliverySaving()) { <span class="spinner"></span> Saxlanılır... }
+            @else { Saxla }
+          </button>
+        </div>
       </div>
 
       <!-- ── Contact & Social ───────────────────────────────────────────── -->
@@ -607,12 +660,37 @@ function optionalUrl(ctrl: AbstractControl): ValidationErrors | null {
       display: flex;
       justify-content: flex-end;
     }
+
+    /* Delivery rows */
+    .delivery-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .75rem;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+      border-radius: 10px;
+      margin-bottom: .6rem;
+
+      &__label {
+        display: flex;
+        align-items: center;
+        gap: .45rem;
+        flex: 1;
+        font-size: .85rem;
+        font-weight: 600;
+        color: #444;
+        svg { color: #00897B; flex-shrink: 0; }
+      }
+    }
+    .text-input--sm { width: 90px; flex: none; }
   `]
 })
 export class AdminSettingsComponent implements OnInit {
   logoSvc     = inject(LogoService);
   brandingSvc = inject(BrandingService);
   homepageSvc = inject(HomepageService);
+  deliverySvc = inject(DeliveryService);
   private userSvc    = inject(UserService);
   private fb         = inject(FormBuilder);
   private contactSvc = inject(ContactService);
@@ -635,6 +713,13 @@ export class AdminSettingsComponent implements OnInit {
   limitSaving        = signal(false);
   limitSuccess       = signal('');
   limitError         = signal('');
+
+  // ── Delivery state ──────────────────────────────────────────────────────
+  deliveryThresholdInput = 0;
+  deliveryFeeInput       = 0;
+  deliverySaving         = signal(false);
+  deliverySuccess        = signal('');
+  deliveryError          = signal('');
 
   // ── Password state ──────────────────────────────────────────────────────
   pwdSubmitting = signal(false);
@@ -675,6 +760,17 @@ export class AdminSettingsComponent implements OnInit {
   // ── Logo handlers ───────────────────────────────────────────────────────
 
   ngOnInit(): void {
+    const ds = this.deliverySvc.settings();
+    this.deliveryThresholdInput = ds.freeDeliveryThreshold;
+    this.deliveryFeeInput       = ds.deliveryFee;
+    this.deliverySvc.get().subscribe({
+      next: res => {
+        this.deliveryThresholdInput = res.data.freeDeliveryThreshold;
+        this.deliveryFeeInput       = res.data.deliveryFee;
+      },
+      error: () => {}
+    });
+
     this.contactSvc.get().subscribe({
       next: res => {
         const d = res.data;
@@ -782,6 +878,28 @@ export class AdminSettingsComponent implements OnInit {
       error: err => {
         this.faviconUploading.set(false);
         this.faviconError.set(err?.error?.message ?? 'Favicon yüklənərkən xəta baş verdi.');
+      }
+    });
+  }
+
+  // ── Delivery handler ────────────────────────────────────────────────────
+
+  saveDelivery(): void {
+    if (this.deliveryThresholdInput < 0 || this.deliveryFeeInput < 0) return;
+    this.deliverySaving.set(true);
+    this.deliverySuccess.set('');
+    this.deliveryError.set('');
+    this.deliverySvc.update({
+      freeDeliveryThreshold: Number(this.deliveryThresholdInput),
+      deliveryFee:           Number(this.deliveryFeeInput)
+    }).subscribe({
+      next: () => {
+        this.deliverySaving.set(false);
+        this.deliverySuccess.set('Çatdırılma tənzimləmələri uğurla saxlanıldı!');
+      },
+      error: err => {
+        this.deliverySaving.set(false);
+        this.deliveryError.set(err?.error?.message ?? 'Xəta baş verdi.');
       }
     });
   }

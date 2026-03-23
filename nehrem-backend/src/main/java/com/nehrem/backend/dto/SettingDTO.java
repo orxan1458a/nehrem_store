@@ -43,4 +43,13 @@ public class SettingDTO {
         private String telegram;
         private boolean telegramVisible;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DeliverySettings {
+        private double freeDeliveryThreshold;
+        private double deliveryFee;
+    }
 }

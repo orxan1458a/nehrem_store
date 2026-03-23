@@ -89,4 +89,18 @@ public class SettingController {
         return ResponseEntity.ok(ApiResponse.ok("Contact settings updated",
                 settingService.updateContactSettings(dto)));
     }
+
+    // ── Delivery ──────────────────────────────────────────────────────────────
+
+    @GetMapping("/delivery")
+    public ResponseEntity<ApiResponse<SettingDTO.DeliverySettings>> getDelivery() {
+        return ResponseEntity.ok(ApiResponse.ok(settingService.getDeliverySettings()));
+    }
+
+    @PutMapping("/delivery")
+    public ResponseEntity<ApiResponse<SettingDTO.DeliverySettings>> updateDelivery(
+            @RequestBody SettingDTO.DeliverySettings dto) {
+        return ResponseEntity.ok(ApiResponse.ok("Delivery settings updated",
+                settingService.updateDeliverySettings(dto)));
+    }
 }

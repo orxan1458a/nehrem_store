@@ -152,6 +152,9 @@
   display: none; // hidden on mobile
 
   a {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
     text-decoration: none;
     color: #555;
     font-weight: 600;
@@ -160,6 +163,8 @@
     border-radius: 8px;
     transition: background .15s, color .15s;
     white-space: nowrap;
+
+    svg { flex-shrink: 0; }
 
     &.active,
     &:hover { color: #00BFA5; background: #e6faf7; }

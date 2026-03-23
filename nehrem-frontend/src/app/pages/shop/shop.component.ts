@@ -10,6 +10,7 @@ import { CategoryService } from '../../core/services/category.service';
 import { CartService }     from '../../core/services/cart.service';
 import { AuthService }     from '../../core/services/auth.service';
 import { SearchService }   from '../../core/services/search.service';
+import { DeliveryService } from '../../core/services/delivery.service';
 import { Product, ProductPage } from '../../core/models/product.model';
 import { Category } from '../../core/models/category.model';
 
@@ -26,6 +27,7 @@ export class ShopComponent implements OnInit, OnDestroy {
   protected cartSvc   = inject(CartService);
   protected auth      = inject(AuthService);
   searchSvc           = inject(SearchService);
+  deliverySvc         = inject(DeliveryService);
   private router      = inject(Router);
 
   categories  = signal<Category[]>([]);

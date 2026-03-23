@@ -39,7 +39,11 @@ public class SettingServiceImpl implements SettingService {
     private static final String SOCIAL_TIKTOK_VISIBLE_KEY    = "social_tiktok_visible";
     private static final String SOCIAL_INSTAGRAM_VISIBLE_KEY = "social_instagram_visible";
     private static final String SOCIAL_TELEGRAM_VISIBLE_KEY  = "social_telegram_visible";
+    private static final String DELIVERY_THRESHOLD_KEY       = "delivery_free_threshold";
+    private static final String DELIVERY_FEE_KEY             = "delivery_fee";
     private static final int    DEFAULT_HOMEPAGE_LIMIT = 5;
+    private static final double DEFAULT_FREE_THRESHOLD = 15.0;
+    private static final double DEFAULT_DELIVERY_FEE   = 2.0;
 
     private static final List<String> LOGO_EXTENSIONS    = List.of(".png", ".jpg", ".jpeg", ".svg", ".webp");
     private static final List<String> FAVICON_EXTENSIONS = List.of(".ico", ".png");
@@ -159,6 +163,28 @@ public class SettingServiceImpl implements SettingService {
         return getContactSettings();
     }
 
+    // ── Delivery ─────────────────────────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public SettingDTO.DeliverySettings getDeliverySettings() {
+        return SettingDTO.DeliverySettings.builder()
+                .freeDeliveryThreshold(getDoubleValue(DELIVERY_THRESHOLD_KEY, DEFAULT_FREE_THRESHOLD))
+                .deliveryFee(getDoubleValue(DELIVERY_FEE_KEY, DEFAULT_DELIVERY_FEE))
+                .build();
+    }
+
+    @Override
+    public SettingDTO.DeliverySettings updateDeliverySettings(SettingDTO.DeliverySettings dto) {
+        if (dto.getFreeDeliveryThreshold() < 0)
+            throw new BusinessException("Free delivery threshold must be >= 0");
+        if (dto.getDeliveryFee() < 0)
+            throw new BusinessException("Delivery fee must be >= 0");
+        upsert(DELIVERY_THRESHOLD_KEY, String.valueOf(dto.getFreeDeliveryThreshold()));
+        upsert(DELIVERY_FEE_KEY,       String.valueOf(dto.getDeliveryFee()));
+        return getDeliverySettings();
+    }
+
     // ── Shared helpers ────────────────────────────────────────────────────────
 
     private String getValue(String key) {
@@ -170,6 +196,15 @@ public class SettingServiceImpl implements SettingService {
     private boolean getBoolValue(String key, boolean defaultValue) {
         return settingRepository.findByKey(key)
                 .map(s -> Boolean.parseBoolean(s.getValue()))
+                .orElse(defaultValue);
+    }
+
+    private double getDoubleValue(String key, double defaultValue) {
+        return settingRepository.findByKey(key)
+                .map(s -> {
+                    try { return Double.parseDouble(s.getValue()); }
+                    catch (NumberFormatException e) { return defaultValue; }
+                })
                 .orElse(defaultValue);
     }
 

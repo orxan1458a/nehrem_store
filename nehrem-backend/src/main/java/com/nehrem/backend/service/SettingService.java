@@ -25,4 +25,8 @@ public interface SettingService {
     // ── Contact / Social ────────────────────────────────────
     SettingDTO.ContactSettings getContactSettings();
     SettingDTO.ContactSettings updateContactSettings(SettingDTO.ContactSettings dto);
+
+    // ── Delivery ─────────────────────────────────────────────
+    SettingDTO.DeliverySettings getDeliverySettings();
+    SettingDTO.DeliverySettings updateDeliverySettings(SettingDTO.DeliverySettings dto);
 }
