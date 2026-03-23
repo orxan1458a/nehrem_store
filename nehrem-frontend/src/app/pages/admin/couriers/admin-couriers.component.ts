@@ -4,6 +4,14 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CourierAdminService, CourierResponse } from '../../../core/services/courier-admin.service';
 
+type CourierAction = 'toggle' | 'delete';
+
+interface PendingConfirm {
+  message: string;
+  courier: CourierResponse;
+  action: CourierAction;
+}
+
 @Component({
   selector: 'app-admin-couriers',
   standalone: true,
@@ -15,12 +23,13 @@ export class AdminCouriersComponent implements OnInit {
   private courierSvc = inject(CourierAdminService);
   private fb         = inject(FormBuilder);
 
-  couriers   = signal<CourierResponse[]>([]);
-  loading    = signal(true);
-  showForm   = signal(false);
-  editingId  = signal<number | null>(null);
-  submitting = signal(false);
-  error      = signal('');
+  couriers       = signal<CourierResponse[]>([]);
+  loading        = signal(true);
+  showForm       = signal(false);
+  editingId      = signal<number | null>(null);
+  submitting     = signal(false);
+  error          = signal('');
+  pendingConfirm = signal<PendingConfirm | null>(null);
 
   form = this.fb.group({
     name:     ['', [Validators.required, Validators.maxLength(100)]],
@@ -89,11 +98,36 @@ export class AdminCouriersComponent implements OnInit {
   }
 
   delete(c: CourierResponse): void {
-    if (!confirm(`"${c.name}" adlı kuryeri silmək istəyirsiniz?`)) return;
     this.courierSvc.delete(c.id).subscribe({
       next: () => this.couriers.update(list => list.filter(x => x.id !== c.id)),
-      error: err => alert(err?.error?.message ?? 'Kuryer silinə bilmədi')
+      error: err => this.error.set(err?.error?.message ?? 'Kuryer silinə bilmədi')
     });
+  }
+
+  // ── Confirmation popup ────────────────────────────────────────────────────
+
+  askConfirm(courier: CourierResponse, action: CourierAction): void {
+    this.error.set('');
+    const message = action === 'delete'
+      ? `"${courier.name}" adlı kuryeri silmək istədiyinizə əminsiniz?`
+      : courier.active
+        ? `"${courier.name}" kuryerini deaktiv etmək istədiyinizə əminsiniz?`
+        : `"${courier.name}" kuryerini aktiv etmək istədiyinizə əminsiniz?`;
+    this.pendingConfirm.set({ message, courier, action });
+  }
+
+  confirmPending(): void {
+    const p = this.pendingConfirm();
+    if (!p) return;
+    this.pendingConfirm.set(null);
+    switch (p.action) {
+      case 'toggle': this.toggleActive(p.courier); break;
+      case 'delete': this.delete(p.courier);       break;
+    }
+  }
+
+  dismissPending(): void {
+    this.pendingConfirm.set(null);
   }
 
   hasError(field: string, error = ''): boolean {

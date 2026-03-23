@@ -1,17 +1,4 @@
 <div class="courier-page">
-  <header class="courier-header">
-    <div class="courier-header__brand">
-      <span class="brand-icon">🚚</span>
-      <span class="brand-name">Kuryer Paneli</span>
-    </div>
-    <div class="courier-header__right">
-      @if (courierName()) {
-        <span class="courier-name">{{ courierName() }}</span>
-      }
-      <button class="btn-logout" (click)="logout()">Çıxış</button>
-    </div>
-  </header>
-
   <main class="courier-main">
     <h2 class="section-title">Mənim Sifarişlərim</h2>
     <p class="section-sub">Aşağıdakılar sizə təyin edilmiş sifarişlərdir.</p>
@@ -62,7 +49,7 @@
               @if (order.orderStatus === 'ACCEPTED') {
                 <button class="btn-start-delivery"
                         [disabled]="actionLoading() === order.id"
-                        (click)="startDelivery(order)">
+                        (click)="askConfirm(order, 'start')">
                   {{ actionLoading() === order.id ? 'Göndərilir…' : '🚚 Çatdırmağa başla' }}
                 </button>
               }
@@ -71,7 +58,7 @@
               @if (order.orderStatus === 'OUT_FOR_DELIVERY') {
                 <button class="btn-delivered"
                         [disabled]="actionLoading() === order.id"
-                        (click)="markDelivered(order)">
+                        (click)="askConfirm(order, 'deliver')">
                   {{ actionLoading() === order.id ? 'Göndərilir…' : 'Çatdırıldı ✓' }}
                 </button>
 
@@ -85,7 +72,7 @@
                   />
                   <button class="btn-fail"
                           [disabled]="actionLoading() === order.id || !getFailReason(order.id).trim()"
-                          (click)="markFailAttempt(order)">
+                          (click)="askConfirm(order, 'fail')">
                     Uğursuz cəhd
                   </button>
                 </div>
@@ -106,3 +93,22 @@
     }
   </main>
 </div>
+
+<!-- ── Confirmation popup ──────────────────────────────────────────────── -->
+@if (pendingConfirm()) {
+<div class="confirm-overlay" (click)="dismissPending()">
+  <div class="confirm-modal" (click)="$event.stopPropagation()">
+    <div class="confirm-modal__head">
+      <h2>Təsdiqləyin</h2>
+      <button class="confirm-modal__close" (click)="dismissPending()">✕</button>
+    </div>
+    <div class="confirm-modal__body">
+      <p>{{ pendingConfirm()!.message }}</p>
+      <div class="confirm-modal__actions">
+        <button class="confirm-btn confirm-btn--cancel" (click)="dismissPending()">Xeyr, ləğv et</button>
+        <button class="confirm-btn confirm-btn--ok" (click)="confirmPending()">Bəli, təsdiqlə</button>
+      </div>
+    </div>
+  </div>
+</div>
+}

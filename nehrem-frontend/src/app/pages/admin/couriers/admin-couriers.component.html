@@ -93,11 +93,11 @@
               </td>
               <td class="actions">
                 <button class="btn-edit"   (click)="openEdit(c)" title="Redaktə et">✏️</button>
-                <button class="btn-toggle" (click)="toggleActive(c)"
+                <button class="btn-toggle" (click)="askConfirm(c, 'toggle')"
                         [title]="c.active ? 'Deaktiv et' : 'Aktiv et'">
                   {{ c.active ? '🔒' : '🔓' }}
                 </button>
-                <button class="btn-delete" (click)="delete(c)" title="Sil">🗑️</button>
+                <button class="btn-delete" (click)="askConfirm(c, 'delete')" title="Sil">🗑️</button>
               </td>
             </tr>
           }
@@ -110,3 +110,24 @@
     </div>
   }
 </div>
+
+<!-- ── Confirmation popup ──────────────────────────────────────────────── -->
+@if (pendingConfirm()) {
+<div class="modal-overlay" (click)="dismissPending()">
+  <div class="modal confirm-modal" (click)="$event.stopPropagation()">
+    <div class="modal__head">
+      <h2>Təsdiqləyin</h2>
+      <button class="modal__close" (click)="dismissPending()">✕</button>
+    </div>
+    <div class="confirm-modal__body">
+      <p>{{ pendingConfirm()!.message }}</p>
+      @if (error()) { <div class="alert-error">{{ error() }}</div> }
+      <div class="modal__actions">
+        <button class="btn-cancel" (click)="dismissPending()">Xeyr, ləğv et</button>
+        <button class="btn-save" [class.btn-danger]="pendingConfirm()!.action === 'delete'"
+                (click)="confirmPending()">Bəli, təsdiqlə</button>
+      </div>
+    </div>
+  </div>
+</div>
+}

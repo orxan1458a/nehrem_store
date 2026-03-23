@@ -1,10 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
 import { OrderService } from '../../core/services/order.service';
 import { OrderResponse } from '../../core/models/order.model';
+
+type CourierAction = 'start' | 'deliver' | 'fail';
+
+interface PendingConfirm {
+  message: string;
+  order: OrderResponse;
+  action: CourierAction;
+}
 
 @Component({
   selector: 'app-courier-orders',
@@ -14,20 +20,17 @@ import { OrderResponse } from '../../core/models/order.model';
   styleUrl: './courier-orders.component.scss'
 })
 export class CourierOrdersComponent implements OnInit {
-  private auth     = inject(AuthService);
   private orderSvc = inject(OrderService);
-  private router   = inject(Router);
 
-  orders        = signal<OrderResponse[]>([]);
-  loading       = signal(true);
-  totalPages    = signal(0);
-  currentPage   = signal(0);
-  actionLoading = signal<number | null>(null);
+  orders         = signal<OrderResponse[]>([]);
+  loading        = signal(true);
+  totalPages     = signal(0);
+  currentPage    = signal(0);
+  actionLoading  = signal<number | null>(null);
+  pendingConfirm = signal<PendingConfirm | null>(null);
 
   /** Per-order fail reason text (populated by the inline input before submitting). */
   failReasons = new Map<number, string>();
-
-  readonly courierName = this.auth.courierName;
 
   ngOnInit(): void { this.loadOrders(); }
 
@@ -95,9 +98,31 @@ export class CourierOrdersComponent implements OnInit {
     this.loadOrders();
   }
 
-  logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+  // ── Confirmation popup ────────────────────────────────────────────────────
+
+  private readonly confirmMessages: Record<CourierAction, string> = {
+    start:   'Çatdırılmağa başlamaq istədiyinizə əminsiniz?',
+    deliver: 'Sifarişi çatdırılmış kimi qeyd etmək istədiyinizə əminsiniz?',
+    fail:    'Uğursuz çatdırılma cəhdini qeyd etmək istədiyinizə əminsiniz?',
+  };
+
+  askConfirm(order: OrderResponse, action: CourierAction): void {
+    this.pendingConfirm.set({ message: this.confirmMessages[action], order, action });
+  }
+
+  confirmPending(): void {
+    const p = this.pendingConfirm();
+    if (!p) return;
+    this.pendingConfirm.set(null);
+    switch (p.action) {
+      case 'start':   this.startDelivery(p.order);  break;
+      case 'deliver': this.markDelivered(p.order);   break;
+      case 'fail':    this.markFailAttempt(p.order); break;
+    }
+  }
+
+  dismissPending(): void {
+    this.pendingConfirm.set(null);
   }
 
   get pages(): number[] {

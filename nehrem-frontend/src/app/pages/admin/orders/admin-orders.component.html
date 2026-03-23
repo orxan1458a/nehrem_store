@@ -66,24 +66,24 @@
               <div class="status-actions">
                 @if (order.orderStatus === 'PENDING') {
                 <button class="btn-action btn-accept" [disabled]="actionLoading() === order.id"
-                  (click)="accept(order)">Qəbul et</button>
+                  (click)="askConfirm(order, 'accept')">Qəbul et</button>
                 <button class="btn-action btn-cancel" [disabled]="actionLoading() === order.id"
-                  (click)="cancel(order)">Ləğv et</button>
+                  (click)="askConfirm(order, 'cancel')">Ləğv et</button>
                 }
                 @if (order.orderStatus === 'ACCEPTED') {
                   @if (order.deliveryMethod === 'PICKUP') {
                   <!-- Store pickup: customer collects — admin marks directly as delivered -->
                   <button class="btn-action btn-deliver" [disabled]="actionLoading() === order.id"
-                    (click)="setStatus(order, 'DELIVERED')">Çatdırıldı</button>
+                    (click)="askConfirm(order, 'deliver')">Çatdırıldı</button>
                   }
                 <button class="btn-action btn-cancel" [disabled]="actionLoading() === order.id"
-                  (click)="cancel(order)">Ləğv et</button>
+                  (click)="askConfirm(order, 'cancel')">Ləğv et</button>
                 }
                 @if (order.orderStatus === 'OUT_FOR_DELIVERY') {
                 <button class="btn-action btn-deliver" [disabled]="actionLoading() === order.id"
-                  (click)="setStatus(order, 'DELIVERED')">Çatdırıldı</button>
+                  (click)="askConfirm(order, 'deliver')">Çatdırıldı</button>
                 <button class="btn-action btn-fail" [disabled]="actionLoading() === order.id"
-                  (click)="markFailAttempt(order)">Uğursuz</button>
+                  (click)="askConfirm(order, 'fail')">Uğursuz</button>
                 }
               </div>
             </div>
@@ -91,9 +91,9 @@
           <td>
             @if (order.orderStatus === 'PENDING' || order.orderStatus === 'ACCEPTED' || order.orderStatus === 'OUT_FOR_DELIVERY') {
             <select class="courier-select" [disabled]="actionLoading() === order.id"
-              [value]="getSelectedCourier(order)"
-              (change)="onCourierChange(order, $event)">
-              <option value="">— Kuryer —</option>
+              [(ngModel)]="courierSelections[order.id]"
+              (ngModelChange)="onCourierChange(order, $event)">
+              <option value="">— Kuryer seçin —</option>
               @for (c of couriers(); track c.id) {
               <option [value]="c.id">{{ c.name }}</option>
               }
@@ -175,3 +175,22 @@
   }
   }
 </div>
+
+<!-- ── Confirmation popup ──────────────────────────────────────────────── -->
+@if (pendingConfirm()) {
+<div class="modal-overlay" (click)="dismissPending()">
+  <div class="modal confirm-modal" (click)="$event.stopPropagation()">
+    <div class="modal__head">
+      <h2>Təsdiqləyin</h2>
+      <button class="modal__close" (click)="dismissPending()">✕</button>
+    </div>
+    <div class="confirm-modal__body">
+      <p>{{ pendingConfirm()!.message }}</p>
+      <div class="modal__actions">
+        <button class="btn-cancel" (click)="dismissPending()">Xeyr, ləğv et</button>
+        <button class="btn-save" (click)="confirmPending()">Bəli, təsdiqlə</button>
+      </div>
+    </div>
+  </div>
+</div>
+}

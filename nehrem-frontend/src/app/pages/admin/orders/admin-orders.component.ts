@@ -5,6 +5,14 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
 import { OrderResponse, OrderStatus, CourierInfo } from '../../../core/models/order.model';
 
+type OrderAction = 'accept' | 'cancel' | 'deliver' | 'fail';
+
+interface PendingConfirm {
+  message: string;
+  order: OrderResponse;
+  action: OrderAction;
+}
+
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
@@ -26,8 +34,11 @@ export class AdminOrdersComponent implements OnInit {
   /** Per-status order counts, e.g. { PENDING: 5, ACCEPTED: 3 }. */
   statusCounts = signal<Record<string, number>>({});
 
-  /** Tracks per-row courier selection for PENDING orders (not yet sent to API). */
-  private courierSelections = new Map<number, number | null>();
+  /** Tracks per-row courier selection keyed by order id. Pre-populated from order.courier on load. */
+  courierSelections: Record<number, number | string> = {};
+
+  /** Holds the pending action waiting for user confirmation. Null means modal is closed. */
+  pendingConfirm = signal<PendingConfirm | null>(null);
 
   readonly filters: Array<{ label: string; value: OrderStatus | 'ALL' }> = [
     { label: 'Hamısı', value: 'ALL' },
@@ -52,6 +63,10 @@ export class AdminOrdersComponent implements OnInit {
       next: (page: any) => {
         this.orders.set(page.content);
         this.totalPages.set(page.totalPages);
+        // Pre-populate courier selections from loaded orders
+        for (const o of page.content) {
+          this.courierSelections[o.id] = o.courier?.id ?? '';
+        }
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
@@ -94,12 +109,13 @@ export class AdminOrdersComponent implements OnInit {
 
   /** Accept a PENDING order, optionally assigning the courier selected in the row dropdown. */
   accept(order: OrderResponse): void {
-    const courierId = this.courierSelections.get(order.id) ?? null;
+    const raw = this.courierSelections[order.id];
+    const courierId = raw ? Number(raw) : null;
     this.actionLoading.set(order.id);
     this.orderSvc.acceptOrder(order.id, courierId).subscribe({
       next: updated => {
         this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
-        this.courierSelections.delete(order.id);
+        this.courierSelections[updated.id] = updated.courier?.id ?? '';
         this.actionLoading.set(null);
         this.loadCounts();
       },
@@ -153,15 +169,16 @@ export class AdminOrdersComponent implements OnInit {
    * - PENDING orders: store selection locally (applied when Accept is clicked).
    * - Other orders: assign courier immediately via API.
    */
-  onCourierChange(order: OrderResponse, event: Event): void {
-    const courierId = Number((event.target as HTMLSelectElement).value) || null;
-    this.courierSelections.set(order.id, courierId);
+  onCourierChange(order: OrderResponse, value: number | string): void {
+    const courierId = value ? Number(value) : null;
+    this.courierSelections[order.id] = value;
 
     if (order.orderStatus !== 'PENDING') {
       this.actionLoading.set(order.id);
       this.orderSvc.assignCourier(order.id, courierId).subscribe({
         next: updated => {
           this.orders.update(list => list.map(o => o.id === updated.id ? updated : o));
+          this.courierSelections[updated.id] = updated.courier?.id ?? '';
           this.actionLoading.set(null);
         },
         error: () => this.actionLoading.set(null)
@@ -169,12 +186,33 @@ export class AdminOrdersComponent implements OnInit {
     }
   }
 
-  /** Returns the locally selected courierId for a given order row, or the already-assigned one. */
-  getSelectedCourier(order: OrderResponse): number | string {
-    if (this.courierSelections.has(order.id)) {
-      return this.courierSelections.get(order.id) ?? '';
+  // ── Confirmation popup ────────────────────────────────────────────────────
+
+  private readonly confirmMessages: Record<OrderAction, string> = {
+    accept:  'Sifarişi qəbul etmək istədiyinizə əminsiniz?',
+    cancel:  'Sifarişi ləğv etmək istədiyinizə əminsiniz?',
+    deliver: 'Sifarişi çatdırılmış kimi qeyd etmək istədiyinizə əminsiniz?',
+    fail:    'Uğursuz çatdırılma qeyd etmək istədiyinizə əminsiniz?',
+  };
+
+  askConfirm(order: OrderResponse, action: OrderAction): void {
+    this.pendingConfirm.set({ message: this.confirmMessages[action], order, action });
+  }
+
+  confirmPending(): void {
+    const p = this.pendingConfirm();
+    if (!p) return;
+    this.pendingConfirm.set(null);
+    switch (p.action) {
+      case 'accept':  this.accept(p.order);                    break;
+      case 'cancel':  this.cancel(p.order);                    break;
+      case 'deliver': this.setStatus(p.order, 'DELIVERED');    break;
+      case 'fail':    this.markFailAttempt(p.order);           break;
     }
-    return order.courier?.id ?? '';
+  }
+
+  dismissPending(): void {
+    this.pendingConfirm.set(null);
   }
 
   statusLabel(status: OrderStatus): string {
