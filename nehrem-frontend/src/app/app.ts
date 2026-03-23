@@ -8,6 +8,7 @@ import { VisitorService } from './core/services/visitor.service';
 import { LogoService } from './core/services/logo.service';
 import { BrandingService }  from './core/services/branding.service';
 import { HomepageService }  from './core/services/homepage.service';
+import { ContactService }    from './core/services/contact.service';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,7 @@ export class App implements OnInit {
   private logoSvc      = inject(LogoService);
   private brandingSvc  = inject(BrandingService);
   private homepageSvc  = inject(HomepageService);
+  private contactSvc   = inject(ContactService);
   private router       = inject(Router);
 
   isPrintPage = signal(false);
@@ -30,6 +32,7 @@ export class App implements OnInit {
     this.brandingSvc.loadAppName();
     this.brandingSvc.loadFavicon();
     this.homepageSvc.loadHomepageSettings();
+    this.contactSvc.load();
 
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)

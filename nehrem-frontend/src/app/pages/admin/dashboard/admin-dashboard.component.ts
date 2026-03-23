@@ -3,6 +3,7 @@ import {
   inject, signal, ViewChild, ElementRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { forkJoin, Subscription, interval } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
@@ -25,7 +26,7 @@ Chart.register(
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
@@ -38,6 +39,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   visitors     = signal<DashboardStats | null>(null);
   loading      = signal(true);
   selectedDays = signal(30);
+  dateFrom     = '';
+  dateTo       = '';
 
   // ── Chart canvas refs ──────────────────────────────────────────────────────
   @ViewChild('ordersChart')  ordersChartRef!:  ElementRef<HTMLCanvasElement>;
@@ -98,7 +101,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   changeDays(days: number): void {
     this.selectedDays.set(days);
+    this.dateFrom = '';
+    this.dateTo   = '';
     this.analyticsSvc.getChartData(days).subscribe(data => this.updateCharts(data));
+  }
+
+  applyDateRange(): void {
+    if (!this.dateFrom || !this.dateTo) return;
+    this.selectedDays.set(0);
+    this.analyticsSvc.getChartData(30, this.dateFrom, this.dateTo)
+      .subscribe(data => this.updateCharts(data));
   }
 
   // ── Chart build & update ───────────────────────────────────────────────────

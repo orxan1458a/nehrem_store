@@ -58,8 +58,11 @@ export class AnalyticsService {
       .pipe(map(r => r.data));
   }
 
-  getChartData(days = 30): Observable<ChartData> {
-    return this.http.get<ApiResponse<ChartData>>(`${this.base}/charts`, { params: { days } })
+  getChartData(days = 30, startDate?: string, endDate?: string): Observable<ChartData> {
+    const params: Record<string, string | number> = startDate && endDate
+      ? { startDate, endDate }
+      : { days };
+    return this.http.get<ApiResponse<ChartData>>(`${this.base}/charts`, { params })
       .pipe(map(r => r.data));
   }
 }

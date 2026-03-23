@@ -8,6 +8,12 @@
         <button [class.active]="selectedDays() === 7"  (click)="changeDays(7)">7g</button>
         <button [class.active]="selectedDays() === 30" (click)="changeDays(30)">30g</button>
       </div>
+      <div class="date-range">
+        <input type="date" class="date-input" [(ngModel)]="dateFrom">
+        <span class="date-range__sep">–</span>
+        <input type="date" class="date-input" [(ngModel)]="dateTo">
+        <button class="date-range__apply" (click)="applyDateRange()" [disabled]="!dateFrom || !dateTo">Axtar</button>
+      </div>
       <span class="live-badge"><span class="live-dot"></span> Canlı</span>
     </div>
   </div>
@@ -217,7 +223,7 @@
       <div class="chart-card">
         <div class="chart-card__head">
           <h3>Tarix üzrə Sifarişlər</h3>
-          <span class="chart-card__sub">Son {{ selectedDays() }} gün</span>
+          <span class="chart-card__sub">{{ dateFrom && dateTo ? (dateFrom + ' – ' + dateTo) : ('Son ' + selectedDays() + ' gün') }}</span>
         </div>
         <div class="chart-card__body">
           <canvas #ordersChart></canvas>
@@ -227,7 +233,7 @@
       <div class="chart-card">
         <div class="chart-card__head">
           <h3>Gəlir Qrafiki</h3>
-          <span class="chart-card__sub">Son {{ selectedDays() }} gün</span>
+          <span class="chart-card__sub">{{ dateFrom && dateTo ? (dateFrom + ' – ' + dateTo) : ('Son ' + selectedDays() + ' gün') }}</span>
         </div>
         <div class="chart-card__body">
           <canvas #revenueChart></canvas>
@@ -266,7 +272,7 @@
       <div class="chart-card" style="grid-column: 1 / -1">
         <div class="chart-card__head">
           <h3>Gəlir / Maya / Mənfəət</h3>
-          <span class="chart-card__sub">Çatdırılmış sifarişlər · Son {{ selectedDays() }} gün</span>
+          <span class="chart-card__sub">Çatdırılmış sifarişlər · {{ dateFrom && dateTo ? (dateFrom + ' – ' + dateTo) : ('Son ' + selectedDays() + ' gün') }}</span>
         </div>
         <div class="chart-card__body">
           <canvas #profitChart></canvas>

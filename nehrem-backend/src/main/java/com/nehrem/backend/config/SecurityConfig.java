@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,   "/api/settings/app-name").permitAll()
                 .requestMatchers(HttpMethod.GET,   "/api/settings/favicon").permitAll()
                 .requestMatchers(HttpMethod.GET,   "/api/settings/homepage").permitAll()
+                .requestMatchers(HttpMethod.GET,   "/api/settings/contact").permitAll()
 
                 // ── Admin ────────────────────────────────────────────────────
                 .requestMatchers(HttpMethod.PUT,  "/api/settings/**").hasRole("ADMIN")

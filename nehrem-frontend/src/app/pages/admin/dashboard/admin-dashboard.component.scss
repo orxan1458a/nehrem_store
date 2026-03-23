@@ -37,6 +37,48 @@
   50%       { opacity: .3; }
 }
 
+// ── Date range ────────────────────────────────────────────────────────────────
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &__sep {
+    color: #999;
+    font-size: .85rem;
+    padding: 0 2px;
+  }
+
+  &__apply {
+    border: none;
+    background: #00BFA5;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    white-space: nowrap;
+
+    &:hover { background: #00897B; }
+    &:disabled { background: #ccc; cursor: not-allowed; }
+  }
+}
+
+.date-input {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: .8rem;
+  color: #333;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+
+  &:focus { border-color: #00BFA5; }
+}
+
 // ── Day filter ────────────────────────────────────────────────────────────────
 .day-filter {
   display: flex;
@@ -313,8 +355,10 @@
   .chart-card__body--doughnut,
   .chart-card__body--bar { height: 240px; }
 
-  .head-right { gap: .5rem; }
+  .head-right { gap: .5rem; flex-wrap: wrap; }
   .day-filter button { padding: 4px 10px; }
+  .date-input { padding: 3px 4px; font-size: .75rem; }
+  .date-range__apply { padding: 4px 8px; font-size: .75rem; }
 }
 
 @media (max-width: 400px) {

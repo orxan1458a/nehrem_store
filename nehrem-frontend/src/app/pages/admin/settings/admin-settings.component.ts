@@ -1,15 +1,35 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule, FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { LogoService }     from '../../../core/services/logo.service';
 import { BrandingService } from '../../../core/services/branding.service';
 import { HomepageService } from '../../../core/services/homepage.service';
 import { UserService }     from '../../../core/services/user.service';
+import { ContactService, ContactSettings } from '../../../core/services/contact.service';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const np = group.get('newPassword')?.value;
   const cp = group.get('confirmPassword')?.value;
   return np && cp && np !== cp ? { passwordsMismatch: true } : null;
+}
+
+function optionalPhone(ctrl: AbstractControl): ValidationErrors | null {
+  const v = ctrl.value;
+  if (!v) return null;
+  return /^\+?[0-9\s\-\(\)]{7,20}$/.test(v) ? null : { phone: true };
+}
+
+function optionalEmail(ctrl: AbstractControl): ValidationErrors | null {
+  const v = ctrl.value;
+  if (!v) return null;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : { email: true };
+}
+
+function optionalUrl(ctrl: AbstractControl): ValidationErrors | null {
+  const v = ctrl.value;
+  if (!v) return null;
+  try { new URL(v); return null; }
+  catch { return { url: true }; }
 }
 
 @Component({
@@ -167,6 +187,145 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
         @if (limitError())   { <div class="alert alert--error">{{ limitError() }}</div> }
 
         <p class="hint">Minimum 1, maksimum 50. "Hamısını göstər" düyməsi bu limitdən sonra görünür.</p>
+      </div>
+
+      <!-- ── Contact & Social ───────────────────────────────────────────── -->
+      <div class="settings-card">
+        <h2 class="settings-card__heading">Əlaqə və Sosial Media</h2>
+
+        @if (contactSuccess()) { <div class="alert alert--success">{{ contactSuccess() }}</div> }
+        @if (contactError())   { <div class="alert alert--error">{{ contactError() }}</div> }
+
+        <form [formGroup]="contactGroup" class="contact-form" (ngSubmit)="saveContact()">
+
+          <!-- Phone -->
+          <div class="contact-row">
+            <div class="contact-row__info">
+              <span class="contact-row__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.58 3.45 2 2 0 0 1 3.56 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </span>
+              <span class="contact-row__label">Telefon</span>
+            </div>
+            <div class="contact-row__body">
+              <input class="text-input" type="tel" formControlName="phone"
+                     placeholder="+994 51 747 69 10"
+                     [class.input--error]="cErr('phone')" />
+              @if (cErr('phone')) {
+                <span class="field-err">Düzgün telefon nömrəsi daxil edin</span>
+              }
+            </div>
+            <label class="toggle" title="Saytda göstər">
+              <input type="checkbox" formControlName="phoneVisible" />
+            </label>
+          </div>
+
+          <!-- Email -->
+          <div class="contact-row">
+            <div class="contact-row__info">
+              <span class="contact-row__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
+              <span class="contact-row__label">E-poçt</span>
+            </div>
+            <div class="contact-row__body">
+              <input class="text-input" type="email" formControlName="email"
+                     placeholder="info@evtrend.az"
+                     [class.input--error]="cErr('email')" />
+              @if (cErr('email')) {
+                <span class="field-err">Düzgün e-poçt ünvanı daxil edin</span>
+              }
+            </div>
+            <label class="toggle" title="Saytda göstər">
+              <input type="checkbox" formControlName="emailVisible" />
+            </label>
+          </div>
+
+          <!-- TikTok -->
+          <div class="contact-row">
+            <div class="contact-row__info">
+              <span class="contact-row__icon contact-row__icon--tiktok">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+                </svg>
+              </span>
+              <span class="contact-row__label">TikTok</span>
+            </div>
+            <div class="contact-row__body">
+              <input class="text-input" type="url" formControlName="tiktok"
+                     placeholder="https://tiktok.com/@profil"
+                     [class.input--error]="cErr('tiktok')" />
+              @if (cErr('tiktok')) {
+                <span class="field-err">Düzgün URL daxil edin (https://...)</span>
+              }
+            </div>
+            <label class="toggle" title="Saytda göstər">
+              <input type="checkbox" formControlName="tiktokVisible" />
+            </label>
+          </div>
+
+          <!-- Instagram -->
+          <div class="contact-row">
+            <div class="contact-row__info">
+              <span class="contact-row__icon contact-row__icon--instagram">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                </svg>
+              </span>
+              <span class="contact-row__label">Instagram</span>
+            </div>
+            <div class="contact-row__body">
+              <input class="text-input" type="url" formControlName="instagram"
+                     placeholder="https://instagram.com/profil"
+                     [class.input--error]="cErr('instagram')" />
+              @if (cErr('instagram')) {
+                <span class="field-err">Düzgün URL daxil edin (https://...)</span>
+              }
+            </div>
+            <label class="toggle" title="Saytda göstər">
+              <input type="checkbox" formControlName="instagramVisible" />
+            </label>
+          </div>
+
+          <!-- Telegram -->
+          <div class="contact-row">
+            <div class="contact-row__info">
+              <span class="contact-row__icon contact-row__icon--telegram">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L6.88 14.07l-2.948-.924c-.64-.203-.654-.64.136-.947l11.527-4.448c.534-.194 1.001.13.967.497z"/>
+                </svg>
+              </span>
+              <span class="contact-row__label">Telegram</span>
+            </div>
+            <div class="contact-row__body">
+              <input class="text-input" type="url" formControlName="telegram"
+                     placeholder="https://t.me/kanal"
+                     [class.input--error]="cErr('telegram')" />
+              @if (cErr('telegram')) {
+                <span class="field-err">Düzgün URL daxil edin (https://...)</span>
+              }
+            </div>
+            <label class="toggle" title="Saytda göstər">
+              <input type="checkbox" formControlName="telegramVisible" />
+            </label>
+          </div>
+
+        </form>
+
+        <div class="contact-save">
+          <button class="btn btn--primary"
+                  [disabled]="contactGroup.invalid || contactSaving()"
+                  (click)="saveContact()">
+            @if (contactSaving()) { <span class="spinner"></span> Saxlanılır... }
+            @else { Saxla }
+          </button>
+        </div>
       </div>
 
       <!-- ── Change Password ────────────────────────────────────────────── -->
@@ -387,14 +546,76 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
       gap: .65rem;
       padding-top: .25rem;
     }
+
+    /* Contact form */
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+      margin-bottom: 1rem;
+    }
+    .contact-row {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      align-items: start;
+      gap: .75rem;
+      padding: .6rem .75rem;
+      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+    }
+    .contact-row__info {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      padding-top: .55rem;
+    }
+    .contact-row__icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: #e0f7f4;
+      color: #00897B;
+      flex-shrink: 0;
+      &--tiktok    { background: #f0f0f0; color: #1a1a1a; }
+      &--instagram { background: #fce4ec; color: #c2185b; }
+      &--telegram  { background: #e3f2fd; color: #1565c0; }
+    }
+    .contact-row__label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+    }
+    .contact-row__body {
+      display: flex;
+      flex-direction: column;
+      gap: .2rem;
+    }
+    .input--error { border-color: #e63946 !important; }
+    /* Toggle switch */
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      padding-top: .55rem;
+      flex-shrink: 0;
+    }
+    .contact-save {
+      display: flex;
+      justify-content: flex-end;
+    }
   `]
 })
-export class AdminSettingsComponent {
+export class AdminSettingsComponent implements OnInit {
   logoSvc     = inject(LogoService);
   brandingSvc = inject(BrandingService);
   homepageSvc = inject(HomepageService);
-  private userSvc = inject(UserService);
-  private fb      = inject(FormBuilder);
+  private userSvc    = inject(UserService);
+  private fb         = inject(FormBuilder);
+  private contactSvc = inject(ContactService);
 
   // ── Logo state ──────────────────────────────────────────────────────────
   logoFile      = signal<File | null>(null);
@@ -433,7 +654,46 @@ export class AdminSettingsComponent {
   faviconSuccess   = signal('');
   faviconError     = signal('');
 
+  // ── Contact / Social state ──────────────────────────────────────────────
+  contactSaving  = signal(false);
+  contactSuccess = signal('');
+  contactError   = signal('');
+
+  contactGroup = this.fb.group({
+    phone:            ['', optionalPhone],
+    phoneVisible:     [true],
+    email:            ['', optionalEmail],
+    emailVisible:     [true],
+    tiktok:           ['', optionalUrl],
+    tiktokVisible:    [true],
+    instagram:        ['', optionalUrl],
+    instagramVisible: [true],
+    telegram:         ['', optionalUrl],
+    telegramVisible:  [true],
+  });
+
   // ── Logo handlers ───────────────────────────────────────────────────────
+
+  ngOnInit(): void {
+    this.contactSvc.get().subscribe({
+      next: res => {
+        const d = res.data;
+        this.contactGroup.patchValue({
+          phone:            d.phone     ?? '',
+          phoneVisible:     d.phoneVisible,
+          email:            d.email     ?? '',
+          emailVisible:     d.emailVisible,
+          tiktok:           d.tiktok    ?? '',
+          tiktokVisible:    d.tiktokVisible,
+          instagram:        d.instagram ?? '',
+          instagramVisible: d.instagramVisible,
+          telegram:         d.telegram  ?? '',
+          telegramVisible:  d.telegramVisible,
+        });
+      },
+      error: () => {}
+    });
+  }
 
   onLogoSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0] ?? null;
@@ -547,6 +807,42 @@ export class AdminSettingsComponent {
         this.limitError.set(err?.error?.message ?? 'Xəta baş verdi.');
       }
     });
+  }
+
+  // ── Contact handlers ────────────────────────────────────────────────────
+
+  saveContact(): void {
+    if (this.contactGroup.invalid) { this.contactGroup.markAllAsTouched(); return; }
+    this.contactSaving.set(true);
+    this.contactSuccess.set('');
+    this.contactError.set('');
+    const v = this.contactGroup.getRawValue();
+    this.contactSvc.update({
+      phone:            v.phone     || null,
+      phoneVisible:     v.phoneVisible ?? true,
+      email:            v.email     || null,
+      emailVisible:     v.emailVisible ?? true,
+      tiktok:           v.tiktok    || null,
+      tiktokVisible:    v.tiktokVisible ?? true,
+      instagram:        v.instagram || null,
+      instagramVisible: v.instagramVisible ?? true,
+      telegram:         v.telegram  || null,
+      telegramVisible:  v.telegramVisible ?? true,
+    }).subscribe({
+      next: () => {
+        this.contactSaving.set(false);
+        this.contactSuccess.set('Əlaqə məlumatları uğurla saxlanıldı!');
+      },
+      error: err => {
+        this.contactSaving.set(false);
+        this.contactError.set(err?.error?.message ?? 'Xəta baş verdi.');
+      }
+    });
+  }
+
+  cErr(field: string): boolean {
+    const ctrl = this.contactGroup.get(field);
+    return !!(ctrl?.invalid && ctrl?.touched);
   }
 
   // ── Password handlers ───────────────────────────────────────────────────

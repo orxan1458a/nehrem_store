@@ -26,4 +26,21 @@ public class SettingDTO {
     public static class HomepageSettings {
         private int homepageDiscountLimit;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ContactSettings {
+        private String phone;
+        private boolean phoneVisible;
+        private String email;
+        private boolean emailVisible;
+        private String tiktok;
+        private boolean tiktokVisible;
+        private String instagram;
+        private boolean instagramVisible;
+        private String telegram;
+        private boolean telegramVisible;
+    }
 }

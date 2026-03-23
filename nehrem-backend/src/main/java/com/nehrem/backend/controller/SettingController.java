@@ -75,4 +75,18 @@ public class SettingController {
         return ResponseEntity.ok(ApiResponse.ok("Limit updated",
                 settingService.updateHomepageDiscountLimit(body.getOrDefault("value", 5))));
     }
+
+    // ── Contact / Social ──────────────────────────────────────────────────────
+
+    @GetMapping("/contact")
+    public ResponseEntity<ApiResponse<SettingDTO.ContactSettings>> getContact() {
+        return ResponseEntity.ok(ApiResponse.ok(settingService.getContactSettings()));
+    }
+
+    @PutMapping("/contact")
+    public ResponseEntity<ApiResponse<SettingDTO.ContactSettings>> updateContact(
+            @RequestBody SettingDTO.ContactSettings dto) {
+        return ResponseEntity.ok(ApiResponse.ok("Contact settings updated",
+                settingService.updateContactSettings(dto)));
+    }
 }

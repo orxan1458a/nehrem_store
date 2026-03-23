@@ -21,4 +21,8 @@ public interface SettingService {
     // ── Homepage ──────────────────────────────────────────────
     SettingDTO.HomepageSettings getHomepageSettings();
     SettingDTO.Response updateHomepageDiscountLimit(int limit);
+
+    // ── Contact / Social ────────────────────────────────────
+    SettingDTO.ContactSettings getContactSettings();
+    SettingDTO.ContactSettings updateContactSettings(SettingDTO.ContactSettings dto);
 }

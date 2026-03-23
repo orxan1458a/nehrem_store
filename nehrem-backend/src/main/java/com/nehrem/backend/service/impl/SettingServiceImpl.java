@@ -29,6 +29,16 @@ public class SettingServiceImpl implements SettingService {
     private static final String APP_NAME_KEY          = "app_name";
     private static final String FAVICON_KEY           = "favicon";
     private static final String HOMEPAGE_LIMIT_KEY    = "homepage_discount_limit";
+    private static final String CONTACT_PHONE_KEY     = "contact_phone";
+    private static final String CONTACT_EMAIL_KEY     = "contact_email";
+    private static final String SOCIAL_TIKTOK_KEY     = "social_tiktok";
+    private static final String SOCIAL_INSTAGRAM_KEY  = "social_instagram";
+    private static final String SOCIAL_TELEGRAM_KEY   = "social_telegram";
+    private static final String CONTACT_PHONE_VISIBLE_KEY    = "contact_phone_visible";
+    private static final String CONTACT_EMAIL_VISIBLE_KEY    = "contact_email_visible";
+    private static final String SOCIAL_TIKTOK_VISIBLE_KEY    = "social_tiktok_visible";
+    private static final String SOCIAL_INSTAGRAM_VISIBLE_KEY = "social_instagram_visible";
+    private static final String SOCIAL_TELEGRAM_VISIBLE_KEY  = "social_telegram_visible";
     private static final int    DEFAULT_HOMEPAGE_LIMIT = 5;
 
     private static final List<String> LOGO_EXTENSIONS    = List.of(".png", ".jpg", ".jpeg", ".svg", ".webp");
@@ -115,7 +125,53 @@ public class SettingServiceImpl implements SettingService {
         return upsert(HOMEPAGE_LIMIT_KEY, String.valueOf(limit));
     }
 
+    // ── Contact / Social ─────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public SettingDTO.ContactSettings getContactSettings() {
+        return SettingDTO.ContactSettings.builder()
+                .phone(getValue(CONTACT_PHONE_KEY))
+                .phoneVisible(getBoolValue(CONTACT_PHONE_VISIBLE_KEY, true))
+                .email(getValue(CONTACT_EMAIL_KEY))
+                .emailVisible(getBoolValue(CONTACT_EMAIL_VISIBLE_KEY, true))
+                .tiktok(getValue(SOCIAL_TIKTOK_KEY))
+                .tiktokVisible(getBoolValue(SOCIAL_TIKTOK_VISIBLE_KEY, true))
+                .instagram(getValue(SOCIAL_INSTAGRAM_KEY))
+                .instagramVisible(getBoolValue(SOCIAL_INSTAGRAM_VISIBLE_KEY, true))
+                .telegram(getValue(SOCIAL_TELEGRAM_KEY))
+                .telegramVisible(getBoolValue(SOCIAL_TELEGRAM_VISIBLE_KEY, true))
+                .build();
+    }
+
+    @Override
+    public SettingDTO.ContactSettings updateContactSettings(SettingDTO.ContactSettings dto) {
+        upsert(CONTACT_PHONE_KEY,            dto.getPhone());
+        upsert(CONTACT_PHONE_VISIBLE_KEY,    String.valueOf(dto.isPhoneVisible()));
+        upsert(CONTACT_EMAIL_KEY,            dto.getEmail());
+        upsert(CONTACT_EMAIL_VISIBLE_KEY,    String.valueOf(dto.isEmailVisible()));
+        upsert(SOCIAL_TIKTOK_KEY,            dto.getTiktok());
+        upsert(SOCIAL_TIKTOK_VISIBLE_KEY,    String.valueOf(dto.isTiktokVisible()));
+        upsert(SOCIAL_INSTAGRAM_KEY,         dto.getInstagram());
+        upsert(SOCIAL_INSTAGRAM_VISIBLE_KEY, String.valueOf(dto.isInstagramVisible()));
+        upsert(SOCIAL_TELEGRAM_KEY,          dto.getTelegram());
+        upsert(SOCIAL_TELEGRAM_VISIBLE_KEY,  String.valueOf(dto.isTelegramVisible()));
+        return getContactSettings();
+    }
+
     // ── Shared helpers ────────────────────────────────────────────────────────
+
+    private String getValue(String key) {
+        return settingRepository.findByKey(key)
+                .map(AppSetting::getValue)
+                .orElse(null);
+    }
+
+    private boolean getBoolValue(String key, boolean defaultValue) {
+        return settingRepository.findByKey(key)
+                .map(s -> Boolean.parseBoolean(s.getValue()))
+                .orElse(defaultValue);
+    }
 
     private SettingDTO.Response getOrEmpty(String key) {
         return settingRepository.findByKey(key)
